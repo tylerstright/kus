@@ -72,6 +72,13 @@ background-image: none !important;
     margin:auto;
 }
 
+
+.mybutton{
+  background-color = #536878;
+  color = black;}
+
+
+
 h1{font-family: serif;
   font-size: 80px;
   font-style: italic;

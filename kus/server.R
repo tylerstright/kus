@@ -34,4 +34,15 @@ stream_name <- dbGetQuery(con, qry) %>%
   mutate(stream_trib = paste0(StreamName, ' : ', TributaryTo)) %>%
   select(Stream_ID, stream_trib)
 
+data <- pop_name
+
+output$downloadData <- downloadHandler(
+    filename = function() {
+      paste('sgs_data_', Sys.Date(), '.csv', sep='')
+    },
+    content = function(con) {
+      write.csv(data, con)
+    }
+  )
+
 })

@@ -45,35 +45,52 @@ shinyUI(
              navbarMenu("Fish Data",
                         tabPanel("Performance Measures"),
                         tabPanel("Spawning Ground Survey",
+                                 fluidPage(
+                                   fluidRow(
+                                     column(3,
+                                            radioButtons('sgs_data', h3("Dataset:"), inline = TRUE, choices = c('Redd Summary', "Spatial Redd Data", "Carcass Data"))
+                                            ),
+                                     column(3,
+                                            #checkboxInput(""),
+                                            checkboxGroupInput('sgs_spp', h3("Species:"),inline = TRUE, choices = unique(spp_name$SpeciesName))
+                                            #selectInput('sgs_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
+                                            ),
+                                     column(3,
+                                            checkboxGroupInput('sgs_run', h3("Run:"), inline = TRUE, choices = unique(spp_name$Run))                                            
+                                            ),
+                                     column(3,
+                                            div(style="display: inline-block;vertical-align:top; width: 1000px;",
+                                                sliderInput("sgs_year", h3("Survey Year:"), min = 1985, max = year(Sys.Date()),
+                                                        step = 1, value = c(1985, year(Sys.Date())),sep=''))
+                                            #dateRangeInput("sgs_dates", label = h3("Date Range")),                                            
+                                            )
+                                     ),
+                                   fluidRow(
+                                      column(4,
+                                            selectInput('sgs_mpg', h3("Major Populations:"), unique(pop_name$MPG), multiple=TRUE, selectize=FALSE)
+                                            ),
+                                      column(4,
+                                            selectInput('sgs_pop', h3("Populations:"), unique(pop_name$POP_NAME), multiple=TRUE, selectize=FALSE)
+                                            ),
+                                      column(4,
+                                            selectInput('sgs_stream', h3("Stream - Tributary To:"), stream_name$stream_trib, multiple=TRUE, selectize=FALSE) 
+                                            )
+                                      ),
+                                   fluidRow(
+                                     column(2, offset = 8, align = 'right',
+                                            actionButton("sgs_submit", label = "Submit Query", class = "mybutton")                                            
+                                            ),
+                                     column(2,
+                                            downloadButton("sgs_export", label = "Export .CSV File", class = "mybutton")#,
+                                            #tags$head(tags$style(".mybutton{background-color:#333;} .mybutton{color: #333;}"))
+                                            )
+                                      ),
+                                     hr()
+                                   ),
                                  tabsetPanel(
-                                   tabPanel("Graphical",
-                                            sidebarLayout(
-                                              sidebarPanel(
-                                                #checkboxInput(""),
-                                                sliderInput("sgs_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
-                                                #dateRangeInput("sgs_dates", label = h3("Date Range")),
-                                                checkboxGroupInput('sgs_spp', h3("Species"), choices = unique(spp_name$SpeciesName)),
-                                                checkboxGroupInput('sgs_run', h3("Run"), choices = unique(spp_name$Run)),
-                                                #selectInput('sgs_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('sgs_mpg', h3("Major Populations"), pop_name$MPG, multiple=TRUE, selectize=FALSE),
-                                                selectInput('sgs_pop', h3("Populations"), pop_name$POP_NAME, multiple=TRUE, selectize=FALSE),
-                                                selectInput('sgs_stream', h3("Stream : Tributary To"), stream_name$stream_trib, multiple=TRUE, selectize=FALSE),
-                                                actionButton("sgs_view", label = "View"),
-                                                actionButton("sgs_export", label = "Download .csv")
-                                              ),
-                                              mainPanel(
-                                                
-                                              )
-                                            )
+                                   tabPanel("Graphical"
                                   ),
-                                   tabPanel("Tabular",
-                                            sidebarLayout(
-                                              sidebarPanel(
-                                              ),
-                                              mainPanel(
-
-                                              )
-                                            )
+                                   tabPanel("Tabular"
                                   )
                                  )  
                         ),
