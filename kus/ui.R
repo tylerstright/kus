@@ -48,7 +48,9 @@ shinyUI(
                                  fluidPage(
                                    fluidRow(
                                      column(3,
-                                            radioButtons('sgs_data', h3("Dataset:"), inline = TRUE, choices = c('Redd Summary', "Spatial Redd Data", "Carcass Data"))
+                                            radioButtons('sgs_data', h3("Dataset:"), inline = TRUE,
+                                                         choiceNames = c('Redd Summary', "Redd Detail", "Carcass Data"),
+                                                         choiceValues = c('redd_summary', 'redd_detail', 'carcass_detail'))
                                             ),
                                      column(3,
                                             #checkboxInput(""),
@@ -59,8 +61,8 @@ shinyUI(
                                             checkboxGroupInput('sgs_run', h3("Run:"), inline = TRUE, choices = unique(spp_name$Run))                                            
                                             ),
                                      column(3,
-                                            sliderInput("sgs_year", h3("Survey Year:"), min = 1985, max = year(Sys.Date()),
-                                                        step = 1, value = c(1985, year(Sys.Date())),sep='')
+                                            sliderInput("sgs_year", h3("Survey Year:"), min = min(survey_yrs), max = max(survey_yrs),
+                                                        step = 1, value = c(min(survey_yrs), max(survey_yrs)),sep='')
                                             #dateRangeInput("sgs_dates", label = h3("Date Range")),                                            
                                             )
                                      ),
@@ -79,19 +81,23 @@ shinyUI(
                                      column(2, offset = 6, align = "center",
                                             actionButton("sgs_submit", label = "Submit Query", class = "mybutton")                                            
                                             ),
-                                     column(2, align = "center",
-                                            actionButton("sgs_clear", label = "Clear Query", class = "mybutton")
-                                            ),                                     
+                                     # column(2, align = "center",
+                                     #        actionButton("sgs_clear", label = "Clear Query", class = "mybutton")
+                                     #        ),                                     
                                      column(2, align = "center",
                                             downloadButton("sgs_export", label = "Export .CSV File", class = "mybutton")#,
                                             #tags$head(tags$style(".mybutton{background-color:#333;} .mybutton{color: #333;}"))
                                             ),
                                      hr()
                                    ),
+                                hr(),
                                  tabsetPanel(
-                                   tabPanel("Graphical"
+                                   tabPanel("Graphical",
+                                            plotOutput("sgs_timeseries")
                                   ),
-                                   tabPanel("Tabular"
+                                   tabPanel("Tabular",
+                                            tableOutput("sgs_table")
+                                            #tableOutput("sgs_table")
                                   )
                                  )
                           )
