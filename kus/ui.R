@@ -46,51 +46,29 @@ shinyUI(
                         tabPanel("Performance Measures"),
                         tabPanel("Spawning Ground Survey",
                                  tabsetPanel(
-                                   tabPanel("Redd Summary",
+                                   tabPanel("Graphical",
                                             sidebarLayout(
                                               sidebarPanel(
-                                                sliderInput("redd_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
-                                                #dateRangeInput("redd_dates", label = h3("Date Range")),
-                                                selectInput('redd_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('redd_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('redd_pop', h3("Populations"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('redd_stream', h3("Streams"), state.name, multiple=TRUE, selectize=FALSE),
-                                                actionButton("redd_view", label = "View"),
-                                                actionButton("redd_export", label = "Download .csv")
+                                                #checkboxInput(""),
+                                                sliderInput("sgs_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
+                                                #dateRangeInput("sgs_dates", label = h3("Date Range")),
+                                                checkboxGroupInput('sgs_spp', h3("Species"), choices = unique(spp_name$SpeciesName)),
+                                                checkboxGroupInput('sgs_run', h3("Run"), choices = unique(spp_name$Run)),
+                                                #selectInput('sgs_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
+                                                selectInput('sgs_mpg', h3("Major Populations"), pop_name$MPG, multiple=TRUE, selectize=FALSE),
+                                                selectInput('sgs_pop', h3("Populations"), pop_name$POP_NAME, multiple=TRUE, selectize=FALSE),
+                                                selectInput('sgs_stream', h3("Stream : Tributary To"), stream_name$stream_trib, multiple=TRUE, selectize=FALSE),
+                                                actionButton("sgs_view", label = "View"),
+                                                actionButton("sgs_export", label = "Download .csv")
                                               ),
                                               mainPanel(
                                                 
                                               )
                                             )
                                   ),
-                                   tabPanel("Redd Detail",
+                                   tabPanel("Tabular",
                                             sidebarLayout(
                                               sidebarPanel(
-                                                sliderInput("rdetail_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
-                                                #dateRangeInput("rdetail_dates", label = h3("Date Range")),
-                                                selectInput('rdetail_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('rdetail_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('rdetail_pop', h3("Populations"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('rdetail_stream', h3("Streams"), state.name, multiple=TRUE, selectize=FALSE),
-                                                actionButton("rdetail_view", label = "View"),
-                                                actionButton("rdetail_export", label = "Download .csv")
-                                              ),
-                                              mainPanel(
-
-                                              )
-                                            )
-                                  ),
-                                   tabPanel("Carcass Detail",
-                                            sidebarLayout(
-                                              sidebarPanel(
-                                                sliderInput("car_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
-                                                #dateRangeInput("car_dates", label = h3("Date Range")),
-                                                selectInput('car_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('car_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('car_pop', h3("Populations"), state.name, multiple=TRUE, selectize=FALSE),
-                                                selectInput('car_stream', h3("Streams"), state.name, multiple=TRUE, selectize=FALSE),
-                                                actionButton("car_view", label = "View"),
-                                                actionButton("car_export", label = "Download .csv")
                                               ),
                                               mainPanel(
 
