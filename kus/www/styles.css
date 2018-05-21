@@ -14,7 +14,8 @@ body {
 }
 
 .navbar-fixed-top {
-  position: static;
+  position: fixed;
+  top: 15px;
   margin-bottom: 20px;
   background-color: #36454f !important;
 }
@@ -31,6 +32,15 @@ color: #fff !important;
 background-color:#536872 !important;
 background-image: none !important;
 }
+
+
+.tabbable > .nav > li > a {background-color: #36454f;  color:grey}
+.tabbable > .nav > li[class=active]    > a {background-color: #536872	; color:#fff}
+/*    .tabbable > .nav > li > a[data-value='t1'] {background-color: red;   color:white}
+    .tabbable > .nav > li > a[data-value='t2'] {background-color: blue;  color:white}
+    .tabbable > .nav > li > a[data-value='t3'] {background-color: green; color:white}
+*/
+
 
 #header-id{
   font-family: serif;
@@ -63,7 +73,7 @@ background-image: none !important;
 }
 
 h1{font-family: serif;
-  font-size: 100px;
+  font-size: 80px;
   font-style: italic;
   font-weight: bold;
   color: #36454f;}

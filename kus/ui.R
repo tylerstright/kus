@@ -13,8 +13,8 @@ library(lubridate)
 
 # Define UI for application that draws a histogram
 shinyUI(
-  navbarPage(title = div(div(id = "header-id", "Department of Fisheries Resources Management"),
-                         div(id = 'logo-id',img(src="NPTlogos2.png", height = 60)),
+  navbarPage(title = div(#div(id = "header-id", "KUS: DFRM Fisheries Data"),
+                         div(id = 'logo-id',img(src="NPTlogos2.png", height = 70)),
                          tags$a("DFRM Home",href = 'http://www.nptfisheries.org')),
              id = "kus_navbar",
              windowTitle = "DFRM-Kus",
@@ -30,7 +30,7 @@ shinyUI(
                       fluidPage(
                         fluidRow(
                           column(12,
-                                 h1("Kus: Nimiipuu for water"),
+                                 h1("Department of Fisheries Resources Management"),
                                  align = "center"
                           )
                         ),
@@ -50,7 +50,7 @@ shinyUI(
                                             sidebarLayout(
                                               sidebarPanel(
                                                 sliderInput("redd_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
-                                                dateRangeInput("redd_dates", label = h3("Date Range")),
+                                                #dateRangeInput("redd_dates", label = h3("Date Range")),
                                                 selectInput('redd_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('redd_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('redd_pop', h3("Populations"), state.name, multiple=TRUE, selectize=FALSE),
@@ -67,7 +67,7 @@ shinyUI(
                                             sidebarLayout(
                                               sidebarPanel(
                                                 sliderInput("rdetail_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
-                                                dateRangeInput("rdetail_dates", label = h3("Date Range")),
+                                                #dateRangeInput("rdetail_dates", label = h3("Date Range")),
                                                 selectInput('rdetail_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('rdetail_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('rdetail_pop', h3("Populations"), state.name, multiple=TRUE, selectize=FALSE),
@@ -84,7 +84,7 @@ shinyUI(
                                             sidebarLayout(
                                               sidebarPanel(
                                                 sliderInput("car_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
-                                                dateRangeInput("car_dates", label = h3("Date Range")),
+                                                #dateRangeInput("car_dates", label = h3("Date Range")),
                                                 selectInput('car_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('car_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('car_pop', h3("Populations"), state.name, multiple=TRUE, selectize=FALSE),
