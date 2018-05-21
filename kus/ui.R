@@ -59,9 +59,8 @@ shinyUI(
                                             checkboxGroupInput('sgs_run', h3("Run:"), inline = TRUE, choices = unique(spp_name$Run))                                            
                                             ),
                                      column(3,
-                                            div(style="display: inline-block;vertical-align:top; width: 1000px;",
-                                                sliderInput("sgs_year", h3("Survey Year:"), min = 1985, max = year(Sys.Date()),
-                                                        step = 1, value = c(1985, year(Sys.Date())),sep=''))
+                                            sliderInput("sgs_year", h3("Survey Year:"), min = 1985, max = year(Sys.Date()),
+                                                        step = 1, value = c(1985, year(Sys.Date())),sep='')
                                             #dateRangeInput("sgs_dates", label = h3("Date Range")),                                            
                                             )
                                      ),
@@ -77,14 +76,16 @@ shinyUI(
                                             )
                                       ),
                                    fluidRow(
-                                     column(2, offset = 8, align = 'right',
+                                     column(2, offset = 6, align = "center",
                                             actionButton("sgs_submit", label = "Submit Query", class = "mybutton")                                            
                                             ),
-                                     column(2,
+                                     column(2, align = "center",
+                                            actionButton("sgs_clear", label = "Clear Query", class = "mybutton")
+                                            ),                                     
+                                     column(2, align = "center",
                                             downloadButton("sgs_export", label = "Export .CSV File", class = "mybutton")#,
                                             #tags$head(tags$style(".mybutton{background-color:#333;} .mybutton{color: #333;}"))
-                                            )
-                                      ),
+                                            ),
                                      hr()
                                    ),
                                  tabsetPanel(
@@ -92,7 +93,8 @@ shinyUI(
                                   ),
                                    tabPanel("Tabular"
                                   )
-                                 )  
+                                 )
+                          )
                         ),
                         tabPanel("Adult Weir"),
                         tabPanel("Rotary Screw Trap"),
