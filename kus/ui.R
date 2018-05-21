@@ -49,6 +49,7 @@ shinyUI(
                                    tabPanel("Redd Summary",
                                             sidebarLayout(
                                               sidebarPanel(
+                                                sliderInput("redd_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
                                                 dateRangeInput("redd_dates", label = h3("Date Range")),
                                                 selectInput('redd_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('redd_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
@@ -65,6 +66,7 @@ shinyUI(
                                    tabPanel("Redd Detail",
                                             sidebarLayout(
                                               sidebarPanel(
+                                                sliderInput("rdetail_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
                                                 dateRangeInput("rdetail_dates", label = h3("Date Range")),
                                                 selectInput('rdetail_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('rdetail_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
@@ -81,6 +83,7 @@ shinyUI(
                                    tabPanel("Carcass Detail",
                                             sidebarLayout(
                                               sidebarPanel(
+                                                sliderInput("car_year", h3("Survey Year"), min = 1985, max = year(Sys.Date()),step = 1, value = c(1985, year(Sys.Date())),sep=''),
                                                 dateRangeInput("car_dates", label = h3("Date Range")),
                                                 selectInput('car_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
                                                 selectInput('car_mpg', h3("Major Populations"), state.name, multiple=TRUE, selectize=FALSE),
