@@ -94,8 +94,9 @@ shinyUI(
                                 hr(),
                                  tabsetPanel(
                                    tabPanel("Graphical",
-                                            plotOutput("sgs_timeseries"),
-                                            textOutput("spp_test")
+                                            #textOutput("spp_test"),
+                                            plotOutput("sgs_timeseries")
+
                                   ),
                                    tabPanel("Tabular",
                                             tableOutput("sgs_table")

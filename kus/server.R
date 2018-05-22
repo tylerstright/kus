@@ -80,27 +80,7 @@ spp_code <- reactive({
    selectInput('sgs_stream', h3("Stream : TributaryTo"), stream_codes(), multiple=TRUE, selectize=FALSE)
  }) 
  
-output$spp_test <- renderPrint({
-  #mpg_codes()
-  stream_codes()
-})
-
-
-# })
-
-# 
-# qry <- "SELECT Mgmt_ID, Species, Run, SpeciesRun_Code, ESU_DPS, MPG, POP_NAME FROM dbo.tbl_MgmtDesignation ORDER BY POP_NAME"
-# pop_name <- dbGetQuery(con, qry)
-# 
-# qry <- "SELECT DISTINCT Stream_ID, StreamName, TributaryTo FROM dbo.tbl_Streams ORDER BY StreamName"
-# stream_name <- dbGetQuery(con, qry) %>%
-#   mutate(stream_trib = paste0(StreamName, ' : ', TributaryTo)) %>%
-#   select(Stream_ID, stream_trib)
-# 
-# qry <- "SELECT DISTINCT YEAR(SurveyDate) FROM dbo.tbl_SurveyInfo"
-# survey_yrs <- na.omit(dbGetQuery(con, qry))
-
-
+ 
 # gather sgs input values
 sgs_df <- eventReactive(input$sgs_submit, {
   
@@ -109,29 +89,39 @@ sgs_df <- eventReactive(input$sgs_submit, {
 #          redd_summary = 'Redd Summary',
 #          carcass_summary = 'Carcass Data')
   # tmp_table <- input$sgs_data
-  # tmp_spp <- input$sgs_spp
-  # tmp_run <- input$sgs_run
-  # tmp_year <- input$sgs_year
-  # tmp_mpg <- input$sgs_mpg
-  # tmp_pop <- input$sgs_pop
-  # tmp_stream <- input$sgs_stream
   
-  #dfset <- "redd_detail"
-  #spp <- "Chinook salmon"
-  qry <- paste0("SELECT * FROM dbo.",input$sgs_data," WHERE SpeciesName = '",input$sgs_spp,"' AND
-                SurveyYear BETWEEN ",input$sgs_year[1], " AND ", input$sgs_year[2])
-  #qry <- paste0("SELECT * FROM dbo.",dfset," WHERE SpeciesName = '",spp,"' AND SurveyYear = 2017")
+  tmp_spp <- gsub(", ", "', '", toString(input$sgs_spp))
+  tmp_run <- gsub(", ", "', '", toString(input$sgs_run))
+  #tmp_year <- gsub(", ", "', '", toString(input$sgs_year))
+  tmp_mpg <- gsub(", ", "', '", toString(input$sgs_mpg))
+  tmp_pop <- gsub(", ", "', '", toString(input$sgs_pop))
+  tmp_stream <- gsub(", ", "', '", toString(input$sgs_stream))
+  
+  # qry <- paste0("SELECT * FROM dbo.",input$sgs_data,
+  #             " WHERE SpeciesName = '",input$sgs_spp,"' AND Run = '", input$sgs_run,
+  #             "' AND SurveyYear BETWEEN ",input$sgs_year[1], " AND ", input$sgs_year[2],
+  #             " AND StreamName IN('", tmp_stream,"')")
+  
+  qry <- paste0("SELECT * FROM dbo.redd_summary WHERE SpeciesName = '",tmp_spp,"' AND
+                RUN = '", tmp_run ,"' AND SurveyYear Between 1986 AND 2017")
+  #qry <- paste0("SELECT SpeciesName FROM dbo.redd_summary WHERE SpeciesName = 'Chinook salmon' AND SurveyYear = 2017")
   dbGetQuery(con, qry)
 })
 
+# output$spp_test <- renderPrint({
+#   #spp_codes()
+#   #stream_codes()
+#   input$sgs_spp
+# })
+
+
 output$sgs_timeseries <- renderPlot({
   sgs_df() %>%
-    group_by(Species, Run, StreamName, TributaryTo, SurveyYear) %>%
+    group_by(SpeciesName, Run, StreamName, TributaryTo, SurveyYear) %>%
     summarise(total = sum(NewReddCount)) %>%
-    ggplot(aes(x = SurveyYear, y = total, group = StreamName)) +
+    ggplot(aes(x = SurveyYear, y = total,colour = StreamName, group = StreamName)) +
     geom_line() +
-    geom_point() +
-    facet_grid(Species~Run)
+    geom_point()
 })
 
 output$sgs_table <- renderTable({
