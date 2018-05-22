@@ -99,7 +99,7 @@ shinyUI(
 
                                   ),
                                    tabPanel("Tabular",
-                                            tableOutput("sgs_table")
+                                            DT::dataTableOutput("sgs_table")
                                             #tableOutput("sgs_table")
                                   )
                                  )

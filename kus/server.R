@@ -104,28 +104,48 @@ sgs_df <- eventReactive(input$sgs_submit, {
   
   qry <- paste0("SELECT * FROM dbo.redd_summary WHERE SpeciesName = '",tmp_spp,"' AND
                 RUN = '", tmp_run ,"' AND SurveyYear Between 1986 AND 2017")
+  
+  # qry <- paste0("SELECT * FROM dbo.redd_summary WHERE SpeciesName = '",tmp_spp,"' AND
+  #               RUN = '", tmp_run ,"' AND SurveyYear = 2017")
+  
   #qry <- paste0("SELECT SpeciesName FROM dbo.redd_summary WHERE SpeciesName = 'Chinook salmon' AND SurveyYear = 2017")
   dbGetQuery(con, qry)
 })
 
-# output$spp_test <- renderPrint({
-#   #spp_codes()
-#   #stream_codes()
-#   input$sgs_spp
-# })
+output$spp_test <- renderPrint({
+  #spp_codes()
+  #stream_codes()
+  input$sgs_spp
+})
 
 
 output$sgs_timeseries <- renderPlot({
+  
+  if(input$sgs_data == 'redd_summary'){
   sgs_df() %>%
     group_by(SpeciesName, Run, StreamName, TributaryTo, SurveyYear) %>%
     summarise(total = sum(NewReddCount)) %>%
     ggplot(aes(x = SurveyYear, y = total,colour = StreamName, group = StreamName)) +
     geom_line() +
-    geom_point()
+    geom_point() +
+    theme_bw() +
+    labs(x = 'Survey Year',
+         y = 'Total Redds',
+         title = 'Total redds counted by Nez Perce Tribe during multiple pass surveys'
+         )
+  }
+  
+  # if(input$sgs_data == 'redd_detail'){
+  #   ggplot()
+  # }
+  
+  
+    
 })
 
-output$sgs_table <- renderTable({
-  sgs_df()
+output$sgs_table <- DT::renderDataTable({
+  tmp_df <- sgs_df()
+  DT::datatable(tmp_df, options = list(orderClasses = TRUE))
 })
 
 # function for downloading data
