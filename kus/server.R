@@ -24,19 +24,81 @@ con <- dbConnect(odbc(),
                  UID = "guest",
                  PWD = "guest")
 
-qry <- "SELECT DISTINCT Species_ID, SpeciesName, Run, SpeciesCode FROM dbo.luptbl_Species ORDER BY SpeciesName"
-spp_name <- dbGetQuery(con, qry)
+spp_code <- reactive({
+  qry <- paste0("SELECT DISTINCT SpeciesCode FROM dbo.luptbl_Species WHERE SpeciesName = '", input$sgs_spp, "' AND Run = '", input$sgs_run, "'")#input$sgs_spp)
 
-qry <- "SELECT Mgmt_ID, Species, Run, SpeciesRun_Code, ESU_DPS, MPG, POP_NAME FROM dbo.tbl_MgmtDesignation ORDER BY POP_NAME"
-pop_name <- dbGetQuery(con, qry)
+    dbGetQuery(con, qry) %>%
+    pull()
+})
 
-qry <- "SELECT DISTINCT Stream_ID, StreamName, TributaryTo FROM dbo.tbl_Streams ORDER BY StreamName"
-stream_name <- dbGetQuery(con, qry) %>%
-  mutate(stream_trib = paste0(StreamName, ' : ', TributaryTo)) %>%
-  select(Stream_ID, stream_trib)
+#isolate({
+  mpg_codes <- reactive({
+   qry <- paste0("SELECT DISTINCT MPG FROM dbo.tbl_MgmtDesignation WHERE SpeciesRun_Code = '", spp_code(),"'")
 
-qry <- "SELECT DISTINCT YEAR(SurveyDate) FROM dbo.tbl_SurveyInfo"
-survey_yrs <- na.omit(dbGetQuery(con, qry))
+   dbGetQuery(con, qry) %>%
+             pull(MPG)
+})
+#  mpg_codes()
+# })
+   
+ output$mpg_menu <- renderUI({ 
+   #tmp_names <- mpg_codes()
+   selectInput('sgs_mpg', h3("Major Populations:"), mpg_codes(), multiple=TRUE, selectize=FALSE)
+})
+
+ pop_codes <- reactive({
+   
+   mpg_qry <- gsub(", ", "', '", toString(mpg_codes()))
+   
+   qry <- paste0("SELECT DISTINCT POP_NAME FROM dbo.tbl_MgmtDesignation WHERE MPG IN ('", mpg_qry,"')")
+   
+   dbGetQuery(con, qry) %>%
+     pull(POP_NAME)
+ })
+ 
+ 
+ output$pop_menu <- renderUI({ 
+   #tmp_names <- pop_codes()
+   selectInput('sgs_pop', h3("Populations:"), pop_codes(), multiple=TRUE, selectize=FALSE)
+ }) 
+ 
+ 
+ stream_codes <- reactive({
+   
+   pop_qry <- gsub(", ", "', '", toString(pop_codes()))
+   
+   qry <- paste0("SELECT DISTINCT StreamName, TributaryTo FROM dbo.transect_metadata WHERE POP_NAME IN ('", pop_qry,"')")
+   
+   dbGetQuery(con, qry) %>%
+     mutate(stream = paste0(StreamName, " : ", TributaryTo)) %>%
+     pull(stream)
+ })
+ 
+ 
+ output$stream_menu <- renderUI({ 
+   #tmp_names <- pop_codes()
+   selectInput('sgs_stream', h3("Stream : TributaryTo"), stream_codes(), multiple=TRUE, selectize=FALSE)
+ }) 
+ 
+output$spp_test <- renderPrint({
+  #mpg_codes()
+  stream_codes()
+})
+
+
+# })
+
+# 
+# qry <- "SELECT Mgmt_ID, Species, Run, SpeciesRun_Code, ESU_DPS, MPG, POP_NAME FROM dbo.tbl_MgmtDesignation ORDER BY POP_NAME"
+# pop_name <- dbGetQuery(con, qry)
+# 
+# qry <- "SELECT DISTINCT Stream_ID, StreamName, TributaryTo FROM dbo.tbl_Streams ORDER BY StreamName"
+# stream_name <- dbGetQuery(con, qry) %>%
+#   mutate(stream_trib = paste0(StreamName, ' : ', TributaryTo)) %>%
+#   select(Stream_ID, stream_trib)
+# 
+# qry <- "SELECT DISTINCT YEAR(SurveyDate) FROM dbo.tbl_SurveyInfo"
+# survey_yrs <- na.omit(dbGetQuery(con, qry))
 
 
 # gather sgs input values

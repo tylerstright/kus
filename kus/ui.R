@@ -54,27 +54,28 @@ shinyUI(
                                             ),
                                      column(3,
                                             #checkboxInput(""),
-                                            checkboxGroupInput('sgs_spp', h3("Species:"),inline = TRUE, choices = unique(spp_name$SpeciesName))
+                                            radioButtons('sgs_spp', h3("Species:"),inline = TRUE, choices = c("Chinook salmon", "Steelhead", "Bull trout"))
+                                            #checkboxGroupInput('sgs_spp', h3("Species:"),inline = TRUE, choices = c("Chinook salmon", "Steelhead", "Bull trout"))
                                             #selectInput('sgs_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
                                             ),
                                      column(3,
-                                            checkboxGroupInput('sgs_run', h3("Run:"), inline = TRUE, choices = unique(spp_name$Run))                                            
+                                            radioButtons('sgs_run', h3("Run:"), inline = TRUE, choices = c("Spring/Summer", "Summer", "Fall"))                                            
                                             ),
                                      column(3,
-                                            sliderInput("sgs_year", h3("Survey Year:"), min = min(survey_yrs), max = max(survey_yrs),
-                                                        step = 1, value = c(min(survey_yrs), max(survey_yrs)),sep='')
+                                            sliderInput("sgs_year", h3("Survey Year:"), min = 1986, max = 2017,
+                                                        step = 1, value = c(1986, 2017),sep='')
                                             #dateRangeInput("sgs_dates", label = h3("Date Range")),                                            
                                             )
                                      ),
                                    fluidRow(
                                       column(4,
-                                            selectInput('sgs_mpg', h3("Major Populations:"), unique(pop_name$MPG), multiple=TRUE, selectize=FALSE)
+                                             uiOutput("mpg_menu")
                                             ),
                                       column(4,
-                                            selectInput('sgs_pop', h3("Populations:"), unique(pop_name$POP_NAME), multiple=TRUE, selectize=FALSE)
+                                            uiOutput("pop_menu")
                                             ),
                                       column(4,
-                                            selectInput('sgs_stream', h3("Stream - Tributary To:"), stream_name$stream_trib, multiple=TRUE, selectize=FALSE) 
+                                            uiOutput("stream_menu")
                                             )
                                       ),
                                    fluidRow(
@@ -87,13 +88,14 @@ shinyUI(
                                      column(2, align = "center",
                                             downloadButton("sgs_export", label = "Export .CSV File", class = "mybutton")#,
                                             #tags$head(tags$style(".mybutton{background-color:#333;} .mybutton{color: #333;}"))
-                                            ),
-                                     hr()
+                                            )#,
+                                     #hr()
                                    ),
                                 hr(),
                                  tabsetPanel(
                                    tabPanel("Graphical",
-                                            plotOutput("sgs_timeseries")
+                                            plotOutput("sgs_timeseries"),
+                                            textOutput("spp_test")
                                   ),
                                    tabPanel("Tabular",
                                             tableOutput("sgs_table")
