@@ -34,7 +34,7 @@ spp_code <- reactive({
 
 #isolate({
   mpg_codes <- reactive({
-   qry <- paste0("SELECT DISTINCT MPG FROM dbo.tbl_MgmtDesignation WHERE SpeciesRun_Code = '", spp_code(),"'")
+   qry <- paste0("SELECT DISTINCT MPG, POP_NAME FROM dbo.tbl_MgmtDesignation WHERE SpeciesRun_Code = '", spp_code(),"'")
 
    dbGetQuery(con, qry) %>%
              pull(MPG)
@@ -49,7 +49,7 @@ spp_code <- reactive({
 
  pop_codes <- reactive({
    
-   mpg_qry <- gsub(", ", "', '", toString(mpg_codes()))
+   mpg_qry <- gsub(", ", "', '", toString(input$sgs_mpg))
    
    qry <- paste0("SELECT DISTINCT POP_NAME FROM dbo.tbl_MgmtDesignation WHERE MPG IN ('", mpg_qry,"')")
    
@@ -66,7 +66,7 @@ spp_code <- reactive({
  
  stream_codes <- reactive({
    
-   pop_qry <- gsub(", ", "', '", toString(pop_codes()))
+   pop_qry <- gsub(", ", "', '", toString(input$sgs_pop))
    
    qry <- paste0("SELECT DISTINCT StreamName, TributaryTo FROM dbo.transect_metadata WHERE POP_NAME IN ('", pop_qry,"')")
    
