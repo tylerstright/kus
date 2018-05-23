@@ -79,7 +79,10 @@ shinyUI(
                                             )
                                       ),
                                    fluidRow(
-                                     column(2, offset = 6, align = "center",
+                                     column(6,
+                                            helpText("Select at least one Major Population, Population and Stream : TributaryTo Combination")
+                                            ),
+                                     column(2, offset = 2, align = "center",
                                             actionButton("sgs_submit", label = "Submit Query", class = "mybutton")                                            
                                             ),
                                      # column(2, align = "center",
@@ -94,7 +97,7 @@ shinyUI(
                                 hr(),
                                  tabsetPanel(
                                    tabPanel("Graphical",
-                                            textOutput("spp_test"),
+                                            #textOutput("spp_test"),
                                             plotOutput("sgs_plot")
 
                                   ),

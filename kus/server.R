@@ -93,8 +93,8 @@ sgs_df <- eventReactive(input$sgs_submit, {
   tmp_spp <- gsub(", ", "', '", toString(input$sgs_spp))
   tmp_run <- gsub(", ", "', '", toString(input$sgs_run))
   #tmp_year <- gsub(", ", "', '", toString(input$sgs_year))
-  tmp_mpg <- gsub(", ", "', '", toString(input$sgs_mpg))
-  tmp_pop <- gsub(", ", "', '", toString(input$sgs_pop))
+  tmp_mpg <- gsub(", ", "', '", toString(str_replace(input$sgs_mpg, " :.*", "")))
+  tmp_pop <- gsub(", ", "', '", toString(str_replace(input$sgs_pop, " :.*", "")))
   tmp_stream <- gsub(", ", "', '", toString(str_replace(input$sgs_stream, " :.*", "")))
 
   # stream <- c("Imnaha River, Grande Ronde River")
@@ -112,7 +112,7 @@ sgs_df <- eventReactive(input$sgs_submit, {
   qry <- paste0("SELECT * FROM dbo.",tmp_data,
               " WHERE SpeciesName = '",tmp_spp,"' AND Run = '", tmp_run,
               "' AND SurveyYear BETWEEN ",input$sgs_year[1], " AND ", input$sgs_year[2],
-              " AND StreamName IN('", tmp_stream,"')")
+              " AND MPG IN('", tmp_mpg, "') AND POP_NAME IN ('", tmp_pop, "') AND StreamName IN('", tmp_stream,"')")
   
    # qry <- paste0("SELECT * FROM dbo.redd_summary WHERE SpeciesName = '",tmp_spp,"' AND
    #               RUN = '", tmp_run ,"' AND SurveyYear Between 1986 AND 2017")
