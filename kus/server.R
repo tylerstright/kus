@@ -34,7 +34,7 @@ spp_code <- reactive({
 
 #isolate({
   mpg_codes <- reactive({
-   qry <- paste0("SELECT DISTINCT MPG, POP_NAME FROM dbo.tbl_MgmtDesignation WHERE SpeciesRun_Code = '", spp_code(),"'")
+   qry <- paste0("SELECT DISTINCT MPG FROM dbo.tbl_MgmtDesignation WHERE SpeciesRun_Code = '", spp_code(),"'")
 
    dbGetQuery(con, qry) %>%
              pull(MPG)
@@ -134,50 +134,55 @@ output$spp_test <- renderPrint({
   
 })
 
-
-
-#if(input$sgs_data == 'redd_summary'){
-output$sgs_plot <- renderPlot({
   
-  sgs_df() %>%
-    group_by(SpeciesName, Run, StreamName, TributaryTo, SurveyYear) %>%
-    summarise(total = sum(NewReddCount)) %>%
-    ggplot(aes(x = SurveyYear, y = total,colour = StreamName, group = StreamName)) +
-    geom_line() +
-    geom_point() +
-    theme_bw() +
-    labs(x = 'Survey Year',
-         y = 'Total Redds',
-         title = 'Total redds counted by Nez Perce Tribe during multiple pass surveys'
-         )
-  
-    })  
-#  }
-#   
-# if(input$sgs_data == 'redd_detail'){
-#      output$sgs_plot <- renderLeaflet({
-#   
-#   leaflet() %>%
-#     fitBounds(-117.5, 43, -113, 47.8) %>%
-#     addProviderTiles(providers$Esri.NatGeoWorldMap)
-#     })
-#    }
-  
+    output$redd_sum_plot <- renderPlot({
+        validate(need(input$sgs_data=="redd_summary", message=FALSE))
 
+      sgs_df() %>%
+        group_by(SpeciesName, Run, StreamName, TributaryTo, SurveyYear) %>%
+        summarise(total = sum(NewReddCount)) %>%
+        ggplot(aes(x = SurveyYear, y = total,colour = StreamName, group = StreamName)) +
+        geom_line() +
+        geom_point() +
+        theme_bw() +
+        labs(x = 'Survey Year',
+             y = 'Total Redds',
+             title = 'Total redds counted by Nez Perce Tribe during multiple pass surveys'
+        )
+    })
+
+    output$redd_detail_plot <- renderLeaflet({
+      validate(need(input$sgs_data=="redd_detail", message=FALSE))
+      
+      tmp_redd_detail <- sgs_df() %>%
+        mutate(Longitude = as.numeric(Longitude),
+               Latitude = as.numeric(Latitude))
+      
+      #long_rng <- range(tmp_redd_detail$Longitude)
+      #lat_rng <- range(tmp_redd_detail$Latitude)
+      
+      leaflet() %>%
+        fitBounds(-117.5, 43, -113, 47.8) %>%
+        #fitBounds(long_rng[1], lat_rng[1], long_rng[2], lat_rng[2]) %>%        
+        addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+        addCircles(data = tmp_redd_detail, lng = ~Longitude, lat = ~Latitude, color = 'SurveyYear')
+    })
 
 output$sgs_table <- DT::renderDataTable({
   tmp_df <- sgs_df()
   DT::datatable(tmp_df, options = list(orderClasses = TRUE))
 })
 
+
 # function for downloading data
-output$sgs_export <- downloadHandler(
+output$downloadData <- downloadHandler(
   filename = function() {
     paste0(input$sgs_data,"_", Sys.Date(), "_.csv")
   },
-  content = function(filename) {
-    write.csv(sgs_df(), filename, row.names = FALSE)
-  }
+  content = function(file) {
+    write.csv(sgs_df(), file, row.names = FALSE)
+  },
+  contentType = "text/csv"
 )
 
 

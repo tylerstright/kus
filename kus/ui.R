@@ -98,7 +98,10 @@ shinyUI(
                                  tabsetPanel(
                                    tabPanel("Graphical",
                                             #textOutput("spp_test"),
-                                            plotOutput("sgs_plot")
+                                            conditionalPanel('input.sgs_data=="redd_summary"', plotOutput("redd_sum_plot")),
+                                            conditionalPanel('input.sgs_data=="redd_detail"', leafletOutput("redd_detail_plot"))
+                                            #leafletOutput("redd_detail_plot"),
+                                            #plotOutput("redd_sum_plot")
 
                                   ),
                                    tabPanel("Tabular",
