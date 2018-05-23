@@ -12,6 +12,7 @@ library(tidyverse)
 library(lubridate)
 library(DBI)
 library(odbc)
+library(leaflet)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -74,7 +75,6 @@ spp_code <- reactive({
      pull(stream)
  })
  
- 
  output$stream_menu <- renderUI({ 
    #tmp_names <- pop_codes()
    selectInput('sgs_stream', h3("Stream : TributaryTo"), stream_codes(), multiple=TRUE, selectize=FALSE)
@@ -89,39 +89,56 @@ sgs_df <- eventReactive(input$sgs_submit, {
 #          redd_summary = 'Redd Summary',
 #          carcass_summary = 'Carcass Data')
   # tmp_table <- input$sgs_data
-  
+  tmp_data <- input$sgs_data
   tmp_spp <- gsub(", ", "', '", toString(input$sgs_spp))
   tmp_run <- gsub(", ", "', '", toString(input$sgs_run))
   #tmp_year <- gsub(", ", "', '", toString(input$sgs_year))
   tmp_mpg <- gsub(", ", "', '", toString(input$sgs_mpg))
   tmp_pop <- gsub(", ", "', '", toString(input$sgs_pop))
-  tmp_stream <- gsub(", ", "', '", toString(input$sgs_stream))
+  tmp_stream <- gsub(", ", "', '", toString(str_replace(input$sgs_stream, " :.*", "")))
+
+  # stream <- c("Imnaha River, Grande Ronde River")
+  # tmp_data <- "redd_summary"
+  # tmp_spp <- "Chinook salmon"
+  # tmp_run <- "Fall"
+  # tmp_mpg <- "Snake River"
+  # tmp_pop <- "Snake River Lower Mainstem"
+  # tmp_stream <- gsub(", ", "', '", toString(stream))
+  # tmp_year <- c(1986, 2017)
+
+  # tmp <- "stream : tribto"
+  # str_split(tmp, " : ")[[1]][1]
   
-  # qry <- paste0("SELECT * FROM dbo.",input$sgs_data,
-  #             " WHERE SpeciesName = '",input$sgs_spp,"' AND Run = '", input$sgs_run,
-  #             "' AND SurveyYear BETWEEN ",input$sgs_year[1], " AND ", input$sgs_year[2],
-  #             " AND StreamName IN('", tmp_stream,"')")
+  qry <- paste0("SELECT * FROM dbo.",tmp_data,
+              " WHERE SpeciesName = '",tmp_spp,"' AND Run = '", tmp_run,
+              "' AND SurveyYear BETWEEN ",input$sgs_year[1], " AND ", input$sgs_year[2],
+              " AND StreamName IN('", tmp_stream,"')")
   
-  qry <- paste0("SELECT * FROM dbo.redd_summary WHERE SpeciesName = '",tmp_spp,"' AND
-                RUN = '", tmp_run ,"' AND SurveyYear Between 1986 AND 2017")
+   # qry <- paste0("SELECT * FROM dbo.redd_summary WHERE SpeciesName = '",tmp_spp,"' AND
+   #               RUN = '", tmp_run ,"' AND SurveyYear Between 1986 AND 2017")
   
   # qry <- paste0("SELECT * FROM dbo.redd_summary WHERE SpeciesName = '",tmp_spp,"' AND
   #               RUN = '", tmp_run ,"' AND SurveyYear = 2017")
   
   #qry <- paste0("SELECT SpeciesName FROM dbo.redd_summary WHERE SpeciesName = 'Chinook salmon' AND SurveyYear = 2017")
+  #tmp_df <- dbGetQuery(con, qry)
   dbGetQuery(con, qry)
 })
 
 output$spp_test <- renderPrint({
   #spp_codes()
   #stream_codes()
-  input$sgs_spp
+  #input$sgs_spp
+  str_replace(input$sgs_stream, " :.*", "")
+  #str_split(input$sgs_stream," : ")[[1]][1]
+  
 })
 
 
-output$sgs_timeseries <- renderPlot({
+
+#if(input$sgs_data == 'redd_summary'){
+output$sgs_plot <- renderPlot({
   
-  if(input$sgs_data == 'redd_summary'){
   sgs_df() %>%
     group_by(SpeciesName, Run, StreamName, TributaryTo, SurveyYear) %>%
     summarise(total = sum(NewReddCount)) %>%
@@ -133,15 +150,20 @@ output$sgs_timeseries <- renderPlot({
          y = 'Total Redds',
          title = 'Total redds counted by Nez Perce Tribe during multiple pass surveys'
          )
-  }
   
-  # if(input$sgs_data == 'redd_detail'){
-  #   ggplot()
-  # }
+    })  
+#  }
+#   
+# if(input$sgs_data == 'redd_detail'){
+#      output$sgs_plot <- renderLeaflet({
+#   
+#   leaflet() %>%
+#     fitBounds(-117.5, 43, -113, 47.8) %>%
+#     addProviderTiles(providers$Esri.NatGeoWorldMap)
+#     })
+#    }
   
-  
-    
-})
+
 
 output$sgs_table <- DT::renderDataTable({
   tmp_df <- sgs_df()
@@ -153,8 +175,8 @@ output$sgs_export <- downloadHandler(
   filename = function() {
     paste0(input$sgs_data,"_", Sys.Date(), "_.csv")
   },
-  content = function(file) {
-    write.csv(sgs_df(), file, row.names = FALSE)
+  content = function(filename) {
+    write.csv(sgs_df(), filename, row.names = FALSE)
   }
 )
 
