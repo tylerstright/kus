@@ -10,6 +10,7 @@
 library(shiny)
 library(tidyverse)
 library(lubridate)
+library(leaflet)
 
 # Define UI for application that draws a histogram
 shinyUI(
