@@ -77,11 +77,14 @@ shinyUI(
                                             ),
                                       column(4,
                                             uiOutput("stream_menu")
-                                            )
+                                            )#,
+                                      # column(3,
+                                      #        uiOutput("field_menu")
+                                      #        )
                                       ),
                                    fluidRow(
                                      column(6,
-                                            helpText("Select at least one Major Population, Population and Stream : TributaryTo Combination")
+                                            helpText("Select at least one Major Population Group, Population, Stream : TributaryTo combination and the field values of interest.")
                                             ),
                                      column(2, offset = 2, align = "center",
                                             actionButton("sgs_submit", label = "Submit Query", class = "mybutton")                                            
@@ -100,7 +103,8 @@ shinyUI(
                                    tabPanel("Graphical",
                                             #textOutput("spp_test"),
                                             conditionalPanel('input.sgs_data=="redd_summary"', plotOutput("redd_sum_plot")),
-                                            conditionalPanel('input.sgs_data=="redd_detail"', leafletOutput("redd_detail_plot"))
+                                            conditionalPanel('input.sgs_data=="redd_detail"', leafletOutput("redd_detail_plot")),
+                                            conditionalPanel('input.sgs_data=="carcass_detail', plotOutput("carcass_detail_plot"))
                                             #leafletOutput("redd_detail_plot"),
                                             #plotOutput("redd_sum_plot")
 
