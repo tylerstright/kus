@@ -181,7 +181,7 @@ sgs_df <- eventReactive(input$sgs_submit, {
       
       leaflet() %>%
         #fitBounds(-117.5, 43, -113, 47.8) %>%
-        #fitBounds(long_rng[1], lat_rng[1], long_rng[2], lat_rng[2]) %>%        
+        fitBounds(long_rng[1], lat_rng[1], long_rng[2], lat_rng[2]) %>%        
         addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
         addCircles(data = tmp_redd_detail, lng = ~Longitude, lat = ~Latitude, color = ~pal(SurveyYear),
                     fillColor = ~pal(SurveyYear), popup = ~paste(SurveyYear)) #%>%
