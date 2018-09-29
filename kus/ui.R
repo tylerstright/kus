@@ -27,23 +27,25 @@ shinyUI(
                           by the Nez Perce Tribe. All data should be considered draft and is not guaranteed for
                           accuracy.  Permission to use the data should be sought from the original collectors and managers
                           which can be found on the About Us tab."),
+             
              tabPanel("Kus Home",
-                      fluidPage(
-                        fluidRow(
-                          column(12,
-                                 h1("Department of Fisheries Resources Management"),
-                                 align = "center"
+                        fluidPage(
+                          #   fluidRow(
+                          #     column(12,
+                          #            h1("Department of Fisheries Resources Management"),
+                          #            align = "center"
+                          #     )
+                          #   ),
+                          fluidRow(
+                            column(12,
+                                   div(id = "homo-photo", img(src="P9040096.JPG", width = '100%')),
+                                   align = "center"
+                            )
                           )
-                        ),
-                        fluidRow(
-                          column(12,
-                                 div(id = "homo-photo", img(src="P9040096.JPG", height = 600, width = 1000)),
-                                 align = "center"
-                                 )
                         )
-                      )
               ),
              navbarMenu("Fish Data",
+                        tabPanel("CDMS Portal - Project Data Entry"),
                         tabPanel("Performance Measures"),
                         tabPanel("Spawning Ground Survey",
                                  fluidPage(
@@ -123,84 +125,84 @@ shinyUI(
                         tabPanel("Pre- and In-season Predictions"),
                         tabPanel("Harvest Management")),
              navbarMenu("Other",
-                        tabPanel("Hydro-system Operations"),
-                        tabPanel("Imnaha Weir Monitoring")),
-              tabPanel("About Us",
-                       fluidPage(
-                         fluidRow(
-                           column(12,
-                                  h3("Contacts"),
-                                  align = "center"
-                                  )
-                         ),
-                         hr(),
-                         fluidRow(
-                           column(3,
-                                  h4("Ryan Kinzer"),
-                                  h5("Research Scientist"),
-                                  h5("McCall Field Office"),
-                                  h5("208-634-5290"),
-                                  h5("ryank@nezperce.org"),
-                                  align = "center"
-                                  ),
-                           column(3,
-                                  h4("Clark Watry"),
-                                  h5("Data Steward"),
-                                  h5("Sweetwater Field Office"),
-                                  h5("208-843-9184"),
-                                  h5("clarkw@nezperce.org"),
-                                  align = "center"
-                                  ),
-                           column(3,
-                                  h4("Tyler Stright"),
-                                  h5("Data Management Biologist"),
-                                  h5("McCall Field Office"),
-                                  h5("208-634-5290"),
-                                  h5("tylers@nezperce.org"),
-                                  align = "center"
-                           ),
-                           column(3,
-                                  h4("Samantha Smith"),
-                                  h5("Data Techinician III"),
-                                  h5("Sweetwater Field Office"),
-                                  h5("208-843-9184"),
-                                  h5("samanthas@nezperce.org"),
-                                  align = "center"
-                           )
-                         ),
-                         hr(),
-                         fluidRow(
-                           column(12,
-                                  h3("Acknowledgements"),
-                                  align = "center"
-                           )
-                         ),
-                         fluidRow(
-                           column(12,
-                                  p("The data presented in the Kus web application is collected and managed by
-                                    multiple tribes, states and federal agencies. Without their permission and
-                                    generous policies regarding public and regional data sharing, Kus would not
-                                    be possible. We would like to individually thank all of people involved with
-                                    the data presented on this site, however, we are afraid the list of folks is
-                                    too numerous. If we have used data that you are personally connected with
-                                    we would like to say, thank you!  And if you feel any data presented here
-                                    is portrayed incorrectly, or you would like removed from the application
-                                    please contact us to discuss."))
-                         ),
-                         hr(),
-                         fluidRow(
-                           column(12,
-                                  h3("Data Sources and References"),
-                                  align = "center"
-                           )
-                         ),
-                         hr(),
-                         fluidRow(
-                           column(12,
-                                  h4("Hydro-system Operation and River Conditions"),
-                                  h5("Columbia Basin Research and the Data in Real-Time (DART) website"))
-                         )
-                       )
-                    )
+                        tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
+                        tabPanel(tags$a("Imnaha Weir Monitoring", href = "https://nptfisheries.shinyapps.io/PITtrackR/")))
+              # tabPanel("About Us",
+              #          fluidPage(
+              #            fluidRow(
+              #              column(12,
+              #                     h3("Contacts"),
+              #                     align = "center"
+              #                     )
+              #            ),
+              #            hr(),
+              #            fluidRow(
+              #              column(3,
+              #                     h4("Ryan Kinzer"),
+              #                     h5("Research Scientist"),
+              #                     h5("McCall Field Office"),
+              #                     h5("208-634-5290"),
+              #                     h5("ryank@nezperce.org"),
+              #                     align = "center"
+              #                     ),
+              #              column(3,
+              #                     h4("Clark Watry"),
+              #                     h5("Data Steward"),
+              #                     h5("Sweetwater Field Office"),
+              #                     h5("208-843-9184"),
+              #                     h5("clarkw@nezperce.org"),
+              #                     align = "center"
+              #                     ),
+              #              column(3,
+              #                     h4("Tyler Stright"),
+              #                     h5("Data Management Biologist"),
+              #                     h5("McCall Field Office"),
+              #                     h5("208-634-5290"),
+              #                     h5("tylers@nezperce.org"),
+              #                     align = "center"
+              #              ),
+              #              column(3,
+              #                     h4("Samantha Smith"),
+              #                     h5("Data Techinician III"),
+              #                     h5("Sweetwater Field Office"),
+              #                     h5("208-843-9184"),
+              #                     h5("samanthas@nezperce.org"),
+              #                     align = "center"
+              #              )
+              #            ),
+              #            hr(),
+              #            fluidRow(
+              #              column(12,
+              #                     h3("Acknowledgements"),
+              #                     align = "center"
+              #              )
+              #            ),
+              #            fluidRow(
+              #              column(12,
+              #                     p("The data presented in the Kus web application is collected and managed by
+              #                       multiple tribes, states and federal agencies. Without their permission and
+              #                       generous policies regarding public and regional data sharing, Kus would not
+              #                       be possible. We would like to individually thank all of people involved with
+              #                       the data presented on this site, however, we are afraid the list of folks is
+              #                       too numerous. If we have used data that you are personally connected with
+              #                       we would like to say, thank you!  And if you feel any data presented here
+              #                       is portrayed incorrectly, or you would like removed from the application
+              #                       please contact us to discuss."))
+              #            ),
+              #            hr(),
+              #            fluidRow(
+              #              column(12,
+              #                     h3("Data Sources and References"),
+              #                     align = "center"
+              #              )
+              #            ),
+              #            hr(),
+              #            fluidRow(
+              #              column(12,
+              #                     h4("Hydro-system Operation and River Conditions"),
+              #                     h5("Columbia Basin Research and the Data in Real-Time (DART) website"))
+              #            )
+              #          )
+              #      )
   ) # close navbarPage
 ) # close shinyUI

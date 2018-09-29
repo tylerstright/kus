@@ -10,22 +10,72 @@
 library(shiny)
 library(tidyverse)
 library(lubridate)
-library(DBI)
-library(odbc)
-library(leaflet)
-library(RColorBrewer)
+#library(DBI)
+#library(odbc)
+#library(leaflet)
+#library(RColorBrewer)
+library(httr)
+library(jsonlite)
+library(cdmsR)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
-# SGS dbase connection and cascading menus   
-con <- dbConnect(odbc(),
-                 Driver = "SQL Server Native Client 11.0",
-                 Server = "DFRM-SQL.nezperce.org",
-                 Database = "sgs_master",
-                 UID = "guest",
-                 PWD = "guest")
 
+  #-----------------------------------------------------------------
+  # Login landing page
+  #-----------------------------------------------------------------
+  showModal(modalDialog(
+    textInput('username','Username'),
+    passwordInput('password', 'Password'),
+    actionButton('login', 'Login'),
+    size = "m",
+    easyClose = FALSE,
+    title = "Nez Perce Tribe Fisheries Data Access",
+    footer = "Please contant Clark Watry (clarkw@nezperce.org) to request login credentials."
+    ))
+  
+   api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
+   
+   observeEvent(input$login, {
+  
+    if(input$username == '' | input$password == '')
+     {
+       showModal(modalDialog(
+         textInput('username','Username'),
+         passwordInput('password', 'Password'),
+         actionButton('login', 'Login'),
+         size = "m",
+         easyClose = FALSE,
+         title = "Username or password fields are blank.",
+         footer = "Please fill in your username and password correctly."
+       ))
+     } else {
+       login_status <- cdmsLogin(input$username, api_key, cdms_host = 'https://cdms.nptfisheries.org')
+     
+       if(status_code(login_status) != 200) {
+         showModal(modalDialog(
+           textInput('username','Username'),
+           passwordInput('password', 'Password'),
+           actionButton('login', 'Login'),
+           size = "m",
+           easyClose = FALSE,
+           title = "Invalid Username or Password",
+           footer = "I'm sorry you are having trouble. Try re-checking the post-it note on your computer screen."
+         ))
+       } else {
+         removeModal()
+       }
+
+      }
+
+  })
+  
+
+  #-----------------------------------------------------------------
+  #  Spawning Ground Survey
+  #-----------------------------------------------------------------
+  
 spp_code <- reactive({
   qry <- paste0("SELECT DISTINCT SpeciesCode FROM dbo.luptbl_Species WHERE SpeciesName = '", input$sgs_spp, "' AND Run = '", input$sgs_run, "'")#input$sgs_spp)
 
