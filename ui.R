@@ -34,10 +34,7 @@ shinyUI(
              tabPanel("Kus Home",
                       div(id='home-photo'),
                       div(id='title-text',"Department of Fisheries Resources Management"),
-                      div(class = 'homebutton', "Raw Data"),
-                      div(id = 'homebutton', "Data Entry"),
-                      div(id = 'homebutton', "Summarized Data"),
-                      div(id = 'homebutton', "Other Applications")
+                      uiOutput("home_buttons")
               ),
              navbarMenu("Fish Data",
                         tabPanel(tags$a("Project Data Entry and Validation", href = "https://cdms.nptfisheries.org/index.html#/projects")),

@@ -25,10 +25,10 @@ body {
   background-color: #36454f !important;
 }
 
-.navbar-brand{color: grey;}
+.navbar-brand{color: #ccc;}
 
 .tab-panel{background-color: #36454f;
-	 color: grey;
+	 color: #ccc;
 }
 
 .navbar-nav li a:hover, .navbar-nav > .active > a {
@@ -37,8 +37,8 @@ background-color:#28597a !important;
 }
 
 
-.tabbable > .nav > li > a {background-color: #36454f;  color:grey}
-.tabbable > .nav > li[class=active]    > a {background-color: #536872	; color:#fff}
+.tabbable > .nav > li > a {background-color: #36454f;  color:#ccc;}
+.tabbable > .nav > li[class=active]    > a {background-color: #28597a	; color:#fff;}
 /*    .tabbable > .nav > li > a[data-value='t1'] {background-color: red;   color:white}
     .tabbable > .nav > li > a[data-value='t2'] {background-color: blue;  color:white}
     .tabbable > .nav > li > a[data-value='t3'] {background-color: green; color:white}
@@ -119,18 +119,18 @@ background-color:#28597a !important;
 .homebutton:hover {
    border-top-color: #28597a;
    background: #28597a;
-   color: #ccc;
+   color: #fff;
    }
-.homebutton:active {
-   border-top-color: #536872;
-   background: #536872;
-   color:#fff
-   }
-
 
 .mybutton{
-  background-color: #536878;
-  color: black;}
+  background-color: #36454f;
+  color: #ccc;}
+  
+.mybutton:hover {
+   border-top-color: #28597a;
+   background: #28597a;
+   color: #fff;
+}
 
 .modal-body {padding: 10px; box-align: center;}
 .modal-content  {-webkit-border-radius: 6px !important;-moz-border-radius: 6px !important;border-radius: 6px !important;}

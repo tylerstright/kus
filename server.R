@@ -73,12 +73,21 @@ shinyServer(function(input, output) {
          removeModal()
          user_info <<- content(login_status, "parsed", "application/json", encoding = "UTF-8")[[3]]
          output$username <- renderText({user_info$FullName})
+
+           output$home_buttons <- renderUI({
+             div(class = 'homebutton', style="display: inline-block;", "Raw Data"),
+             div(class = 'homebutton', style="display: inline-block;", "Data Entry")
+             div(class = 'homebutton', style="display: inline-block;", "Summarized Data")
+             div(class = 'homebutton', style="display: inline-block;", "Other Applications")
+           })
        }
 
       }
 
   })
 
+
+  
    #output$username <- renderText({"user_info$FullName"}) #user_info$FullName
    
   #-----------------------------------------------------------------
