@@ -15,8 +15,11 @@ library(leaflet)
 # Define UI for application that draws a histogram
 shinyUI(
   navbarPage(title = div(#div(id = "header-id", "KUS: DFRM Fisheries Data"),
-                         div(id = 'logo-id',img(src="NPTlogos2.png", height = 70)),
-                         tags$a("DFRM Home",href = 'http://www.nptfisheries.org')),
+                         #div(id = 'username', textOutput('username')),
+                         div(id = 'logo-id',img(src="NPTlogos2.png", height = "70px")),
+                         tags$a("DFRM Home",href = 'http://www.nptfisheries.org')
+
+                         ),
              id = "kus_navbar",
              windowTitle = "DFRM-Kus",
              theme = "styles.css",
@@ -29,31 +32,25 @@ shinyUI(
                           which can be found on the About Us tab."),
              
              tabPanel("Kus Home",
-                        fluidPage(
-                          #   fluidRow(
-                          #     column(12,
-                          #            h1("Department of Fisheries Resources Management"),
-                          #            align = "center"
-                          #     )
-                          #   ),
-                          fluidRow(
-                            column(12,
-                                   div(id = "homo-photo", img(src="P9040096.JPG", width = '100%')),
-                                   align = "center"
-                            )
-                          )
-                        )
+                      div(id='home-photo'),
+                      div(id='title-text',"Department of Fisheries Resources Management"),
+                      div(class = 'homebutton', "Raw Data"),
+                      div(id = 'homebutton', "Data Entry"),
+                      div(id = 'homebutton', "Summarized Data"),
+                      div(id = 'homebutton', "Other Applications")
               ),
              navbarMenu("Fish Data",
-                        tabPanel("CDMS Portal - Project Data Entry"),
-                        tabPanel("Performance Measures"),
+                        tabPanel(tags$a("Project Data Entry and Validation", href = "https://cdms.nptfisheries.org/index.html#/projects")),
+                        tabPanel("Summarized Performance Measures",
+                                 h2("This portion of the website is still underconstuction.")),
                         tabPanel("Spawning Ground Survey",
                                  fluidPage(
                                    fluidRow(
                                      column(3,
-                                            radioButtons('sgs_data', h3("Dataset:"), inline = TRUE,
-                                                         choiceNames = c('Redd Summary', "Redd Detail", "Carcass Data"),
-                                                         choiceValues = c('redd_summary', 'redd_detail', 'carcass_detail'))
+                                            uiOutput("sgs_dataset_menu")
+                                            # radioButtons('sgs_data', h3("Dataset:"), inline = TRUE,
+                                            #              choiceNames = c('Redd Data', 'Carcass Data'),
+                                            #              choiceValues = c('68', '69'))
                                             ),
                                      column(3,
                                             #checkboxInput(""),
@@ -62,11 +59,11 @@ shinyUI(
                                             #selectInput('sgs_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
                                             ),
                                      column(3,
-                                            radioButtons('sgs_run', h3("Run:"), inline = TRUE, choices = c("Spring/Summer", "Summer", "Fall"))                                            
+                                            radioButtons('sgs_run', h3("Run:"), inline = TRUE, choices = c("Spring/summer", "Summer", "Fall"))                                            
                                             ),
                                      column(3,
-                                            sliderInput("sgs_year", h3("Survey Year:"), min = 1986, max = 2017,
-                                                        step = 1, value = c(1986, 2017),sep='')
+                                            sliderInput("sgs_year", h3("Survey Year:"), min = 1986, max = year(Sys.Date()),
+                                                        step = 1, value = c(1986, year(Sys.Date())), sep='')
                                             #dateRangeInput("sgs_dates", label = h3("Date Range")),                                            
                                             )
                                      ),
@@ -118,12 +115,18 @@ shinyUI(
                                  )
                           )
                         ),
-                        tabPanel("Adult Weir"),
-                        tabPanel("Rotary Screw Trap"),
-                        tabPanel("PIT-tag Abundance")),
+                        tabPanel("Adult Weir",
+                                 h2("This portion of the website is still underconstuction.")),
+                        tabPanel("Rotary Screw Trap",
+                                 h2("This portion of the website is still underconstuction.")),
+                        tabPanel("PIT-tag Abundance",
+                                 h2("This portion of the website is still underconstuction."))
+                        ),
              navbarMenu("Fish Management",
-                        tabPanel("Pre- and In-season Predictions"),
-                        tabPanel("Harvest Management")),
+                        tabPanel("Pre- and In-season Predictions",
+                                 h2("This portion of the website is still underconstuction.")),
+                        tabPanel("Harvest Management",
+                                 h2("This portion of the website is still underconstuction."))),
              navbarMenu("Other",
                         tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
                         tabPanel(tags$a("Imnaha Weir Monitoring", href = "https://nptfisheries.shinyapps.io/PITtrackR/")))

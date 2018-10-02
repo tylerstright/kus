@@ -31,14 +31,20 @@ shinyServer(function(input, output) {
     actionButton('login', 'Login'),
     size = "m",
     easyClose = FALSE,
-    title = "Nez Perce Tribe Fisheries Data Access",
+    title = "DFRM Fisheries Data Access",
     footer = "Please contant Clark Watry (clarkw@nezperce.org) to request login credentials."
     ))
-  
+
    api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
-   
+
+   login_status <- NULL
+   makeReactiveBinding("login_status")
+
+   user_info <- NULL
+   makeReactiveBinding("user_info")
+
    observeEvent(input$login, {
-  
+
     if(input$username == '' | input$password == '')
      {
        showModal(modalDialog(
@@ -51,8 +57,8 @@ shinyServer(function(input, output) {
          footer = "Please fill in your username and password correctly."
        ))
      } else {
-       login_status <- cdmsLogin(input$username, api_key, cdms_host = 'https://cdms.nptfisheries.org')
-     
+       login_status <<- cdmsLogin(input$username, api_key, cdms_host = 'https://cdms.nptfisheries.org')
+
        if(status_code(login_status) != 200) {
          showModal(modalDialog(
            textInput('username','Username'),
@@ -65,65 +71,70 @@ shinyServer(function(input, output) {
          ))
        } else {
          removeModal()
+         user_info <<- content(login_status, "parsed", "application/json", encoding = "UTF-8")[[3]]
+         output$username <- renderText({user_info$FullName})
        }
 
       }
 
   })
-  
 
+   #output$username <- renderText({"user_info$FullName"}) #user_info$FullName
+   
   #-----------------------------------------------------------------
   #  Spawning Ground Survey
   #-----------------------------------------------------------------
   
-spp_code <- reactive({
-  qry <- paste0("SELECT DISTINCT SpeciesCode FROM dbo.luptbl_Species WHERE SpeciesName = '", input$sgs_spp, "' AND Run = '", input$sgs_run, "'")#input$sgs_spp)
-
-    dbGetQuery(con, qry) %>%
-    pull()
-})
-
-#isolate({
-  mpg_codes <- reactive({
-   qry <- paste0("SELECT DISTINCT MPG FROM dbo.tbl_MgmtDesignation WHERE SpeciesRun_Code = '", spp_code(),"'")
-
-   dbGetQuery(con, qry) %>%
-             pull(MPG)
-})
-#  mpg_codes()
-# })
+   load('./data/ictrt_table.rda')
    
- output$mpg_menu <- renderUI({ 
-   #tmp_names <- mpg_codes()
+   output$sgs_dataset_menu <- renderUI({
+     
+     datasets <- getDatastores()
+     
+     radioButtons('sgs_datasets', h3("Dataset:"), inline = TRUE,
+                  choiceNames = datasets$Name,
+                  choiceValues = datasets$Id)
+   })
+   
+   
+  mpg_codes <- reactive({
+    ictrt %>%
+      filter(Species == input$sgs_spp,
+             Run == input$sgs_run) %>%
+      distinct(MPG) %>%
+      arrange() %>%
+      pull()
+})
+   
+ output$mpg_menu <- renderUI({
    selectInput('sgs_mpg', h3("Major Population Groups:"), mpg_codes(), multiple=TRUE, selectize=FALSE, size = 8)
 })
 
  pop_codes <- reactive({
-   
-   mpg_qry <- gsub(", ", "', '", toString(input$sgs_mpg))
-   
-   qry <- paste0("SELECT DISTINCT POP_NAME FROM dbo.tbl_MgmtDesignation WHERE MPG IN ('", mpg_qry,"')")
-   
-   dbGetQuery(con, qry) %>%
-     pull(POP_NAME)
+   ictrt %>%
+     filter(Species == input$sgs_spp & 
+              Run == input$sgs_run &
+              MPG %in% input$sgs_mpg) %>%
+     distinct(POP_NAME) %>%
+     arrange() %>%
+     pull()
  })
  
  
  output$pop_menu <- renderUI({ 
-   #tmp_names <- pop_codes()
    selectInput('sgs_pop', h3("Populations:"), pop_codes(), multiple=TRUE, selectize=FALSE, size = 8)
  }) 
  
  
  stream_codes <- reactive({
-   
-   pop_qry <- gsub(", ", "', '", toString(input$sgs_pop))
-   
-   qry <- paste0("SELECT DISTINCT StreamName, TributaryTo FROM dbo.transect_metadata WHERE POP_NAME IN ('", pop_qry,"')")
-   
-   dbGetQuery(con, qry) %>%
-     mutate(stream = paste0(StreamName, " : ", TributaryTo)) %>%
-     pull(stream)
+   ictrt %>%
+     filter(Species == input$sgs_spp & 
+              Run == input$sgs_run &
+              MPG %in% input$sgs_mpg,
+              POP_NAME %in% input$sgs_pop) %>%
+     distinct(StreamTrib) %>%
+     arrange() %>%
+     pull()
  })
  
  output$stream_menu <- renderUI({ 
@@ -131,7 +142,13 @@ spp_code <- reactive({
    selectInput('sgs_stream', h3("Stream : TributaryTo"), stream_codes(), multiple=TRUE, selectize=FALSE, size = 8)
  }) 
  
+
+ observeEvent(input$sgs_submit,{
+   sgs_full_df <- getDatasetView(datastoreID = input$sgs_datasets, Species = input$sgs_spp, Run = input$sgs_run,
+                                 SurveyYear = input$sgs_year, MPG = input$sgs_mpg, POP = input$sgs_pop, StreamName = input$sgs_stream)
+ }) 
  
+  
  # field_values <- reactive({
  #   tmp_data <- input$sgs_data
  #   qry <- paste0("SELECT TOP(0) * FROM dbo.", tmp_data)
@@ -143,58 +160,25 @@ spp_code <- reactive({
  #   selectInput('sgs_fields', h3("Fields:"), field_values(), multiple = TRUE, selectize = FALSE, size = 8)
  # })
  
- 
-# gather sgs input values
-sgs_df <- eventReactive(input$sgs_submit, {
-  
-# switch(input$sgs_data,
-#          redd_detail = 'Spatial Redd Data',
-#          redd_summary = 'Redd Summary',
-#          carcass_summary = 'Carcass Data')
-  # tmp_table <- input$sgs_data
-  tmp_data <- input$sgs_data
-  #tmp_names <- gsub(", ", "', '", paste0("MPG, POP_NAME, StreamName, TributaryTo", toString(input$field_values)))
-  tmp_spp <- gsub(", ", "', '", toString(input$sgs_spp))
-  tmp_run <- gsub(", ", "', '", toString(input$sgs_run))
-  #tmp_year <- gsub(", ", "', '", toString(input$sgs_year))
-  tmp_mpg <- gsub(", ", "', '", toString(str_replace(input$sgs_mpg, " :.*", "")))
-  tmp_pop <- gsub(", ", "', '", toString(str_replace(input$sgs_pop, " :.*", "")))
-  tmp_stream <- gsub(", ", "', '", toString(str_replace(input$sgs_stream, " :.*", "")))
-
-#------------------
-# Section is for testing
-  # stream <- c("Clearwater River")
-  # tmp_data <- "carcass_detail"
-  # tmp_spp <- "Chinook salmon"
-  # tmp_run <- "Spring/summer"
-  # tmp_mpg <- "Snake River"
-  # tmp_pop <- "Snake River Lower Mainstem"
-  # tmp_stream <- gsub(", ", "', '", toString(stream))
-  # tmp_year <- c(1986, 2017)
-  # 
-  # qry <- paste0("SELECT * FROM dbo.",tmp_data,
-  #               " WHERE SpeciesName = '",tmp_spp,"' AND Run = '", tmp_run,
-  #               "' AND SurveyYear BETWEEN ",tmp_year[1], " AND ", tmp_year[2],
-  #               " AND MPG IN('", tmp_mpg, "') AND POP_NAME IN ('", tmp_pop, "') AND StreamName IN('", tmp_stream,"')")
-  # 
-  # tmp <- dbGetQuery(con, qry)
-  
-  # output$spp_test <- renderPrint({
-  #   #spp_codes()
-  #   #stream_codes()
-  #   #input$sgs_spp
-  #   str_replace(input$sgs_stream, " :.*", "")
-  #   #str_split(input$sgs_stream," : ")[[1]][1]
-  # })  
-#--------------------
-  
-  qry <- paste0("SELECT * FROM dbo.",tmp_data,
-              " WHERE SpeciesName = '",tmp_spp,"' AND Run = '", tmp_run,
-              "' AND SurveyYear BETWEEN ",input$sgs_year[1], " AND ", input$sgs_year[2],
-              " AND MPG IN('", tmp_mpg, "') AND POP_NAME IN ('", tmp_pop, "') AND StreamName IN('", tmp_stream,"')")
-
-  dbGetQuery(con, qry)
-})
+ #-------------------------------------------------------------------------
+# gather sgs input values OLD STUFF
+#--------------------------------------------------------------------------
+# sgs_df <- eventReactive(input$sgs_submit, {
+#   
+#   tmp_data <- input$sgs_data
+#   tmp_spp <- gsub(", ", "', '", toString(input$sgs_spp))
+#   tmp_run <- gsub(", ", "', '", toString(input$sgs_run))
+#   tmp_mpg <- gsub(", ", "', '", toString(str_replace(input$sgs_mpg, " :.*", "")))
+#   tmp_pop <- gsub(", ", "', '", toString(str_replace(input$sgs_pop, " :.*", "")))
+#   tmp_stream <- gsub(", ", "', '", toString(str_replace(input$sgs_stream, " :.*", "")))
+# 
+#   qry <- paste0("SELECT * FROM dbo.",tmp_data,
+#               " WHERE SpeciesName = '",tmp_spp,"' AND Run = '", tmp_run,
+#               "' AND SurveyYear BETWEEN ",input$sgs_year[1], " AND ", input$sgs_year[2],
+#               " AND MPG IN('", tmp_mpg, "') AND POP_NAME IN ('", tmp_pop, "') AND StreamName IN('", tmp_stream,"')")
+# 
+#   dbGetQuery(con, qry)
+# })
 
     output$redd_sum_plot <- renderPlot({
         validate(need(input$sgs_data=="redd_summary", message=FALSE))
