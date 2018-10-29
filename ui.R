@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(shinycssloaders)
 library(tidyverse)
 library(lubridate)
 library(leaflet)
@@ -15,7 +16,7 @@ library(leaflet)
 # Define UI for application that draws a histogram
 shinyUI(
   navbarPage(title = div(#div(id = "header-id", "KUS: DFRM Fisheries Data"),
-                         #div(id = 'username', textOutput('username')),
+                         div(id = 'user-name', textOutput('username')),
                          div(id = 'logo-id',img(src="NPTlogos2.png", height = "70px")),
                          tags$a("DFRM Home",href = 'http://www.nptfisheries.org')
 
@@ -33,100 +34,74 @@ shinyUI(
              
              tabPanel("Kus Home",
                       div(id='home-photo'),
-                      div(id='title-text',"Department of Fisheries Resources Management"),
-                      uiOutput("home_buttons")
+                      div(class='homecontainer',
+                        div(id = 'home-title',"Department of Fisheries Resources Management")
+                        #div(class = 'homebuttons',
+                        #    div(class = 'homebutton', style="display: inline_block", actionButton(inputId = 'sum_tab', label = "Performance Measures"))
+                        #  div(class = 'homebutton', style="display: inline-block;", "Raw Data"),
+                        #  div(class = 'homebutton', style="display: inline-block;","Data Entry"),
+                        #  div(class = 'homebutton', style="display: inline-block;", "Summarized Data"),
+                        #  div(class = 'homebutton', style="display: inline-block;", "Other Applications")
+                        #  )
+                        #,uiOutput("home_buttons")
+                        )
               ),
-             navbarMenu("Fish Data",
-                        tabPanel(tags$a("Project Data Entry and Validation", href = "https://cdms.nptfisheries.org/index.html#/projects")),
-                        tabPanel("Summarized Performance Measures",
-                                 h2("This portion of the website is still underconstuction.")),
-                        tabPanel("Spawning Ground Survey",
-                                 fluidPage(
-                                   fluidRow(
-                                     column(3,
-                                            uiOutput("sgs_dataset_menu")
-                                            # radioButtons('sgs_data', h3("Dataset:"), inline = TRUE,
-                                            #              choiceNames = c('Redd Data', 'Carcass Data'),
-                                            #              choiceValues = c('68', '69'))
-                                            ),
-                                     column(3,
-                                            #checkboxInput(""),
-                                            radioButtons('sgs_spp', h3("Species:"),inline = TRUE, choices = c("Chinook salmon", "Steelhead", "Bull trout"))
-                                            #checkboxGroupInput('sgs_spp', h3("Species:"),inline = TRUE, choices = c("Chinook salmon", "Steelhead", "Bull trout"))
-                                            #selectInput('sgs_spp', h3("Species"), state.name, multiple=TRUE, selectize=FALSE),
-                                            ),
-                                     column(3,
-                                            radioButtons('sgs_run', h3("Run:"), inline = TRUE, choices = c("Spring/summer", "Summer", "Fall"))                                            
-                                            ),
-                                     column(3,
-                                            sliderInput("sgs_year", h3("Survey Year:"), min = 1986, max = year(Sys.Date()),
-                                                        step = 1, value = c(1986, year(Sys.Date())), sep='')
-                                            #dateRangeInput("sgs_dates", label = h3("Date Range")),                                            
-                                            )
-                                     ),
-                                   fluidRow(
-                                      column(4,
-                                             uiOutput("mpg_menu")
-                                            ),
-                                      column(4,
-                                            uiOutput("pop_menu")
-                                            ),
-                                      column(4,
-                                            uiOutput("stream_menu")
-                                            )#,
-                                      # column(3,
-                                      #        uiOutput("field_menu")
-                                      #        )
-                                      ),
-                                   fluidRow(
-                                     column(6,
-                                            helpText("Select at least one Major Population Group, Population, Stream : TributaryTo combination and the field values of interest.")
-                                            ),
-                                     column(2, offset = 2, align = "center",
-                                            actionButton("sgs_submit", label = "Submit Query", class = "mybutton")                                            
-                                            ),
-                                     # column(2, align = "center",
-                                     #        actionButton("sgs_clear", label = "Clear Query", class = "mybutton")
-                                     #        ),                                     
-                                     column(2, align = "center",
-                                            downloadButton("sgs_export", label = "Export .CSV File", class = "mybutton")#,
-                                            #tags$head(tags$style(".mybutton{background-color:#333;} .mybutton{color: #333;}"))
-                                            )#,
-                                     #hr()
-                                   ),
-                                hr(),
-                                 tabsetPanel(
-                                   tabPanel("Graphical",
-                                            #textOutput("spp_test"),
-                                            conditionalPanel('input.sgs_data=="redd_summary"', plotOutput("redd_sum_plot")),
-                                            conditionalPanel('input.sgs_data=="redd_detail"', leafletOutput("redd_detail_plot")),
-                                            conditionalPanel('input.sgs_data=="carcass_detail', plotOutput("carcass_detail_plot"))
-                                            #leafletOutput("redd_detail_plot"),
-                                            #plotOutput("redd_sum_plot")
-
-                                  ),
-                                   tabPanel("Tabular",
-                                            DT::dataTableOutput("sgs_table")
-                                            #tableOutput("sgs_table")
-                                  )
-                                 )
-                          )
-                        ),
-                        tabPanel("Adult Weir",
-                                 h2("This portion of the website is still underconstuction.")),
-                        tabPanel("Rotary Screw Trap",
-                                 h2("This portion of the website is still underconstuction.")),
-                        tabPanel("PIT-tag Abundance",
-                                 h2("This portion of the website is still underconstuction."))
-                        ),
              navbarMenu("Fish Management",
-                        tabPanel("Pre- and In-season Predictions",
-                                 h2("This portion of the website is still underconstuction.")),
-                        tabPanel("Harvest Management",
-                                 h2("This portion of the website is still underconstuction."))),
-             navbarMenu("Other",
+                        tabPanel("Pre- and In-season Management",
+                                 h2("This portion of the website is still under constuction.")),
                         tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
-                        tabPanel(tags$a("Imnaha Weir Monitoring", href = "https://nptfisheries.shinyapps.io/PITtrackR/")))
+                        tabPanel(tags$a("Imnaha Weir Monitoring", href = "https://nptfisheries.shinyapps.io/PITtrackR/"))
+                        ),
+             tabPanel("Summarized Data", id = 'summarized_data',
+                      fluidPage(
+                        fluidRow(
+                          column(3, uiOutput("sum_dataset_menu"))
+                        ),
+                        fluidRow(
+                          column(6, helpText("Select the desired dataset you with to view and click submit query.")),
+                          column(2, offset = 2, align = "center",
+                                 actionButton("sum_submit", label = "Submit Query", class = "mybutton")),
+                          column(2, align = "center",
+                                 downloadButton("sum_export", label = "Export .CSV File", class = "mybutton"))
+                        )
+                      ),
+                      hr(),
+                      tabsetPanel(
+                        tabPanel("Graphical",
+                                 plotOutput("sum_plot"),
+                                 conditionalPanel('input.data=="redd_summary"', plotOutput("redd_sum_plot")),
+                                 conditionalPanel('input.data=="redd_detail"', leafletOutput("redd_detail_plot")),
+                                 conditionalPanel('input.data=="carcass_detail', plotOutput("carcass_detail_plot"))
+                                 #leafletOutput("redd_detail_plot"),
+                          ),
+                        tabPanel("Tabular",
+                                 withSpinner(DT::dataTableOutput("sum_table"))
+                          )
+                      )
+              ),
+             tabPanel("Raw Data", id = 'raw_data',
+                      fluidPage(
+                          fluidRow(
+                                column(3, uiOutput("dataset_menu")),
+                                column(3, uiOutput("project_menu")),
+                                column(3, uiOutput("waterbody_menu")),
+                                column(3, uiOutput("location_menu"))
+                            ),
+                          fluidRow(
+                            column(6, helpText("Select the desired dataset then the project, stream and locations of interest and click submit query.")),
+                            column(2, offset = 2, align = "center",
+                                   actionButton("raw_submit", label = "Submit Query", class = "mybutton")),
+                            column(2, align = "center",
+                                   downloadButton("raw_export", label = "Export .CSV File", class = "mybutton"))
+                            )
+                        ),
+                      hr(),
+                      withSpinner(DT::dataTableOutput("raw_table"))
+                ),
+             navbarMenu("Data Entry", menuName = 'data_entry',
+                        tabPanel(tags$a("CDMS - Project Data Entry", href = "https://cdms.nptfisheries.org/index.html#/projects")),
+                        tabPanel(tags$a("LSRCP FINS", href = "https://www.finsnet.org/"))
+                        )
               # tabPanel("About Us",
               #          fluidPage(
               #            fluidRow(

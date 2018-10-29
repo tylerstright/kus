@@ -8,7 +8,7 @@ Hex	RBG
 */
 
 body {
-  padding-top: 40px;
+  padding-top: 70px;
   /*  background-color: #708090;
   background-image: url("P9040096.JPG");
   height: 500px;
@@ -61,6 +61,15 @@ background-color:#28597a !important;
   top: 5px;
 }
 
+#user-name{
+  font-family: serif;
+  position: fixed;
+  right: 120pt;
+  top: 23pt;
+  font-size: 13pt;
+  color: white;
+}
+
 #footer-id{
   font-style: italic;
   font-weight: 500;
@@ -81,39 +90,54 @@ background-color:#28597a !important;
   max-height: 100%;
   padding: 0;
   margin:auto;*/
+  position: relative;
   background-image: url("P9040096.JPG");
-  height: 1000pt;
+  height: 800pt;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
 }
 
-#title-text{
-  text-align: center;
+.homecontainer{
   position: absolute;
-  top: 45%;
-  left: 5%;
-  right: 50%;
-  transform: translate(-50%, -50%);
+  top: 50%;
+  width: 50%;/*was 90%*/
+  right: 40%; /*was left 5%*/
+  /*background-color: black;
+  */
+}
+
+#home-title{
+  text-align: left;
   color: white;
   font-size: 50pt;
   font-weight: bold;
+  /*top: 55%;
+  transform: translate(-50%, -50%); */
+}
+
+.homebuttons{
+  position: relative;
+  left: 30%;
 }
 
 .homebutton{
   text-align: center;
   vertical-align: middle;
-  position: absolute;
-  bottom: 5%;
-  /*left: 5%;
-  right: 50%;
-  transform: translate(-50%, -50%);*/
   color: white;
   font-size: 30pt;
   font-weight: bold;
   background-color: #36454f;
   height: 200pt;
   width: 200pt;
+  margin-right: 25pt;  
+  margin-bottom: 25pt;
+  /*margin-left: auto;
+  margin-right: auto;
+  top: 80%;
+  left: 20%;
+  right: 20%;
+   */
 }
 
 .homebutton:hover {
@@ -137,7 +161,7 @@ background-color:#28597a !important;
 .modal-dialog { width: 400px; display: inline-block; text-align: left; vertical-align: top;}
 /*.modal-header {font-size 12; color:black; background-color: #708090; border-top-left-radius: 6px; border-top-right-radius: 6px}*/
 .modal-footer {text-align: left;}
-.modal { text-align: center; vertical-align: middle; top: 35%; left: 40%;}   /*; padding-right:10px; padding-top: 200px;  */
+.modal { text-align: center; vertical-align: middle; padding-top: 125px;}   /*; padding-right:10px;   */
 
 h1{font-family: serif;
   font-size: 80px;

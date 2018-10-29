@@ -1,0 +1,12 @@
+name: kus_v1
+title: kus_v1
+username:
+account: nptfisheries
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 517202
+bundleId: 1646243
+url: https://nptfisheries.shinyapps.io/kus_v1/
+when: 1539713997.78741
+asMultiple: FALSE
+asStatic: FALSE
