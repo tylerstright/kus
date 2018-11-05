@@ -11,7 +11,6 @@ library(shiny)
 library(shinycssloaders)
 library(tidyverse)
 library(lubridate)
-library(leaflet)
 
 # Define UI for application that draws a histogram
 shinyUI(
@@ -46,46 +45,46 @@ shinyUI(
                         #,uiOutput("home_buttons")
                         )
               ),
-             navbarMenu("Fish Management",
-                        tabPanel("Pre- and In-season Management",
-                                 h2("This portion of the website is still under constuction.")),
-                        tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
-                        tabPanel(tags$a("Imnaha Weir Monitoring", href = "https://nptfisheries.shinyapps.io/PITtrackR/"))
-                        ),
-             tabPanel("Summarized Data", id = 'summarized_data',
-                      fluidPage(
-                        fluidRow(
-                          column(3, uiOutput("sum_dataset_menu"))
-                        ),
-                        fluidRow(
-                          column(6, helpText("Select the desired dataset you with to view and click submit query.")),
-                          column(2, offset = 2, align = "center",
-                                 actionButton("sum_submit", label = "Submit Query", class = "mybutton")),
-                          column(2, align = "center",
-                                 downloadButton("sum_export", label = "Export .CSV File", class = "mybutton"))
-                        )
-                      ),
-                      hr(),
-                      tabsetPanel(
-                        tabPanel("Graphical",
-                                 plotOutput("sum_plot"),
-                                 conditionalPanel('input.data=="redd_summary"', plotOutput("redd_sum_plot")),
-                                 conditionalPanel('input.data=="redd_detail"', leafletOutput("redd_detail_plot")),
-                                 conditionalPanel('input.data=="carcass_detail', plotOutput("carcass_detail_plot"))
-                                 #leafletOutput("redd_detail_plot"),
-                          ),
-                        tabPanel("Tabular",
-                                 withSpinner(DT::dataTableOutput("sum_table"))
-                          )
-                      )
-              ),
+             # navbarMenu("Fish Management",
+             #            tabPanel("Pre- and In-season Management",
+             #                     h2("This portion of the website is still under constuction.")),
+             #            tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
+             #            tabPanel(tags$a("Imnaha Weir Monitoring", href = "https://nptfisheries.shinyapps.io/PITtrackR/"))
+             #            ),
+             # tabPanel("Summarized Data", id = 'summarized_data',
+             #          fluidPage(
+             #            fluidRow(
+             #              column(3, uiOutput("sum_dataset_menu"))
+             #            ),
+             #            fluidRow(
+             #              column(6, helpText("Select the desired dataset you with to view and click submit query.")),
+             #              column(2, offset = 2, align = "center",
+             #                     actionButton("sum_submit", label = "Submit Query", class = "mybutton")),
+             #              column(2, align = "center",
+             #                     downloadButton("sum_export", label = "Export .CSV File", class = "mybutton"))
+             #            )
+             #          ),
+             #          hr(),
+             #          tabsetPanel(
+             #            tabPanel("Graphical",
+             #                     plotOutput("sum_plot"),
+             #                     conditionalPanel('input.data=="redd_summary"', plotOutput("redd_sum_plot")),
+             #                     conditionalPanel('input.data=="redd_detail"', leafletOutput("redd_detail_plot")),
+             #                     conditionalPanel('input.data=="carcass_detail', plotOutput("carcass_detail_plot"))
+             #                     #leafletOutput("redd_detail_plot"),
+             #              ),
+             #            tabPanel("Tabular",
+             #                     withSpinner(DT::dataTableOutput("sum_table"))
+             #              )
+             #          )
+             #  ),
              tabPanel("Raw Data", id = 'raw_data',
                       fluidPage(
                           fluidRow(
-                                column(3, uiOutput("dataset_menu")),
-                                column(3, uiOutput("project_menu")),
-                                column(3, uiOutput("waterbody_menu")),
-                                column(3, uiOutput("location_menu"))
+                                column(3, uiOutput("raw_dataset_menu"))
+                                #column(3, uiOutput("project_menu")),
+                                #column(3, uiOutput("waterbody_menu")),
+                                #column(3, uiOutput("location_menu"))
                             ),
                           fluidRow(
                             column(6, helpText("Select the desired dataset then the project, stream and locations of interest and click submit query.")),

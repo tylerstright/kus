@@ -19,24 +19,28 @@ source('./R/getProjects.R')
 source('./R/getLocations.R')
 source('./R/getWaterbodies.R')
 source('./R/getDatasetView.R')
+source('./R/getDatasets.R')
 
-# Define server logic required to draw a histogram
+# Outside Server - Static metadata tables
+# Need to set tribal specific variables
+cdms_host <- 'https://cdms.nptfisheries.org'
+#cdms_host <- 'localhost'
+#username <- 'ryank'
+#api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
+#cdmsLogin(username, api_key, cdms_host = cdms_host)
+
+# Define server logic
 shinyServer(function(input, output, session) {
-  
-  # Need to set tribal specific variables
-  cdms_host <- 'https://cdms.nptfisheries.org'
-  
-  # Development only.
-  #cdms_host <- 'localhost'
-  #api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
-  
-  login_status <- NULL
-  makeReactiveBinding("login_status")
-  
+
   #-----------------------------------------------------------------
   # Login landing page
   #-----------------------------------------------------------------
 
+   login_status <- NULL
+   html_code <- NULL
+   user_info <- NULL
+  #makeReactiveBinding("login_status")
+  
   showModal(modalDialog(
     textInput('username','Username'),
     passwordInput('password', 'Password'),
@@ -47,7 +51,7 @@ shinyServer(function(input, output, session) {
     footer = "Please contact Clark Watry (clarkw@nezperce.org) to request login credentials."
     ))
 
-  observeEvent(input$login, {
+  observeEvent(input$login, priority = 1, {
 
     if(input$username == '' | input$password == '')
      {
@@ -61,9 +65,11 @@ shinyServer(function(input, output, session) {
          footer = "Please fill in your username and password correctly."
        ))
      } else {
-       login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host)  #input$password
 
-       if(status_code(login_status) != 200) {
+       login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host)  #input$password
+       html_code <<- status_code(login_status)
+
+       if(html_code != 200) {  #status_code(login_status)
          showModal(modalDialog(
            textInput('username','Username'),
            passwordInput('password', 'Password'),
@@ -75,38 +81,25 @@ shinyServer(function(input, output, session) {
          ))
        } else {
          removeModal()
+
+         user_info <<- httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
+         output$username <- renderText({user_info$Fullname})
          #login_status
          # output$home_buttons <- renderUI({
          #   div(class = 'homebutton', style="display: inline-block;", "Fish Management")
          #   div(class = 'homebutton', style="display: inline-block;", "Summarized Data")
          #   div(class = 'homebutton', style="display: inline-block;", "Raw Data")
-         #   div(class = 'homebutton', style="display: inline-block;", "Data Entry")    
+         #   div(class = 'homebutton', style="display: inline-block;", "Data Entry")
          # })
-         
-         #httr::content(login_status, "parsed", "application/json", encoding = "UTF-8")[[3]] 
-         
+
+         #httr::content(login_status, "parsed", "application/json", encoding = "UTF-8")[[3]]
+
        }
 
       }
 
   })
-
-  user_info <- reactive({
-    httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
-  })
-
-  output$username <- renderText({
-  if(is.null(login_status)){
-   NULL 
-  } else {
-    if(status_code(login_status)!=200){
-      NULL
-    } else {
-      user_info()$Fullname
-    }
-  }
-  })
-
+  
    #-----------------------------------------------------------------
    #  Dashboard Buttons
    #-----------------------------------------------------------------
@@ -127,150 +120,135 @@ shinyServer(function(input, output, session) {
   
   # Generate metadata table to create initial query parameters
 
-    datasets <- reactive({
-      if(status_code(login_status) == 200){
-      getDatastores(cdms_host = cdms_host) %>%
-      mutate(DatastoreDatasetId = as.integer(DatastoreDatasetId)) %>%
-      rename(DatasetId = Id, DatasetName = Name) %>%
-      arrange(DatasetName)
-      }
-    })
-      
-    projects <- reactive({
-      if(status_code(login_status) == 200){
-      getProjects(cdms_host = cdms_host) %>%
-      rename(ProjectName = Name) %>%
-      arrange(ProjectName)
-      }
-    })
+     datasets <- eventReactive(input$login, ignoreNULL = TRUE, {
+       #reactive({
+       if(html_code == 200){
+       getDatastores(cdms_host = cdms_host) %>%
+           rename(DatastoreId = Id, DatastoreName = Name)
+       #getDatasets(cdms_host = cdms_host)
+       }
+     })
   
-    locations <- reactive({
-      if(status_code(login_status) == 200){      
-      getLocations(cdms_host = cdms_host) %>%
-      rename(LocationId = Id, LocationName = Name) %>%
-      arrange(LocationName)
-      }
-    })
-  
-    waterbodies <- reactive({
-      if(status_code(login_status) == 200){      
-      getWaterbodies(cdms_host = cdms_host) %>%
-      rename(WaterBodyId = Id, WaterBodyName = Name) %>%
-      arrange(WaterBodyName)
-      }
-    })
-      
-    metadata <- reactive({
-      if(status_code(login_status) == 200){      
-      inner_join(datasets(), locations(), by = c('DatastoreDatasetId' = 'LocationTypeId')) %>%
-      inner_join(projects(), by = 'ProjectId') %>%
-      inner_join(waterbodies(), by = 'WaterBodyId')
-      }
-    })
+  output$raw_dataset_menu <- renderUI({
+    
+    dataset <- datasets() %>%
+      select(DatastoreId, DatastoreName) %>%
+      distinct(DatastoreId, .keep_all = TRUE) %>%
+      arrange(DatastoreName)
+    
+    datasets_ls <- as.list(dataset[,1])
+    names(datasets_ls) <- dataset[,2]
+    selectInput("datasets", h3("Data Type:"), choices = datasets_ls, selectize = TRUE)
+  })
+
+  # projects <- eventReactive(input$datasets, ignoreNULL = TRUE, {
+  #      getProjects(cdms_host = cdms_host) %>%
+  #      rename(ProjectName = Name) %>%
+  #      arrange(ProjectName)
+  #    })
+  #    
+  #    output$project_menu <- renderUI({
+  #        project <- inner_join(datasets(),projects(), by = "ProjectId") %>%
+  #          filter(DatastoreId == input$datasets) %>%
+  #          select(ProjectId, ProjectName) %>%
+  #          distinct(ProjectId, .keep_all = TRUE)
+  # 
+  #        project_ls <- as.list(c('NULL', project[,1]))
+  #        names(project_ls) <- c('All', project[,2])
+  # 
+  #        selectInput("projects", h3("Project:"), choices = project_ls, selected = 'All', selectize = TRUE)
+  #    })
+  #     
+  #     
+  #    locations <- eventReactive(input$projects, ignoreNULL = TRUE, {
+  #      getLocations(cdms_host = cdms_host) %>%
+  #      rename(LocationId = Id, LocationName = Name)
+  #      })
+  # 
+  #    output$waterbody_menu <- renderUI({
+  #      
+  #      w_df <- locations()$WaterBody
+  #      loc_df <- df[,-df$WaterBody]
+  #      w_df <- df$WaterBody
+  #      
+  #        waterbody <- datasets() %>%
+  #          
+  #          tmp %>%
+  #          filter(DatastoreId == 68) %>% #input$datasets) %>%
+  #          filter(ProjectId == 11052) %>% #input$projects) %>%
+  #          inner_join(df, by = 'ProjectId') %>%
+  #          select(WaterBodyId, WaterBody.Name)
+  #         distinct(WaterBodyId, .keep_all = TRUE)
+  #         
+  #         waterbody_ls <- as.list(c('NULL', waterbody[,1]))
+  #         names(waterbody_ls) <- c('All', waterbody[,2])  
+  # 
+  #        selectInput('waterbody', h3("Stream: Tributary To:"), waterbody_ls, selected = 'All', selectize=TRUE)
+  #      })
+
+
+     # output$location_menu <- eventReactive(input$waterbody,{
+     #   
+     #   renderUI({
+     #     location <- locations() %>%
+     #       select(LocationId, LocationName) %>%
+     #       distinct(LocationId, .keep_all = TRUE)
+     #     
+     #     location_ls <- as.list(c('NULL', location[,1]))
+     #     names(location_ls) <- c('All', location[,2])
+     #     
+     #     selectInput('location', h3("Location:"), location_ls, selected = 'All', selectize = TRUE)
+     #   })
+     # })
+     
+
+    
+     # metadata <- eventReactive(input$login, ignoreNULL = TRUE, {
+     #   #reactive({
+     #   if(status_code(login_status) == 200){
+     #   inner_join(datasets(), locations(), by = c('DatastoreDatasetId' = 'LocationTypeId')) %>%
+     #   inner_join(projects(), by = 'ProjectId') %>%
+     #   inner_join(waterbodies(), by = 'WaterBodyId')
+     #   }
+     # })
     
   #-----------------------------------------------------------------
   #  Raw Data
   #-----------------------------------------------------------------  
   # build select boxes for raw data query parameters
   
-  output$dataset_menu <- renderUI({
-    datasetid <- datasets() %>%
-      distinct(DatasetId) %>%
-      pull()
-    
-    datasetname <- datasets() %>%
-      distinct(DatasetName) %>%
-      pull()
-    
-    datasets_ls <- as.list(datasetid)
-    names(datasets_ls) <- datasetname
-    selectInput("datasets", h3("Dataset:"), choices = datasets_ls, selectize = TRUE)
-  })   
 
-  output$project_menu <- renderUI({
-    projectid <- metadata() %>%
-      arrange(ProjectName) %>%
-      filter(DatasetId == input$datasets) %>%
-      distinct(ProjectId) %>%
-      pull()
-    
-    projectname <- metadata() %>%
-      arrange(ProjectName) %>%
-      filter(DatasetId == input$datasets) %>%
-      distinct(ProjectName) %>%
-      pull()
-    
-    project_ls <- as.list(c('NULL', projectid))
-    names(project_ls) <- c('All', projectname)
-    
-    selectInput("projects", h3("Project:"), choices = project_ls, selected = 'All', selectize = TRUE)
-  })   
-   
-   output$waterbody_menu <- renderUI({
-     waterbodyid <- metadata() %>%
-       arrange(WaterBodyName) %>%
-       filter(DatasetId == input$datasets,
-              ProjectId == input$projects) %>%
-       distinct(WaterBodyId) %>%
-       pull()
-     
-     waterbodyname <- metadata() %>%
-       arrange(WaterBodyName) %>%
-       filter(DatasetId == input$datasets,
-              ProjectId == input$projects) %>%
-       distinct(WaterBodyName) %>%
-       pull()
-     
-     waterbody_ls <- as.list(c('NULL', waterbodyid))
-     names(waterbody_ls) <- c('All', waterbodyname)
-     
-     selectInput('waterbody', h3("Stream: Tributary To:"), waterbody_ls, selected = 'All', selectize=TRUE)
-   })
-   
-   output$location_menu <- renderUI({
-     locationid <- metadata() %>%
-       arrange(LocationName) %>%
-       filter(DatasetId == input$datasets,
-              ProjectId == input$projects,
-              WaterBodyId == input$waterbody) %>%
-       distinct(LocationId) %>%
-       pull()
-     
-     locationname <- metadata() %>%
-       arrange(LocationName) %>%
-       filter(DatasetId == input$datasets,
-              ProjectId == input$projects,
-              WaterBodyId == input$waterbody) %>%
-       distinct(LocationName) %>%
-       pull()
-     
-     location_ls <- as.list(c('NULL', locationid))
-     names(location_ls) <- c('All', locationname)
-     
-     selectInput('location', h3("Location:"), location_ls, selected = 'All', selectize = TRUE)
-   })
+
+
+
+
+
+
+
    
    # get the full dataset view for selected spp, run and survey years
    raw_dat <- eventReactive(input$raw_submit,{
-     getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = input$waterbody, locationID = input$location, cdms_host = cdms_host)
+     getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
      #getDatasetView(datastoreID = 68, waterbodyID = 1370, locationID = 601, cdms_host = "https://cdms.nptfisheries.org")
      }) 
    
-  raw_qry_params <- reactive({ 
-    paste0('Created by: Full Name, Date: ', Sys.Date(),
-           ', Dataset: ', input$datasets,
-           ', Project: ', input$projects,
-           ', Stream: ', input$waterbody,
-           ', Location: ', input$location) 
-  })
+  # raw_qry_params <- eventReactive(input$raw_submit,{
+  #   paste0('Created by: ', user_info$Fullname,
+  #          ', Date: ', Sys.Date(),
+  #          ', Dataset: ', input$datasets,
+  #          ', Project: ', input$projects,
+  #          ', Stream: ', input$waterbody,
+  #          ', Location: ', input$location) 
+  # })
  
  
   output$raw_table <- DT::renderDataTable({
     
     tmp_df <- raw_dat()
-    DT::datatable(tmp_df, options = list(orderClasses = TRUE), filter = 'top', 
-                  caption = paste0('Dataset generated from the Nez Perce Tribes centralized data base managment system
-                                   and should be cited accordingly. Query parameters were set as; ', raw_qry_params()))
+    DT::datatable(tmp_df, options = list(orderClasses = TRUE), filter = 'top')
+    # , 
+    #               caption = paste0('Dataset generated from the Nez Perce Tribes centralized data base managment system
+    #                                and should be cited accordingly. Query parameters were set as; ', raw_qry_params()))
   })
   
   
@@ -289,65 +267,65 @@ shinyServer(function(input, output, session) {
   #------------------------------------------------------------------------------
   # Start of summarized section
   #------------------------------------------------------------------------------
-  
-  output$sum_dataset_menu <- renderUI({
-    datasetid <- datasets() %>%
-      distinct(DatasetId) %>%
-      pull()
-    
-    datasetname <- datasets() %>%
-      distinct(DatasetName) %>%
-      pull()
-    
-    datasets_ls <- as.list(datasetid)
-    names(datasets_ls) <- datasetname
-    selectInput("sum_datasets", h3("Dataset:"), choices = datasets_ls, selectize = TRUE)
-  }) 
-  
-  sum_dat <- eventReactive(input$sum_submit,{
-    getDatasetView(datastoreID = input$sum_datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
-    #getDatasetView(datastoreID = 68, waterbodyID = 1370, locationID = 601, cdms_host = "https://cdms.nptfisheries.org")
-  }) 
-  
-  sum_qry_params <- reactive({ 
-    paste0('Created by: Full Name, Date: ', Sys.Date(),
-           ', Dataset: ', input$sum_datasets) 
-  })
-  
-  output$sum_table <- DT::renderDataTable({
-    tmp_df <- sum_dat()
-    DT::datatable(tmp_df, options = list(orderClasses = TRUE), filter = 'top', 
-                  caption = paste0('Dataset generated from the Nez Perce Tribes centralized data base managment system
-                                   and should be cited accordingly. Query parameters were set as; ', sum_qry_params()))
-  })
-  
-  
-  # function for downloading data
-  output$sum_export <- downloadHandler(
-    filename = function() {
-      paste0(input$datasets,"_summary_data_", Sys.Date(), ".csv")
-    },
-    content = function(file) {
-      write.csv(sum_dat(), file, row.names = FALSE)
-    },
-    contentType = "text/csv"
-  )
-  
-  output$sum_plot <- renderPlot({
-    switch(input$sum_datasets,
-           
-           "68" = sum_dat() %>%
-             distinct(ActivityID, .keep_all = TRUE) %>%
-             group_by(MPG, POP, TRT_POPID, Species, Run, StreamName, SurveyYear) %>%
-             summarise(Redds = sum(NewRedds)) %>%
-             ggplot(aes(x = SurveyYear, y = Redds)) +
-             geom_line(aes(group=StreamName)) +
-             facet_wrap(~TRT_POPID)
-             , # redd plots
-           
-           "69" = plot(10,10) # carcass plots
-    )
-  })
+  # 
+  # output$sum_dataset_menu <- renderUI({
+  #   datasetid <- datasets() %>%
+  #     distinct(DatasetId) %>%
+  #     pull()
+  #   
+  #   datasetname <- datasets() %>%
+  #     distinct(DatasetName) %>%
+  #     pull()
+  #   
+  #   datasets_ls <- as.list(datasetid)
+  #   names(datasets_ls) <- datasetname
+  #   selectInput("sum_datasets", h3("Dataset:"), choices = datasets_ls, selectize = TRUE)
+  # }) 
+  # 
+  # sum_dat <- eventReactive(input$sum_submit,{
+  #   getDatasetView(datastoreID = input$sum_datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
+  #   #getDatasetView(datastoreID = 68, waterbodyID = 1370, locationID = 601, cdms_host = "https://cdms.nptfisheries.org")
+  # }) 
+  # 
+  # sum_qry_params <- reactive({ 
+  #   paste0('Created by: Full Name, Date: ', Sys.Date(),
+  #          ', Dataset: ', input$sum_datasets) 
+  # })
+  # 
+  # output$sum_table <- DT::renderDataTable({
+  #   tmp_df <- sum_dat()
+  #   DT::datatable(tmp_df, options = list(orderClasses = TRUE), filter = 'top', 
+  #                 caption = paste0('Dataset generated from the Nez Perce Tribes centralized data base managment system
+  #                                  and should be cited accordingly. Query parameters were set as; ', sum_qry_params()))
+  # })
+  # 
+  # 
+  # # function for downloading data
+  # output$sum_export <- downloadHandler(
+  #   filename = function() {
+  #     paste0(input$datasets,"_summary_data_", Sys.Date(), ".csv")
+  #   },
+  #   content = function(file) {
+  #     write.csv(sum_dat(), file, row.names = FALSE)
+  #   },
+  #   contentType = "text/csv"
+  # )
+  # 
+  # output$sum_plot <- renderPlot({
+  #   switch(input$sum_datasets,
+  #          
+  #          "68" = sum_dat() %>%
+  #            distinct(ActivityID, .keep_all = TRUE) %>%
+  #            group_by(MPG, POP, TRT_POPID, Species, Run, StreamName, SurveyYear) %>%
+  #            summarise(Redds = sum(NewRedds)) %>%
+  #            ggplot(aes(x = SurveyYear, y = Redds)) +
+  #            geom_line(aes(group=StreamName)) +
+  #            facet_wrap(~TRT_POPID)
+  #            , # redd plots
+  #          
+  #          "69" = plot(10,10) # carcass plots
+  #   )
+  # })
   
   
   
