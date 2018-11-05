@@ -25,8 +25,8 @@ source('./R/getDatasets.R')
 # Need to set tribal specific variables
 cdms_host <- 'https://cdms.nptfisheries.org'
 #cdms_host <- 'localhost'
-username <- 'ryank'
-api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
+#username <- 'ryank'
+#api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
 
 # Define server logic
 shinyServer(function(input, output, session) {
@@ -40,70 +40,70 @@ shinyServer(function(input, output, session) {
    user_info <- NULL
 
    
-   login_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
-   html_code <- status_code(login_status)
-   user_info <- httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
+   # login_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
+   # html_code <- status_code(login_status)
+   # user_info <- httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
    #output$username <- renderText({user_info$Fullname})
    
   
-  # showModal(modalDialog(
-  #   textInput('username','Username'),
-  #   passwordInput('password', 'Password'),
-  #   actionButton('login', 'Login'),
-  #   size = "m",
-  #   easyClose = FALSE,
-  #   title = "DFRM Fisheries Data Access",
-  #   footer = "Please contact Clark Watry (clarkw@nezperce.org) to request login credentials."
-  #   ))
-  # 
-  # observeEvent(input$login, priority = 1, {
-  # 
-  #   if(input$username == '' | input$password == '')
-  #    {
-  #      showModal(modalDialog(
-  #        textInput('username','Username'),
-  #        passwordInput('password', 'Password'),
-  #        actionButton('login', 'Login'),
-  #        size = "m",
-  #        easyClose = FALSE,
-  #        title = "Username or password fields are blank.",
-  #        footer = "Please fill in your username and password correctly."
-  #      ))
-  #    } else {
-  # 
-  #      login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host)  #input$password
-  #      html_code <<- status_code(login_status)
-  # 
-  #      if(html_code != 200) {  #status_code(login_status)
-  #        showModal(modalDialog(
-  #          textInput('username','Username'),
-  #          passwordInput('password', 'Password'),
-  #          actionButton('login', 'Login'),
-  #          size = "m",
-  #          easyClose = FALSE,
-  #          title = "Invalid Username or Password",
-  #          footer = "I'm sorry you are having trouble. Try re-checking the post-it note on your computer screen."
-  #        ))
-  #      } else {
-  #        removeModal()
-  # 
-  #        user_info <<- httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
-  #        output$username <- renderText({user_info$Fullname})
-  #        #login_status
-  #        # output$home_buttons <- renderUI({
-  #        #   div(class = 'homebutton', style="display: inline-block;", "Fish Management")
-  #        #   div(class = 'homebutton', style="display: inline-block;", "Summarized Data")
-  #        #   div(class = 'homebutton', style="display: inline-block;", "Raw Data")
-  #        #   div(class = 'homebutton', style="display: inline-block;", "Data Entry")
-  #        # })
-  # 
-  #        #httr::content(login_status, "parsed", "application/json", encoding = "UTF-8")[[3]]
-  # 
-  #      }
-  # 
-  #     }
-  # 
-  # })
+  showModal(modalDialog(
+    textInput('username','Username'),
+    passwordInput('password', 'Password'),
+    actionButton('login', 'Login'),
+    size = "m",
+    easyClose = FALSE,
+    title = "DFRM Fisheries Data Access",
+    footer = "Please contact Clark Watry (clarkw@nezperce.org) to request login credentials."
+    ))
+
+  observeEvent(input$login, priority = 1, {
+
+    if(input$username == '' | input$password == '')
+     {
+       showModal(modalDialog(
+         textInput('username','Username'),
+         passwordInput('password', 'Password'),
+         actionButton('login', 'Login'),
+         size = "m",
+         easyClose = FALSE,
+         title = "Username or password fields are blank.",
+         footer = "Please fill in your username and password correctly."
+       ))
+     } else {
+
+       login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host)  #input$password
+       html_code <<- status_code(login_status)
+
+       if(html_code != 200) {  #status_code(login_status)
+         showModal(modalDialog(
+           textInput('username','Username'),
+           passwordInput('password', 'Password'),
+           actionButton('login', 'Login'),
+           size = "m",
+           easyClose = FALSE,
+           title = "Invalid Username or Password",
+           footer = "I'm sorry you are having trouble. Try re-checking the post-it note on your computer screen."
+         ))
+       } else {
+         removeModal()
+
+         user_info <<- httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
+         output$username <- renderText({user_info$Fullname})
+         #login_status
+         # output$home_buttons <- renderUI({
+         #   div(class = 'homebutton', style="display: inline-block;", "Fish Management")
+         #   div(class = 'homebutton', style="display: inline-block;", "Summarized Data")
+         #   div(class = 'homebutton', style="display: inline-block;", "Raw Data")
+         #   div(class = 'homebutton', style="display: inline-block;", "Data Entry")
+         # })
+
+         #httr::content(login_status, "parsed", "application/json", encoding = "UTF-8")[[3]]
+
+       }
+
+      }
+
+  })
   
    #-----------------------------------------------------------------
    #  Dashboard Buttons
