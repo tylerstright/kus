@@ -10,13 +10,18 @@
 library(shiny)
 library(shinycssloaders)
 library(tidyverse)
+library(httr)
 library(lubridate)
+library(plotly)
+library(leaflet)
 
 # Define UI for application that draws a histogram
 shinyUI(
   navbarPage(title = div(#div(id = "header-id", "KUS: DFRM Fisheries Data"),
                          #div(id = 'user-name', textOutput('username')),
-                         div(id = 'user-name', tags$li(actionLink("openlogin", label = 'Login'), class = 'dropdown')),
+                         #div(id = 'user-name', tags$li(actionLink("openlogin", label = 'Login'), class = 'dropdown')),
+                         #tags$li(actionLink(inputId = "openlogin", label = 'Login'), class = 'dropdown'),
+                         #div(id = 'user-name', actionLink(inputId = "openlogin", label = 'Login')),
                          div(id = 'logo-id',img(src="NPTlogos2.png", height = "70px")),
                          tags$a("DFRM Home",href = 'http://www.nptfisheries.org')
 
@@ -32,9 +37,24 @@ shinyUI(
              #              accuracy.  Permission to use the data should be sought from the original collectors and managers
              #              which can be found on the About Us tab."),
              
-             tabPanel("Kus Home"
-
-
+             tabPanel("Kus Home",
+                      fluidPage(
+                        fluidRow(
+                          column(12, leafletOutput('redd_map', height = 500, width = "100%"))
+                        ),
+                        fluidRow(
+                          column(12, withSpinner(plotlyOutput('home_river')))
+                        ),
+                        hr(),
+                        fluidRow(
+                          column(6, withSpinner(plotlyOutput('home_BONwin', height = 800))),
+                          column(6, withSpinner(plotlyOutput('home_LGRwin', height = 800)))
+                        ),
+                        hr(),
+                        fluidRow(
+                          column(12, withSpinner(plotlyOutput('home_redd')))
+                        )
+                      )
               ),
              navbarMenu("Summarized Data",
                       tabPanel("Snake Basin Populaiton Indicators and Metrics"),
@@ -50,6 +70,7 @@ shinyUI(
                                )
              ),
              navbarMenu("Fish Management",
+                        tabPanel(tags$a("In-season Snake Basin Management")),
                         tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
                         tabPanel(tags$a("PITtrackR", href = "https://nptfisheries.shinyapps.io/PITtrackR/"))
                         ),

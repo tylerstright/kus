@@ -7,19 +7,22 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-library(tidyverse)
-library(httr)
+# library(shiny)
+# library(tidyverse)
+# library(httr)
+# library(plotly)
+# library(leaflet)
 #devtools::install_github('ryankinzer/cdmsR')
 #library(cdmsR)
 
 source('./R/cdmsLogin.R')
 source('./R/getDatastores.R')
+#source('./R/getHeaderRecords.R')
 source('./R/getProjects.R')
-source('./R/getLocations.R')
-source('./R/getWaterbodies.R')
+#source('./R/getLocations.R')
+#source('./R/getWaterbodies.R')
 source('./R/getDatasetView.R')
-source('./R/getDatasets.R')
+#source('./R/getDatasets.R')
 source('./R/queryRiverData.R')
 source('./R/queryWindowCnts.R')
 
@@ -43,18 +46,56 @@ html_code <- status_code(login_status)
 user_info <- httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
 
 #------------------------------------------------------------------
-# Login Modal
+# Gather data for homepage
 #------------------------------------------------------------------
-observeEvent(input$openlogin, {
+
+# get redd data
+#redd_df <- getDatasetView(datastoreID = 68, cdms_host = cdms_host)
+load('./data/redd_df.rda')
+
+redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
+mutate(SppRun = paste0(Species, " - ", Run))
+
+# redd_locs <- redd_df %>%
+#   filter(!is.na(Latitude),
+#          !is.na(Longitude))
+
+# get map data
+#load('./data/map_data.Rdata')
+
+# get river flow data
+river_df <- bind_rows(queryRiverData(site = 'LWG',
+                                     year = year(Sys.Date()),
+                                     start_day = '01/01',
+                                     end_day = format(Sys.Date(), '%m/%d')) %>%
+                        mutate_all(as.character),
+                      queryRiverData(site = 'BON',
+                                     year = year(Sys.Date()),
+                                     start_day = '01/01',
+                                     end_day = format(Sys.Date(), '%m/%d')) %>%
+                        mutate_all(as.character)) %>%
+  mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+         Date = as.Date(Date),
+         Inflow = as.numeric(Inflow)) %>%
   
-})
+  select(Dam, Site, Date, everything())
 
+# get window count
+win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+                                    spawn_yr = year(Sys.Date()), start_day = '01/01', end_day = format(Sys.Date(), '%m/%d')) %>%
+                      mutate(Site = 'LWG'),
+                    queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+                                    spawn_yr = year(Sys.Date()), start_day = '01/01', end_day = format(Sys.Date(), '%m/%d')) %>%
+                      mutate(Site = 'BON')) %>%
+  mutate(Chinook = Chinook + Jack_Chinook,
+         Coho = Coho + Jack_Coho,
+         Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+         Date = as.Date(Date)) %>%
+  select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
 
-
-
-#------------------------------------------------------------------
+#------------------------------------------
 # Gather available datasets from CDMS
-#------------------------------------------------------------------
+#------------------------------------------
 
 if(html_code == 200){
   datasets <- getDatastores(cdms_host = cdms_host) %>%
@@ -65,28 +106,121 @@ if(html_code == 200){
 shinyServer(function(input, output, session) {
 
   #------------------------------------------------------------------
-  # Homepage Plots and Data
+  # Plot homepage figures and data summaries
   #------------------------------------------------------------------
 
-   
-   output$sum_plot <- renderPlot({
-     switch(input$sum_datasets,
+   # Decided on four plots; spatial map of redd counts, redd count trend, window counts, hydrosystem and flow/spill,
+   # could also include carcass sex ratios and size
+  
+  # 1. Spatial redd locations
+  
+  output$redd_map <- renderLeaflet({
+    
+    pal <- colorFactor(palette = rainbow(3),
+                       redd_df$SppRun)
+    
+    groups <- as.character(unique(redd_df$SppRun))
+    
+    map <- leaflet(redd_df[redd_df$SurveyYear==year(Sys.Date())-1,]) %>%
+      fitBounds(-118.5, 43, -113, 47.8) %>%
+      addProviderTiles(providers$Esri.WorldTopoMap)
+    
+    for(g in groups){
+      d = redd_df[redd_df$SurveyYear==year(Sys.Date())-1 & redd_df$SppRun == g,]
+      map = map %>% addCircleMarkers(data = d, lat = ~Latitude, lng = ~Longitude, label = ~WPTName,
+                                     group = g, color = ~pal(SppRun),
+                                     #clusterOptions = markerClusterOptions(),
+                                     fillOpacity = .25)
+    }
 
-            "68" = sum_dat() %>%
-              distinct(ActivityID, .keep_all = TRUE) %>%
-              group_by(MPG, POP, TRT_POPID, Species, Run, StreamName, SurveyYear) %>%
-              summarise(Redds = sum(NewRedds)) %>%
-              ggplot(aes(x = SurveyYear, y = Redds)) +
-              geom_line(aes(group=StreamName)) +
-              facet_wrap(~TRT_POPID)
-              , # redd plots
+    map %>% 
+      addLayersControl(
+        overlayGroups = groups,
+        options = layersControlOptions(collapsed = TRUE)) %>%
+      addLegend(pal = pal, values = ~SppRun, title = '', position = 'bottomleft')
 
-            "69" = plot(10,10) # carcass plots
-     )
-   })
-   
-   
-   
+  })
+  
+  # # 1. Trend redd counts
+  
+  output$home_redd <- renderPlotly({
+    
+    p <- redd_df %>%
+      distinct(ActivityId, .keep_all = TRUE) %>%
+      group_by(ESU, MPG, POP, SppRun, SurveyYear) %>%
+      summarise(TotalRedds = sum(NewRedds, na.rm = TRUE)) %>%
+      ggplot(aes(x = SurveyYear, y = TotalRedds)) +
+      geom_line(aes(colour = POP), size = 1) +
+      geom_point(aes(colour = POP), size = 2) +
+      scale_colour_viridis_d() +
+      facet_wrap(~SppRun, ncol = 1, scale = 'free') +
+      theme_grey() +
+      labs(x = 'Survey Year',
+           y = 'Total Redds',
+           colour = 'Population',
+           title = '')
+    
+    ggplotly(p, height = 700) %>% layout(margin = list(b = 50, l = 90))
+    
+  })
+  
+  # 2. River Flow and Spill
+
+  output$home_river <- renderPlotly({
+    p <- river_df %>%
+      ggplot(aes(x = Date)) +
+      geom_line(aes(y = Inflow), colour = 'darkblue', size = 1) +
+      scale_x_date(date_labels = format('%b-%d')) +
+      facet_wrap(~Dam, nrow =1) +
+      theme_grey() +
+      labs(x = 'Date',
+           y = 'Inflow (kcfs)',
+           title = '')
+
+    ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
+  })
+  
+  # 3. Window Counts
+
+    output$home_BONwin <- renderPlotly({
+    p <- win_df %>%
+      filter(Dam == 'Bonneville') %>%
+      gather(species, count, Chinook:Lamprey) %>%
+      ggplot(aes(x = Date, y = count)) +
+      geom_bar(aes(fill = species), stat = 'identity') +
+      scale_fill_viridis_d() +
+      scale_x_date(date_labels = format('%b-%d')) +
+      facet_grid(species~Dam, scales = 'free_y') +
+      theme_grey() +
+      theme(legend.position = 'none') +
+      labs(x = 'Date',
+           y = 'Daily Window Count',
+           title = ''
+      )
+
+    ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
+  })
+
+  output$home_LGRwin <- renderPlotly({
+    p <- win_df %>%
+      filter(Dam == 'Lower Granite') %>%
+      gather(species, count, Chinook:Lamprey) %>%
+      ggplot(aes(x = Date, y = count)) +
+      geom_bar(aes(fill = species), stat = 'identity') +
+      scale_fill_viridis_d() +
+      scale_x_date(date_labels = format('%b-%d')) +
+      facet_grid(species~Dam, scales = 'free_y') +
+      #facet_wrap(~Dam, scales = 'free_x') +
+      theme_grey() +
+      theme(legend.position = 'none') +
+      labs(x = 'Date',
+           y = 'Daily Window Count',
+           title = ''
+      )
+
+    ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
+  })
+
    #----------------------------------------------------------------
    # Pre- and In-Season Management
    #----------------------------------------------------------------
