@@ -30,15 +30,30 @@ source('./R/queryWindowCnts.R')
 # Need to set tribal specific variables
 cdms_host <- 'https://cdms.nptfisheries.org'
 #cdms_host <- 'localhost'
-#username <- 'api_user'
-#api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
+username <- 'api_user'
+api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
 
 #-----------------------------------------------------------------
 # Login landing page
 #-----------------------------------------------------------------
 
 login_status <- NULL
-makeReactiveBinding("login_status")
+makeReactiveBinding("login_status") # for Login Functionality
+
+html_code <- NULL
+user_info <- NULL
+
+startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
+html_code <- status_code(startup_status)
+user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
+#------------------------------------------
+# Gather available datasets from CDMS
+#------------------------------------------
+
+if(html_code == 200){
+  datasets <- getDatastores(cdms_host = cdms_host) %>%
+    rename(DatastoreId = Id, DatastoreName = Name)
+}
 
 #------------------------------------------------------------------
 # Gather data for homepage
@@ -92,6 +107,7 @@ win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk',
          Date = as.Date(Date)) %>%
   select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
 
+
 #------------------------------------------
 # Javascript for "Enter" button
 #------------------------------------------
@@ -117,7 +133,7 @@ shinyServer(function(input, output, session) {
     hide(selector = "#kus_navbar li a[data-value=data_entry]" )    # data entry
   })
   
-  # Show Tabs and Gather available datasets from CDMS      
+  # Show Tabs     
   #--------------------------------------------------
   observeEvent(input$login, {
       delay(1000, 
@@ -125,10 +141,10 @@ shinyServer(function(input, output, session) {
               NULL
             } else {
                 if(status_code(login_status)==200) {
-                  toggle(selector = "#kus_navbar li a[data-value=tab_rawdata]")
-                  toggle(selector = "#kus_navbar li a[data-value=data_entry]")
-                  datasets <- getDatastores(cdms_host = cdms_host) %>%  # gather CDMS Data
-                    rename(DatastoreId = Id, DatastoreName = Name)
+                  show(selector = "#kus_navbar li a[data-value=tab_rawdata]")
+                  show(selector = "#kus_navbar li a[data-value=data_entry]")
+                  # datasets <- getDatastores(cdms_host = cdms_host) %>%  # gather CDMS Data
+                  #   rename(DatastoreId = Id, DatastoreName = Name)
                 }
             } 
       )
