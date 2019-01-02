@@ -65,14 +65,14 @@ mutate(SppRun = paste0(Species, " - ", Run))
 
 # get river flow data
 river_df <- bind_rows(queryRiverData(site = 'LWG',
-                                     year = year(Sys.Date()),
+                                     year = 2018, #year(Sys.Date()),
                                      start_day = '01/01',
-                                     end_day = format(Sys.Date(), '%m/%d')) %>%
+                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
                         mutate_all(as.character),
                       queryRiverData(site = 'BON',
-                                     year = year(Sys.Date()),
+                                     year = 2018, #year(Sys.Date()),
                                      start_day = '01/01',
-                                     end_day = format(Sys.Date(), '%m/%d')) %>%
+                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
                         mutate_all(as.character)) %>%
   mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
          Date = as.Date(Date),
@@ -82,10 +82,14 @@ river_df <- bind_rows(queryRiverData(site = 'LWG',
 
 # get window count
 win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                    spawn_yr = year(Sys.Date()), start_day = '01/01', end_day = format(Sys.Date(), '%m/%d')) %>%
+                                    spawn_yr = 2018, #year(Sys.Date()),
+                                    start_day = '01/01', 
+                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
                       mutate(Site = 'LWG'),
                     queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                    spawn_yr = year(Sys.Date()), start_day = '01/01', end_day = format(Sys.Date(), '%m/%d')) %>%
+                                    spawn_yr = 2018, #year(Sys.Date()),
+                                    start_day = '01/01',
+                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
                       mutate(Site = 'BON')) %>%
   mutate(Chinook = Chinook + Jack_Chinook,
          Coho = Coho + Jack_Coho,
@@ -121,12 +125,12 @@ shinyServer(function(input, output, session) {
     
     groups <- as.character(unique(redd_df$SppRun))
     
-    map <- leaflet(redd_df[redd_df$SurveyYear==year(Sys.Date())-1,]) %>%
+    map <- leaflet(redd_df[redd_df$SurveyYear==year(Sys.Date())-2,]) %>%
       fitBounds(-118.5, 43, -113, 47.8) %>%
       addProviderTiles(providers$Esri.WorldTopoMap)
     
     for(g in groups){
-      d = redd_df[redd_df$SurveyYear==year(Sys.Date())-1 & redd_df$SppRun == g,]
+      d = redd_df[redd_df$SurveyYear==year(Sys.Date())-2 & redd_df$SppRun == g,]
       map = map %>% addCircleMarkers(data = d, lat = ~Latitude, lng = ~Longitude, label = ~WPTName,
                                      group = g, color = ~pal(SppRun),
                                      #clusterOptions = markerClusterOptions(),
