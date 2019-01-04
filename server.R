@@ -38,12 +38,22 @@ api_key <- "15305445313005328123958241094395824109453772653886054226254075054264
 #-----------------------------------------------------------------
 
 login_status <- NULL
+makeReactiveBinding("login_status") # for Login Functionality
+
 html_code <- NULL
 user_info <- NULL
 
-login_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
-html_code <- status_code(login_status)
-user_info <- httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
+startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
+html_code <- status_code(startup_status)
+user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
+#------------------------------------------
+# Gather available datasets from CDMS
+#------------------------------------------
+
+if(html_code == 200){
+  datasets <- getDatastores(cdms_host = cdms_host) %>%
+    rename(DatastoreId = Id, DatastoreName = Name)
+}
 
 #------------------------------------------------------------------
 # Gather data for homepage
@@ -97,17 +107,135 @@ win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk',
          Date = as.Date(Date)) %>%
   select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
 
-#------------------------------------------
-# Gather available datasets from CDMS
-#------------------------------------------
 
-if(html_code == 200){
-  datasets <- getDatastores(cdms_host = cdms_host) %>%
-    rename(DatastoreId = Id, DatastoreName = Name)
+#------------------------------------------
+# Javascript for "Enter" button
+#------------------------------------------
+jscode <- '
+$(document).keyup(function(event) {
+if ((event.keyCode == 13)) {
+$("#login").click();
 }
+});
+'
+
 
 # Define server logic
 shinyServer(function(input, output, session) {
+
+  
+  #------------------------------------------------------------------
+  # Hide tabs, Show tabs, Get CDMS datasets
+  #------------------------------------------------------------------
+  # Hide tabs
+  observe({
+    hide(selector = "#kus_navbar li a[data-value=tab_rawdata]" )   # raw data
+    hide(selector = "#kus_navbar li a[data-value=data_entry]" )    # data entry
+  })
+  
+  # Show Tabs     
+  #--------------------------------------------------
+  observeEvent(input$login, {
+      delay(1000, 
+            if(is.null(login_status)) {
+              NULL
+            } else {
+                if(status_code(login_status)==200) {
+                  show(selector = "#kus_navbar li a[data-value=tab_rawdata]")
+                  show(selector = "#kus_navbar li a[data-value=data_entry]")
+                  # datasets <- getDatastores(cdms_host = cdms_host) %>%  # gather CDMS Data
+                  #   rename(DatastoreId = Id, DatastoreName = Name)
+                }
+            } 
+      )
+    })
+  
+
+  #------------------------------------------------------------------
+  # DFRM Login
+  #------------------------------------------------------------------
+  
+  # User information
+  user_info <- reactive({
+    httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
+  })
+
+  # Create a Login Link that disappears after successful login
+    output$log_link <- renderUI({
+    if(is.null(login_status)) {
+      actionLink('login_link', 'Login Link')
+    } else {
+      if(status_code(login_status)!=200){
+        actionLink('login_link', 'Login Link')
+      } else {
+          if(status_code(login_status)==200) {
+            NULL }
+        }
+      }
+   })
+
+
+  # Display Full Name after successful login
+  output$full_name <- renderText({
+    if(is.null(login_status)){
+      NULL
+    } else {
+      if(status_code(login_status)!=200){
+        NULL
+      } else {
+        user_info()$Fullname
+      }
+    }
+  })
+  
+
+  # Login Modal
+  observeEvent(input$login_link,
+               showModal(modalDialog(
+                 textInput('username','Username'), 
+                 passwordInput('password', 'Password'), 
+                 tags$head(tags$script(HTML(jscode))),
+                 actionButton('login', 'Login'),
+                 size = "m",
+                 easyClose = TRUE,
+                 title = "DFRM Fisheries Data Access",
+                 footer = "Please contact Clark Watry (clarkw@nezperce.org) to request login credentials."
+               ))
+  )
+  observeEvent(input$login, {
+    
+    if(input$username == '' | input$password == '')
+    {
+      showModal(modalDialog(
+        textInput('username','Username'),
+        passwordInput('password', 'Password'),
+        tags$head(tags$script(HTML(jscode))),
+        actionButton('login', 'Login'),
+        size = "m",
+        easyClose = TRUE,
+        title = "Username or password fields are blank.",
+        footer = "Please fill in your username and password correctly."
+      ))
+    } else {
+      login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host) 
+      
+      if(status_code(login_status) != 200) {
+        showModal(modalDialog(
+          textInput('username','Username'),
+          passwordInput('password', 'Password'),
+          tags$head(tags$script(HTML(jscode))),
+          actionButton('login', 'Login'),
+          size = "m",
+          easyClose = TRUE,
+          title = "Invalid Username or Password",
+          footer = "I'm sorry you are having trouble. Try re-checking the post-it note on your computer screen."
+        ))
+      } else {
+        removeModal()
+      }
+    }
+  })
+  
 
   #------------------------------------------------------------------
   # Plot homepage figures and data summaries
@@ -144,9 +272,9 @@ shinyServer(function(input, output, session) {
       addLegend(pal = pal, values = ~SppRun, title = '', position = 'bottomleft')
 
   })
-  
-  # # 1. Trend redd counts
-  
+
+  # 1. Trend redd counts
+
   output$home_redd <- renderPlotly({
     
     p <- redd_df %>%
@@ -183,7 +311,7 @@ shinyServer(function(input, output, session) {
 
     ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
   })
-  
+
   # 3. Window Counts
 
     output$home_BONwin <- renderPlotly({
@@ -233,7 +361,8 @@ shinyServer(function(input, output, session) {
      yr <- 2006:year(Sys.Date())
      selectInput('obs_year', 'Migratory Year', choices = yr, selected = year(Sys.Date()), selectize = TRUE)
    })
-   
+
+
    # Gather river conditions from DART
     flow_df <- eventReactive(input$year_submit, {
       bind_rows(queryRiverData(site = 'LWG', 
