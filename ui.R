@@ -14,14 +14,12 @@ library(httr)
 library(lubridate)
 library(plotly)
 library(leaflet)
+library(shinyjs)
 
 # Define UI for application that draws a histogram
 shinyUI(
-  navbarPage(title = div(#div(id = "header-id", "KUS: DFRM Fisheries Data"),
-                         #div(id = 'user-name', textOutput('username')),
-                         #div(id = 'user-name', tags$li(actionLink("openlogin", label = 'Login'), class = 'dropdown')),
-                         #tags$li(actionLink(inputId = "openlogin", label = 'Login'), class = 'dropdown'),
-                         #div(id = 'user-name', actionLink(inputId = "openlogin", label = 'Login')),
+  navbarPage(title = div(div(id = 'user-name', textOutput('full_name')),
+                         div(id = 'user-name', uiOutput('log_link')),
                          div(id = 'logo-id',img(src="NPTlogos2.png", height = "70px")),
                          tags$a("DFRM Home",href = 'http://www.nptfisheries.org')
 
@@ -38,6 +36,7 @@ shinyUI(
              #              which can be found on the About Us tab."),
              
              tabPanel("Kus Home",
+                      useShinyjs(),   # include Shiny JS
                       fluidPage(
                         fluidRow(
                           column(12, leafletOutput('redd_map', height = 500, width = "100%"))
@@ -89,7 +88,7 @@ shinyUI(
                         tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
                         tabPanel(tags$a("PITtrackR", href = "https://nptfisheries.shinyapps.io/PITtrackR/"))
                         ),
-             tabPanel("Raw Data", id = 'raw_data',
+             tabPanel("Raw Data", id = 'raw_data', value = 'tab_rawdata',
                       fluidPage(
                           fluidRow(
                                 column(3, uiOutput("raw_dataset_menu"))
