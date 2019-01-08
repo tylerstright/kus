@@ -259,8 +259,15 @@ shinyServer(function(input, output, session) {
     groups <- as.character(unique(redd_df$SppRun))
     
     map <- leaflet(redd_df[redd_df$SurveyYear==year(Sys.Date())-2,]) %>%
-      fitBounds(-118.5, 43, -113, 47.8) %>%
-      addProviderTiles(providers$Esri.WorldTopoMap)
+      setView(lat = 45.65,
+              lng = -115.85,
+              zoom = 7) %>%
+      setMaxBounds(lng1 = -122,
+                   lat1 = 42,
+                   lng2 = -110,
+                   lat2 = 49) %>%
+      addProviderTiles(providers$Esri.WorldTopoMap,
+                       options = providerTileOptions(minZoom = 6))
     
     for(g in groups){
       d = redd_df[redd_df$SurveyYear==year(Sys.Date())-2 & redd_df$SppRun == g,]
