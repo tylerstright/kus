@@ -56,9 +56,24 @@ shinyUI(
                         )
                       )
               ),
-             navbarMenu("Summarized Data",
-                      tabPanel("Snake Basin Populaiton Indicators and Metrics"),
-                      tabPanel("Spawning Ground Surveys"),
+              navbarMenu("Summarized Data",
+                       tabPanel("Snake Basin Populaiton Indicators and Metrics"),
+                       tabPanel("Spawning Ground Surveys",
+                               sidebarLayout(
+                                   sidebarPanel(
+                                     style = "position:fixed;width:15%;",
+                                     width = 2,
+                                          uiOutput("streams_menu"),
+                                          actionButton("summ_reset", label = "Refresh", class = "mybutton",
+                                                       position = 'center', width = '100%'),
+                                     helpText('Select Streams and click "Refresh" to populate Summary Tables.')
+                                   ),
+                                 mainPanel(
+                                    titlePanel('Spawning Ground Surveys: Redd and Carcass Summaries'),
+                                    fluidPage(column(12, offset = 0, withSpinner(DT::dataTableOutput("summ_table"))))
+                                    )
+                                )
+                               ),
                       tabPanel("Weir Returns"),
                       tabPanel("Hydro-system Conditions and Fish Counts",
                                uiOutput("year_menu"),
