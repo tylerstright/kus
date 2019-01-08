@@ -79,38 +79,38 @@ redd_locs <- redd_df %>%
 load('./data/map_data.Rdata')
 
 # get river flow data
-river_df <- bind_rows(queryRiverData(site = 'LWG',
-                                     year = 2018, #year(Sys.Date()),
-                                     start_day = '01/01',
-                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                        mutate_all(as.character),
-                      queryRiverData(site = 'BON',
-                                     year = 2018, #year(Sys.Date()),
-                                     start_day = '01/01',
-                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                        mutate_all(as.character)) %>%
-  mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
-         Date = as.Date(Date),
-         Inflow = as.numeric(Inflow)) %>%
-
-  select(Dam, Site, Date, everything())
+# river_df <- bind_rows(queryRiverData(site = 'LWG',
+#                                      year = 2018, #year(Sys.Date()),
+#                                      start_day = '01/01',
+#                                      end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                         mutate_all(as.character),
+#                       queryRiverData(site = 'BON',
+#                                      year = 2018, #year(Sys.Date()),
+#                                      start_day = '01/01',
+#                                      end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                         mutate_all(as.character)) %>%
+#   mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+#          Date = as.Date(Date),
+#          Inflow = as.numeric(Inflow)) %>%
+# 
+#   select(Dam, Site, Date, everything())
 
 # get window count
-win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                    spawn_yr = 2018, #year(Sys.Date()),
-                                    start_day = '01/01',
-                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                      mutate(Site = 'LWG'),
-                    queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                    spawn_yr = 2018, #year(Sys.Date()),
-                                    start_day = '01/01',
-                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                      mutate(Site = 'BON')) %>%
-  mutate(Chinook = Chinook + Jack_Chinook,
-         Coho = Coho + Jack_Coho,
-         Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
-         Date = as.Date(Date)) %>%
-  select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
+# win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+#                                     spawn_yr = 2018, #year(Sys.Date()),
+#                                     start_day = '01/01',
+#                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                       mutate(Site = 'LWG'),
+#                     queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+#                                     spawn_yr = 2018, #year(Sys.Date()),
+#                                     start_day = '01/01',
+#                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                       mutate(Site = 'BON')) %>%
+#   mutate(Chinook = Chinook + Jack_Chinook,
+#          Coho = Coho + Jack_Coho,
+#          Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+#          Date = as.Date(Date)) %>%
+#   select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
 
 
 #------------------------------------------
@@ -259,8 +259,15 @@ shinyServer(function(input, output, session) {
     groups <- as.character(unique(redd_df$SppRun))
     
     map <- leaflet(redd_df[redd_df$SurveyYear==year(Sys.Date())-2,]) %>%
-      fitBounds(-118.5, 43, -113, 47.8) %>%
-      addProviderTiles(providers$Esri.WorldTopoMap)
+      setView(lat = 45.65,
+              lng = -115.85,
+              zoom = 7) %>%
+      setMaxBounds(lng1 = -122,
+                   lat1 = 42,
+                   lng2 = -110,
+                   lat2 = 49) %>%
+      addProviderTiles(providers$Esri.WorldTopoMap,
+                       options = providerTileOptions(minZoom = 6))
     
     for(g in groups){
       d = redd_df[redd_df$SurveyYear==year(Sys.Date())-2 & redd_df$SppRun == g,]
