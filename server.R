@@ -79,38 +79,38 @@ redd_locs <- redd_df %>%
 load('./data/map_data.Rdata')
 
 # get river flow data
-# river_df <- bind_rows(queryRiverData(site = 'LWG',
-#                                      year = 2018, #year(Sys.Date()),
-#                                      start_day = '01/01',
-#                                      end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-#                         mutate_all(as.character),
-#                       queryRiverData(site = 'BON',
-#                                      year = 2018, #year(Sys.Date()),
-#                                      start_day = '01/01',
-#                                      end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-#                         mutate_all(as.character)) %>%
-#   mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
-#          Date = as.Date(Date),
-#          Inflow = as.numeric(Inflow)) %>%
-# 
-#   select(Dam, Site, Date, everything())
+river_df <- bind_rows(queryRiverData(site = 'LWG',
+                                     year = 2018, #year(Sys.Date()),
+                                     start_day = '01/01',
+                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+                        mutate_all(as.character),
+                      queryRiverData(site = 'BON',
+                                     year = 2018, #year(Sys.Date()),
+                                     start_day = '01/01',
+                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+                        mutate_all(as.character)) %>%
+  mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+         Date = as.Date(Date),
+         Inflow = as.numeric(Inflow)) %>%
+
+  select(Dam, Site, Date, everything())
 
 # get window count
-# win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-#                                     spawn_yr = 2018, #year(Sys.Date()),
-#                                     start_day = '01/01',
-#                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-#                       mutate(Site = 'LWG'),
-#                     queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-#                                     spawn_yr = 2018, #year(Sys.Date()),
-#                                     start_day = '01/01',
-#                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-#                       mutate(Site = 'BON')) %>%
-#   mutate(Chinook = Chinook + Jack_Chinook,
-#          Coho = Coho + Jack_Coho,
-#          Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
-#          Date = as.Date(Date)) %>%
-#   select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
+win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+                                    spawn_yr = 2018, #year(Sys.Date()),
+                                    start_day = '01/01',
+                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+                      mutate(Site = 'LWG'),
+                    queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+                                    spawn_yr = 2018, #year(Sys.Date()),
+                                    start_day = '01/01',
+                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+                      mutate(Site = 'BON')) %>%
+  mutate(Chinook = Chinook + Jack_Chinook,
+         Coho = Coho + Jack_Coho,
+         Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+         Date = as.Date(Date)) %>%
+  select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
 
 
 #------------------------------------------
