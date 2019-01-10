@@ -30,8 +30,8 @@ source('./R/queryWindowCnts.R')
 # Need to set tribal specific variables
 cdms_host <- 'https://cdms.nptfisheries.org'
 #cdms_host <- 'localhost'
-# username <- 'api_user'
-# api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
+username <- 'api_user'
+api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
 
 
 #-----------------------------------------------------------------
@@ -64,12 +64,10 @@ if(html_code == 200){
 # redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host)
 # tmp_df <- getDatasetView(datastoreID = 80, cdms_host = cdms_host)
 load('./data/redd_df.rda')
-
-redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
-mutate(SppRun = paste0(Species, " - ", Run))
-
-# Dummy Carcass Data for SGS Summary
 load('./data/carc_df.Rda')
+
+# redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
+# mutate(SppRun = paste0(Species, " - ", Run))
 
 redd_locs <- redd_df %>%
   filter(!is.na(Latitude),
@@ -79,38 +77,38 @@ redd_locs <- redd_df %>%
 load('./data/map_data.Rdata')
 
 # get river flow data
-river_df <- bind_rows(queryRiverData(site = 'LWG',
-                                     year = 2018, #year(Sys.Date()),
-                                     start_day = '01/01',
-                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                        mutate_all(as.character),
-                      queryRiverData(site = 'BON',
-                                     year = 2018, #year(Sys.Date()),
-                                     start_day = '01/01',
-                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                        mutate_all(as.character)) %>%
-  mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
-         Date = as.Date(Date),
-         Inflow = as.numeric(Inflow)) %>%
-
-  select(Dam, Site, Date, everything())
+# river_df <- bind_rows(queryRiverData(site = 'LWG',
+#                                      year = 2018, #year(Sys.Date()),
+#                                      start_day = '01/01',
+#                                      end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                         mutate_all(as.character),
+#                       queryRiverData(site = 'BON',
+#                                      year = 2018, #year(Sys.Date()),
+#                                      start_day = '01/01',
+#                                      end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                         mutate_all(as.character)) %>%
+#   mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+#          Date = as.Date(Date),
+#          Inflow = as.numeric(Inflow)) %>%
+# 
+#   select(Dam, Site, Date, everything())
 
 # get window count
-win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                    spawn_yr = 2018, #year(Sys.Date()),
-                                    start_day = '01/01',
-                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                      mutate(Site = 'LWG'),
-                    queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                    spawn_yr = 2018, #year(Sys.Date()),
-                                    start_day = '01/01',
-                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                      mutate(Site = 'BON')) %>%
-  mutate(Chinook = Chinook + Jack_Chinook,
-         Coho = Coho + Jack_Coho,
-         Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
-         Date = as.Date(Date)) %>%
-  select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
+# win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+#                                     spawn_yr = 2018, #year(Sys.Date()),
+#                                     start_day = '01/01',
+#                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                       mutate(Site = 'LWG'),
+#                     queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+#                                     spawn_yr = 2018, #year(Sys.Date()),
+#                                     start_day = '01/01',
+#                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                       mutate(Site = 'BON')) %>%
+#   mutate(Chinook = Chinook + Jack_Chinook,
+#          Coho = Coho + Jack_Coho,
+#          Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+#          Date = as.Date(Date)) %>%
+#   select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
 
 
 #------------------------------------------
@@ -249,9 +247,19 @@ shinyServer(function(input, output, session) {
    # Decided on four plots; spatial map of redd counts, redd count trend, window counts, hydrosystem and flow/spill,
    # could also include carcass sex ratios and size
   
+  
+  
   # 1. Spatial redd locations
   
   output$redd_map <- renderLeaflet({
+    
+    # weirIcon <- makeIcon(
+    #   iconUrl = './www/icon_weir.png',
+    #   iconW = 50, iconHeight = 50,
+    #   iconAnchorX = 50, iconAnchorY = 0)
+    
+    icon.jcw <- makeAwesomeIcon(icon = 'bold', markerColor = 'red', library='fa',
+                               iconColor = 'black')
     
     pal <- colorFactor(palette = rainbow(3),
                        redd_df$SppRun)
@@ -267,8 +275,13 @@ shinyServer(function(input, output, session) {
                    lng2 = -110,
                    lat2 = 49) %>%
       addProviderTiles(providers$Esri.WorldTopoMap,
-                       options = providerTileOptions(minZoom = 6))
-    
+                       options = providerTileOptions(minZoom = 6)) %>%
+      # addPolylines(lng = ~lon, lat = ~lat, color = 'red', weight = 2) #%>%  # trying rez image
+      addAwesomeMarkers(
+        lng= -115.4888535, lat= 44.90124512,
+        label='Johnson Creek Weir',
+        icon = icon.jcw)
+         
     for(g in groups){
       d = redd_df[redd_df$SurveyYear==year(Sys.Date())-2 & redd_df$SppRun == g,]
       map = map %>% addCircleMarkers(data = d, lat = ~Latitude, lng = ~Longitude, label = ~WPTName,
@@ -507,40 +520,40 @@ shinyServer(function(input, output, session) {
   #  Summarized SGS Data
   #-----------------------------------------------------------------
   # stream selection
-  output$streams_menu <- renderUI({
-    summ_reddstreams <- c('Choose Streams' = '', as.character(sort(unique(redd_df$StreamName))))   
-    selectInput('summ_streams', label = NULL, choices = summ_reddstreams, selectize = TRUE, multiple = TRUE)
+    output$streams_menu <- renderUI({
+    choose_streams <- c('Choose Streams' = '', c(as.character(sort(unique(c(unique(redd_df$StreamName), unique(carc_df$StreamName)))))))   
+    selectInput('summ_streams', label = NULL, choices = choose_streams, selectize = TRUE, multiple = TRUE)
   })
   
   # SGS Summary Tab -----------------------------------------------
-  summary_tmp <- eventReactive(input$summ_reset,{
+    # redd_df <- getDatasetView(datastoreID = 78, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
+    # carc_df <- getDatasetView(datastoreID = 79, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
 
-    #redd_df <- getDatasetView(datastoreID = 78, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
-    #carc_df <- getDatasetView(datastoreID = 79, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
-
-    tmp1 <- redd_df %>%
+    tmp_reddsum <- redd_df %>%
       distinct(ActivityId, .keep_all = TRUE) %>%
-      group_by(StreamName, ESU, MPG, POP, SppRun, SurveyYear) %>%  
+      separate(`SurveyDate`, into = 'SurveyDate', sep = "T") %>%
+      mutate(`SurveyDate` = ymd(`SurveyDate`),
+             `SurveyYear` = year(`SurveyDate`)) %>%
+      group_by(StreamName, SurveyYear, TargetSpecies) %>%   # Lost ESU and MPG somewhere along the line.
       summarise(TotalRedds = sum(NewRedds, na.rm = TRUE)) %>%
       ungroup() %>%
       select(StreamName, SurveyYear, TotalRedds)
 
-    TEMP <- carc_df %>%
-      filter(`Target Species` == 'S_CHN') %>%
-      select(`Location`, `ActivityDate`, `Sex`, `Count`, `Percent Spawned`, `Spawned Out`, `Adipose Fin Clipped`,
-             `Snout Collected`, `CWT Code`) %>%
-      separate(ActivityDate, into = 'ActivityDate', sep = ' 12:00:00 AM') %>%
-      separate(Location, int = c('StreamName', 'Transect'), sep = ": ") %>%
-      mutate(ActivityDate = mdy(ActivityDate),
-             SurveyYear = year(ActivityDate),
-             Origin = ifelse(`Adipose Fin Clipped` == 'Yes', "Hatchery",
-                             ifelse(`Adipose Fin Clipped` == "No", "Natural",    # Not Necessarily TRUE!!!!!!!
-                                    ifelse(`Snout Collected` == 'Yes', "Hatchery",
-                                           ifelse(!is.na(`CWT Code`), "Hatchery", "Natural"))))
-      )
+    tmp_carcsum <- carc_df %>%
+      separate(`SurveyDate`, into = 'SurveyDate', sep = "T") %>%
+      mutate(`SurveyDate` = ymd(`SurveyDate`),
+             `SurveyYear` = year(`SurveyDate`)) %>%
+      select(StreamName, SurveyDate, SurveyYear, TargetSpecies, Count, Sex, SpawnedOut, PercentSpawned, AdiposeFinClipped, SnoutCollected, CWTCode) %>%
+      # mutate(`AdiposeFinClipped` = case_when(
+      #   `AdiposeFinClipped` %in%  c('NA', Unknown, NA) ~ 'No',   # ???? Need to deal with the odd AD values
+      #   `AdiposeFinClipped` == 'No' ~ 'No',
+      #   `AdiposeFinClipped` == 'Yes' ~ 'Yes'))
+      mutate(Origin = ifelse(`SnoutCollected` == 'Yes', 'Hatchery',
+                             ifelse(!is.na(`CWTCode`), 'Hatchery',
+                                    ifelse(`AdiposeFinClipped` == 'Yes', 'Hatchery', 'Natural'))))  # this is imperfect. There are inconsistencies in the data.
 
     # %F
-    PF_tmp <- TEMP %>%
+    PF_tmp <- tmp_carcsum %>%
       filter(Sex %in% c('Male', 'Female')) %>%
       group_by(StreamName, SurveyYear, Sex) %>%
       summarise(Count = sum(Count, na.rm = TRUE)) %>%
@@ -548,7 +561,7 @@ shinyServer(function(input, output, session) {
       mutate(`%Females` = round(100*(`Female`/(`Female` + `Male`)), 2))
 
     # pHOS
-    phos_tmp <- TEMP %>%
+    phos_tmp <- tmp_carcsum %>%
       filter(Origin %in% c('Natural', 'Hatchery')) %>%
       group_by(StreamName, SurveyYear, Origin) %>%
       summarise(Count = sum(Count, na.rm = TRUE)) %>%
@@ -556,30 +569,34 @@ shinyServer(function(input, output, session) {
       mutate(pHOS = round(100*(`Hatchery`/(`Hatchery` + `Natural`)), 2))
 
     # Prespawn Mortality
-    psm_tmp <- TEMP %>%
+    psm_tmp <- tmp_carcsum %>%
       filter(Sex == "Female") %>%
-      mutate(PrespawnMort = ifelse(`Spawned Out` == "No", "PrespawnMort", 
-                                   ifelse(`Percent Spawned` %in% c('0%', '25%'), "PrespawnMort", "spawned"))) %>%
+      mutate(`PrespawnMort` = case_when(
+        `SpawnedOut` == 'Yes' ~ 'No',
+        `SpawnedOut` == "No" ~ 'Prespawn Mortality',
+        `PercentSpawned` == -99 ~ 'Unknown',  # Lots of Unknowns.  May want to try and improve this.
+        `PercentSpawned` <= 25 ~ 'Prespawn Mortality' 
+        )) %>%
       group_by(StreamName, SurveyYear, PrespawnMort ) %>%
       summarise(Count = sum(Count, na.rm = TRUE)) %>%
       spread(key = `PrespawnMort`, value = Count, fill = 0) %>%
-      select(-spawned)
+      select(-'<NA>', -No, -Unknown)
 
     # Total Carcasses
-    all_carc <- TEMP %>%
+    all_carc <- tmp_carcsum %>%
       group_by(StreamName, SurveyYear) %>%
       summarise(`Carcass Total` = sum(Count, na.rm = TRUE))
-
-    # Join Redd/Carcass summaries
-    FINAL <- left_join(tmp1, PF_tmp, by = c('StreamName', 'SurveyYear')) %>%
-      left_join(phos_tmp, by = c('StreamName', 'SurveyYear')) %>%
-      left_join(psm_tmp, by = c('StreamName', 'SurveyYear')) %>%
-      left_join(all_carc, by = c('StreamName', 'SurveyYear')) %>%
-      filter(StreamName == input$summ_streams) %>%
-      rename('Stream Name' = StreamName, 'Year' = SurveyYear,
-             'Hatchery Origin' = Hatchery, 'Natural Origin' = Natural, '% Hatchery Spawners' = pHOS,
-             'Prespawn Mortalities' = PrespawnMort)
-  })
+    
+    # Finalize SGS Summary Table (join redd/carcass tables from above and apply filters)
+    summary_tmp <- eventReactive(input$summ_reset,{
+        left_join(tmp_reddsum, PF_tmp, by = c('StreamName', 'SurveyYear')) %>%
+          left_join(phos_tmp, by = c('StreamName', 'SurveyYear')) %>%
+          left_join(psm_tmp, by = c('StreamName', 'SurveyYear')) %>%
+          left_join(all_carc, by = c('StreamName', 'SurveyYear')) %>%
+          filter(StreamName == input$summ_streams) %>%
+          rename('Stream Name' = StreamName, 'Year' = SurveyYear,
+                 'Hatchery Origin' = Hatchery, 'Natural Origin' = Natural, '% Hatchery Spawners' = pHOS)
+    })
 
   # SGS: Redd/Carcass Summary Table
   output$summ_table <- DT::renderDataTable({
