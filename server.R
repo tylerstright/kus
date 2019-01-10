@@ -144,8 +144,8 @@ shinyServer(function(input, output, session) {
               NULL
             } else {
                 if(status_code(login_status)==200) {
-                  show(selector = "#kus_navbar li a[data-value=tab_rawdata]")
-                  show(selector = "#kus_navbar li a[data-value=data_entry]")
+                  toggle(selector = "#kus_navbar li a[data-value=tab_rawdata]")
+                  toggle(selector = "#kus_navbar li a[data-value=data_entry]")
                   # datasets <- getDatastores(cdms_host = cdms_host) %>%  # gather CDMS Data
                   #   rename(DatastoreId = Id, DatastoreName = Name)
                 }
