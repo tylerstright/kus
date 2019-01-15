@@ -7,11 +7,11 @@
 #    http://shiny.rstudio.com/
 #
 
-# library(shiny)
-# library(tidyverse)
-# library(httr)
-# library(plotly)
-# library(leaflet)
+library(shiny)
+library(tidyverse)
+library(httr)
+library(plotly)
+library(leaflet)
 #devtools::install_github('ryankinzer/cdmsR')
 #library(cdmsR)
 
@@ -30,8 +30,8 @@ source('./R/queryWindowCnts.R')
 # Need to set tribal specific variables
 cdms_host <- 'https://cdms.nptfisheries.org'
 #cdms_host <- 'localhost'
-# username <- 'api_user'
-# api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
+username <- 'api_user'
+api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
 
 
 #-----------------------------------------------------------------
@@ -59,17 +59,28 @@ if(html_code == 200){
 #------------------------------------------------------------------
 # Gather data for homepage
 #------------------------------------------------------------------
+#redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host)
+#save(redd_df, file = './data/redd_df.rda')
+#carcass_df <- getDatasetView(datastoreID = 79, cdms_host = cdms_host)
+#save(carcass_df, file = './data/carcass_df.rda')
+# age_df <- getDatasetView(datastoreID = 80, cdms_host = cdms_host)
+# save(age_df, file = './data/age_df.rda')
+# abund_df <-gettDatasetView(datastoreID = 85, cdms_host = cdms_host)
+# save(abund_df, file = './data/abund_df.rda')
+# suv_df <- getDatasetView(datastoreID = 86, cdms_host = cdms_host)
+# save(suv_df, file = './data/suv_df.rda')
 
-# get redd data
-# redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host)
-# tmp_df <- getDatasetView(datastoreID = 80, cdms_host = cdms_host)
+
+# Load Data for Summary Tables and Homepage
 load('./data/redd_df.rda')
+load('./data/carcass_df.rda')
+load('./data/age_df.rda')
+load('./data/abund_df.rda')
+load('./data/suv_df.rda')
 
 redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
-mutate(SppRun = paste0(Species, " - ", Run))
-
-# Dummy Carcass Data for SGS Summary
-load('./data/carc_df.Rda')
+  mutate(SurveyDate = ymd(str_sub(SurveyDate,1,10)),
+         SurveyYear = as.integer(year(SurveyDate)))
 
 redd_locs <- redd_df %>%
   filter(!is.na(Latitude),
@@ -78,40 +89,40 @@ redd_locs <- redd_df %>%
 # get map data
 load('./data/map_data.Rdata')
 
-# get river flow data
-river_df <- bind_rows(queryRiverData(site = 'LWG',
-                                     year = 2018, #year(Sys.Date()),
-                                     start_day = '01/01',
-                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                        mutate_all(as.character),
-                      queryRiverData(site = 'BON',
-                                     year = 2018, #year(Sys.Date()),
-                                     start_day = '01/01',
-                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                        mutate_all(as.character)) %>%
-  mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
-         Date = as.Date(Date),
-         Inflow = as.numeric(Inflow)) %>%
-
-  select(Dam, Site, Date, everything())
+# # get river flow data
+# river_df <- bind_rows(queryRiverData(site = 'LWG',
+#                                      year = 2018, #year(Sys.Date()),
+#                                      start_day = '01/01',
+#                                      end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                         mutate_all(as.character),
+#                       queryRiverData(site = 'BON',
+#                                      year = 2018, #year(Sys.Date()),
+#                                      start_day = '01/01',
+#                                      end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                         mutate_all(as.character)) %>%
+#   mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+#          Date = as.Date(Date),
+#          Inflow = as.numeric(Inflow)) %>%
+# 
+#   select(Dam, Site, Date, everything())
 
 # get window count
-win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                    spawn_yr = 2018, #year(Sys.Date()),
-                                    start_day = '01/01',
-                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                      mutate(Site = 'LWG'),
-                    queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                    spawn_yr = 2018, #year(Sys.Date()),
-                                    start_day = '01/01',
-                                    end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
-                      mutate(Site = 'BON')) %>%
-  mutate(Chinook = Chinook + Jack_Chinook,
-         Coho = Coho + Jack_Coho,
-         Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
-         Date = as.Date(Date)) %>%
-  select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
-
+# win_df <- bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+#                                     spawn_yr = 2018, #year(Sys.Date()),
+#                                     start_day = '01/01',
+#                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                       mutate(Site = 'LWG'),
+#                     queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+#                                     spawn_yr = 2018, #year(Sys.Date()),
+#                                     start_day = '01/01',
+#                                     end_day = '12/31') %>% #format(Sys.Date(), '%m/%d')) %>%
+#                       mutate(Site = 'BON')) %>%
+#   mutate(Chinook = Chinook + Jack_Chinook,
+#          Coho = Coho + Jack_Coho,
+#          Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
+#          Date = as.Date(Date)) %>%
+#   select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
+# 
 
 #------------------------------------------
 # Javascript for "Enter" button
@@ -254,11 +265,12 @@ shinyServer(function(input, output, session) {
   output$redd_map <- renderLeaflet({
     
     pal <- colorFactor(palette = rainbow(3),
-                       redd_df$SppRun)
+                       redd_locs$ReddSpecies)
     
-    groups <- as.character(unique(redd_df$SppRun))
+    spp <- as.character(unique(redd_locs$ReddSpecies))
+    yr <- as.character(unique(redd_locs$SurveyYear))
     
-    map <- leaflet(redd_df[redd_df$SurveyYear==year(Sys.Date())-2,]) %>%
+    map <- leaflet() %>%   #redd_df[redd_df$SurveyYear==year(Sys.Date())-2,]
       setView(lat = 45.65,
               lng = -115.85,
               zoom = 7) %>%
@@ -269,105 +281,112 @@ shinyServer(function(input, output, session) {
       addProviderTiles(providers$Esri.WorldTopoMap,
                        options = providerTileOptions(minZoom = 6))
     
-    for(g in groups){
-      d = redd_df[redd_df$SurveyYear==year(Sys.Date())-2 & redd_df$SppRun == g,]
+    #for(s in spp){
+      for(y in yr){
+      d = redd_locs[redd_locs$SurveyYear==y,]
       map = map %>% addCircleMarkers(data = d, lat = ~Latitude, lng = ~Longitude, label = ~WPTName,
-                                     group = g, color = ~pal(SppRun),
-                                     #clusterOptions = markerClusterOptions(),
+                                     group = y, color = ~pal(ReddSpecies),
+                                     clusterOptions = markerClusterOptions(),
                                      fillOpacity = .25)
+    #  }
     }
 
     map %>% 
-      addLayersControl(
-        overlayGroups = groups,
-        options = layersControlOptions(collapsed = TRUE)) %>%
-      addLegend(pal = pal, values = ~SppRun, title = '', position = 'bottomleft')
+    addLayersControl(
+       overlayGroups = yr,
+      options = layersControlOptions(collapsed = TRUE)) #%>%
+  #    addLegend(pal = pal, values = ~ReddSpecies, title = '', position = 'bottomleft')
 
   })
 
   # 1. Trend redd counts
 
-  output$home_redd <- renderPlotly({
-    
-    p <- redd_df %>%
-      distinct(ActivityId, .keep_all = TRUE) %>%
-      group_by(ESU, MPG, POP, SppRun, SurveyYear) %>%
-      summarise(TotalRedds = sum(NewRedds, na.rm = TRUE)) %>%
-      ggplot(aes(x = SurveyYear, y = TotalRedds)) +
-      geom_line(aes(colour = POP), size = 1) +
-      geom_point(aes(colour = POP), size = 2) +
-      scale_colour_viridis_d() +
-      facet_wrap(~SppRun, ncol = 1, scale = 'free') +
-      theme_grey() +
-      labs(x = 'Survey Year',
-           y = 'Total Redds',
-           colour = 'Population',
-           title = '')
-    
-    ggplotly(p, height = 700) %>% layout(margin = list(b = 50, l = 90))
-    
-  })
+  # output$home_redd <- renderPlotly({
+  #   
+  #   p <- redd_df %>%
+  #     distinct(ActivityId, .keep_all = TRUE) %>%
+  #     group_by(StreamName, TribToName, ReddSpecies, SurveyYear) %>%
+  #     summarise(TotalRedds = sum(NewRedds, na.rm = TRUE)) %>%
+  #     ggplot(aes(x = SurveyYear, y = TotalRedds)) +
+  #     geom_line(aes(colour = StreamName), size = 1) +
+  #     geom_point(aes(colour = StreamName), size = 2) +
+  #     scale_colour_viridis_d() +
+  #     facet_wrap(~ReddSpecies, ncol = 1, scale = 'free') +
+  #     theme_grey() +
+  #     labs(x = 'Survey Year',
+  #          y = 'Total Redds',
+  #          colour = 'Population',
+  #          title = '')
+  #   
+  #   ggplotly(p, height = 700) %>% layout(margin = list(b = 50, l = 90))
+  #   
+  # })
   
   # 2. River Flow and Spill
 
-  output$home_river <- renderPlotly({
-    p <- river_df %>%
-      ggplot(aes(x = Date)) +
-      geom_line(aes(y = Inflow), colour = 'darkblue', size = 1) +
-      scale_x_date(date_labels = format('%b-%d')) +
-      facet_wrap(~Dam, nrow =1) +
-      theme_grey() +
-      labs(x = 'Date',
-           y = 'Inflow (kcfs)',
-           title = '')
-
-    ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
-  })
+  # output$home_river <- renderPlotly({
+  #   p <- river_df %>%
+  #     ggplot(aes(x = Date)) +
+  #     geom_line(aes(y = Inflow), colour = 'darkblue', size = 1) +
+  #     scale_x_date(date_labels = format('%b-%d')) +
+  #     facet_wrap(~Dam, nrow =1) +
+  #     theme_grey() +
+  #     labs(x = 'Date',
+  #          y = 'Inflow (kcfs)',
+  #          title = '')
+  # 
+  #   ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
+  # })
 
   # 3. Window Counts
 
-    output$home_BONwin <- renderPlotly({
-    p <- win_df %>%
-      filter(Dam == 'Bonneville') %>%
-      gather(species, count, Chinook:Lamprey) %>%
-      ggplot(aes(x = Date, y = count)) +
-      geom_bar(aes(fill = species), stat = 'identity') +
-      scale_fill_viridis_d() +
-      scale_x_date(date_labels = format('%b-%d')) +
-      facet_grid(species~Dam, scales = 'free_y') +
-      theme_grey() +
-      theme(legend.position = 'none') +
-      labs(x = 'Date',
-           y = 'Daily Window Count',
-           title = ''
-      )
+  #   output$home_BONwin <- renderPlotly({
+  #   p <- win_df %>%
+  #     filter(Dam == 'Bonneville') %>%
+  #     gather(species, count, Chinook:Lamprey) %>%
+  #     ggplot(aes(x = Date, y = count)) +
+  #     geom_bar(aes(fill = species), stat = 'identity') +
+  #     scale_fill_viridis_d() +
+  #     scale_x_date(date_labels = format('%b-%d')) +
+  #     facet_grid(species~Dam, scales = 'free_y') +
+  #     theme_grey() +
+  #     theme(legend.position = 'none') +
+  #     labs(x = 'Date',
+  #          y = 'Daily Window Count',
+  #          title = ''
+  #     )
+  # 
+  #   ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
+  # })
+  # 
+  # output$home_LGRwin <- renderPlotly({
+  #   p <- win_df %>%
+  #     filter(Dam == 'Lower Granite') %>%
+  #     gather(species, count, Chinook:Lamprey) %>%
+  #     ggplot(aes(x = Date, y = count)) +
+  #     geom_bar(aes(fill = species), stat = 'identity') +
+  #     scale_fill_viridis_d() +
+  #     scale_x_date(date_labels = format('%b-%d')) +
+  #     facet_grid(species~Dam, scales = 'free_y') +
+  #     #facet_wrap(~Dam, scales = 'free_x') +
+  #     theme_grey() +
+  #     theme(legend.position = 'none') +
+  #     labs(x = 'Date',
+  #          y = 'Daily Window Count',
+  #          title = ''
+  #     )
+  # 
+  #   ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
+  # })
 
-    ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
-  })
-
-  output$home_LGRwin <- renderPlotly({
-    p <- win_df %>%
-      filter(Dam == 'Lower Granite') %>%
-      gather(species, count, Chinook:Lamprey) %>%
-      ggplot(aes(x = Date, y = count)) +
-      geom_bar(aes(fill = species), stat = 'identity') +
-      scale_fill_viridis_d() +
-      scale_x_date(date_labels = format('%b-%d')) +
-      facet_grid(species~Dam, scales = 'free_y') +
-      #facet_wrap(~Dam, scales = 'free_x') +
-      theme_grey() +
-      theme(legend.position = 'none') +
-      labs(x = 'Date',
-           y = 'Daily Window Count',
-           title = ''
-      )
-
-    ggplotly(p) %>% layout(margin = list(b = 50, l = 90))
-  })
-
-   #----------------------------------------------------------------
-   # Pre- and In-Season Management
-   #----------------------------------------------------------------
+  #---------------------------------------------------------------
+  # Summarized Page
+  #---------------------------------------------------------------
+  
+  
+  #----------------------------------------------------------------
+  # Hydro-system Conditions and Dam Counts
+  #----------------------------------------------------------------
    # Year Selection
    output$year_menu <- renderUI({
      yr <- 2006:year(Sys.Date())
@@ -375,6 +394,8 @@ shinyServer(function(input, output, session) {
    })
 
 
+  
+  
    # Gather river conditions from DART
     flow_df <- eventReactive(input$year_submit, {
       bind_rows(queryRiverData(site = 'LWG', 

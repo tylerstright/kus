@@ -40,19 +40,19 @@ shinyUI(
                       fluidPage(
                         fluidRow(
                           column(12, leafletOutput('redd_map', height = 500, width = "100%"))
-                        ),
-                        fluidRow(
-                          column(12, withSpinner(plotlyOutput('home_river')))
-                        ),
-                        hr(),
-                        fluidRow(
-                          column(6, withSpinner(plotlyOutput('home_BONwin', height = 800))),
-                          column(6, withSpinner(plotlyOutput('home_LGRwin', height = 800)))
-                        ),
-                        hr(),
-                        fluidRow(
-                          column(12, withSpinner(plotlyOutput('home_redd')))
                         )
+                        # fluidRow(
+                        #   column(12, withSpinner(plotlyOutput('home_river')))
+                        # ),
+                        # hr(),
+                        # fluidRow(
+                        #   column(6, withSpinner(plotlyOutput('home_BONwin', height = 800))),
+                        #   column(6, withSpinner(plotlyOutput('home_LGRwin', height = 800)))
+                        # ),
+                        # hr(),
+                        # fluidRow(
+                        #   column(12, withSpinner(plotlyOutput('home_redd')))
+                        # )
                       )
               ),
               navbarMenu("Summarized Data",
