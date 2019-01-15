@@ -62,7 +62,7 @@ shinyUI(
                                    sidebarPanel(
                                      style = "position:fixed;width:15%;",
                                      width = 2,
-                                          uiOutput("streams_menu"),
+                                          uiOutput("streams_menu"), 
                                           actionButton("summ_reset", label = "Refresh", class = "mybutton",
                                                        position = 'center', width = '100%'),
                                      helpText('Select Streams and click "Refresh" to populate Summary Tables.')

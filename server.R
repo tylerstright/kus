@@ -25,6 +25,7 @@ source('./R/getDatasetView.R')
 #source('./R/getDatasets.R')
 source('./R/queryRiverData.R')
 source('./R/queryWindowCnts.R')
+source('./R/summariseSGS.R')
 
 # Outside Server - Static metadata tables
 # Need to set tribal specific variables
@@ -81,6 +82,9 @@ load('./data/suv_df.rda')
 redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
   mutate(SurveyDate = ymd(str_sub(SurveyDate,1,10)),
          SurveyYear = as.integer(year(SurveyDate)))
+
+# redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
+# mutate(SppRun = paste0(Species, " - ", Run))
 
 redd_locs <- redd_df %>%
   filter(!is.na(Latitude),
@@ -159,8 +163,6 @@ shinyServer(function(input, output, session) {
                 if(status_code(login_status)==200) {
                   show(selector = "#kus_navbar li a[data-value=tab_rawdata]")
                   show(selector = "#kus_navbar li a[data-value=data_entry]")
-                  # datasets <- getDatastores(cdms_host = cdms_host) %>%  # gather CDMS Data
-                  #   rename(DatastoreId = Id, DatastoreName = Name)
                 }
             } 
       )
@@ -260,10 +262,20 @@ shinyServer(function(input, output, session) {
    # Decided on four plots; spatial map of redd counts, redd count trend, window counts, hydrosystem and flow/spill,
    # could also include carcass sex ratios and size
   
+  
+  
   # 1. Spatial redd locations
   
   output$redd_map <- renderLeaflet({
     
+    # weirIcon <- makeIcon(
+    #   iconUrl = './www/icon_weir.png',
+    #   iconW = 50, iconHeight = 50,
+    #   iconAnchorX = 50, iconAnchorY = 0)
+    
+    icon.jcw <- makeAwesomeIcon(icon = 'bold', markerColor = 'red', library='fa',
+                               iconColor = 'black')
+
     pal <- colorFactor(palette = rainbow(3),
                        redd_locs$ReddSpecies)
     
@@ -279,15 +291,20 @@ shinyServer(function(input, output, session) {
                    lng2 = -110,
                    lat2 = 49) %>%
       addProviderTiles(providers$Esri.WorldTopoMap,
-                       options = providerTileOptions(minZoom = 6))
+                       options = providerTileOptions(minZoom = 6)) %>%
+    addAwesomeMarkers(
+      lng= -115.4888535, lat= 44.90124512,
+      label='Johnson Creek Weir',
+      icon = icon.jcw)
     
     #for(s in spp){
       for(y in yr){
       d = redd_locs[redd_locs$SurveyYear==y,]
+
       map = map %>% addCircleMarkers(data = d, lat = ~Latitude, lng = ~Longitude, label = ~WPTName,
-                                     group = y, color = ~pal(ReddSpecies),
-                                     clusterOptions = markerClusterOptions(),
-                                     fillOpacity = .25)
+                           group = y, color = ~pal(ReddSpecies),
+                           clusterOptions = markerClusterOptions(),
+                           fillOpacity = .25)
     #  }
     }
 
@@ -525,88 +542,26 @@ shinyServer(function(input, output, session) {
   )
   
   #-----------------------------------------------------------------
-  #  Summarized SGS Data
+  #  Summarized SGS Data Tab
   #-----------------------------------------------------------------
-  # stream selection
-  output$streams_menu <- renderUI({
-    summ_reddstreams <- c('Choose Streams' = '', as.character(sort(unique(redd_df$StreamName))))   
-    selectInput('summ_streams', label = NULL, choices = summ_reddstreams, selectize = TRUE, multiple = TRUE)
-  })
-  
-  # SGS Summary Tab -----------------------------------------------
-  summary_tmp <- eventReactive(input$summ_reset,{
-
-    #redd_df <- getDatasetView(datastoreID = 78, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
-    #carc_df <- getDatasetView(datastoreID = 79, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
-
-    tmp1 <- redd_df %>%
-      distinct(ActivityId, .keep_all = TRUE) %>%
-      group_by(StreamName, ESU, MPG, POP, SppRun, SurveyYear) %>%  
-      summarise(TotalRedds = sum(NewRedds, na.rm = TRUE)) %>%
-      ungroup() %>%
-      select(StreamName, SurveyYear, TotalRedds)
-
-    TEMP <- carc_df %>%
-      filter(`Target Species` == 'S_CHN') %>%
-      select(`Location`, `ActivityDate`, `Sex`, `Count`, `Percent Spawned`, `Spawned Out`, `Adipose Fin Clipped`,
-             `Snout Collected`, `CWT Code`) %>%
-      separate(ActivityDate, into = 'ActivityDate', sep = ' 12:00:00 AM') %>%
-      separate(Location, int = c('StreamName', 'Transect'), sep = ": ") %>%
-      mutate(ActivityDate = mdy(ActivityDate),
-             SurveyYear = year(ActivityDate),
-             Origin = ifelse(`Adipose Fin Clipped` == 'Yes', "Hatchery",
-                             ifelse(`Adipose Fin Clipped` == "No", "Natural",    # Not Necessarily TRUE!!!!!!!
-                                    ifelse(`Snout Collected` == 'Yes', "Hatchery",
-                                           ifelse(!is.na(`CWT Code`), "Hatchery", "Natural"))))
-      )
-
-    # %F
-    PF_tmp <- TEMP %>%
-      filter(Sex %in% c('Male', 'Female')) %>%
-      group_by(StreamName, SurveyYear, Sex) %>%
-      summarise(Count = sum(Count, na.rm = TRUE)) %>%
-      spread(key = Sex, value = Count, fill = 0) %>%
-      mutate(`%Females` = round(100*(`Female`/(`Female` + `Male`)), 2))
-
-    # pHOS
-    phos_tmp <- TEMP %>%
-      filter(Origin %in% c('Natural', 'Hatchery')) %>%
-      group_by(StreamName, SurveyYear, Origin) %>%
-      summarise(Count = sum(Count, na.rm = TRUE)) %>%
-      spread(key = Origin, value = Count, fill = 0) %>%
-      mutate(pHOS = round(100*(`Hatchery`/(`Hatchery` + `Natural`)), 2))
-
-    # Prespawn Mortality
-    psm_tmp <- TEMP %>%
-      filter(Sex == "Female") %>%
-      mutate(PrespawnMort = ifelse(`Spawned Out` == "No", "PrespawnMort", 
-                                   ifelse(`Percent Spawned` %in% c('0%', '25%'), "PrespawnMort", "spawned"))) %>%
-      group_by(StreamName, SurveyYear, PrespawnMort ) %>%
-      summarise(Count = sum(Count, na.rm = TRUE)) %>%
-      spread(key = `PrespawnMort`, value = Count, fill = 0) %>%
-      select(-spawned)
-
-    # Total Carcasses
-    all_carc <- TEMP %>%
-      group_by(StreamName, SurveyYear) %>%
-      summarise(`Carcass Total` = sum(Count, na.rm = TRUE))
-
-    # Join Redd/Carcass summaries
-    FINAL <- left_join(tmp1, PF_tmp, by = c('StreamName', 'SurveyYear')) %>%
-      left_join(phos_tmp, by = c('StreamName', 'SurveyYear')) %>%
-      left_join(psm_tmp, by = c('StreamName', 'SurveyYear')) %>%
-      left_join(all_carc, by = c('StreamName', 'SurveyYear')) %>%
-      filter(StreamName == input$summ_streams) %>%
-      rename('Stream Name' = StreamName, 'Year' = SurveyYear,
-             'Hatchery Origin' = Hatchery, 'Natural Origin' = Natural, '% Hatchery Spawners' = pHOS,
-             'Prespawn Mortalities' = PrespawnMort)
+  # Stream Selection Input (All unique streams in Carcass and Redd Data)
+    output$streams_menu <- renderUI({
+      choose_streams <- c(as.character(sort(unique(c(unique(redd_df$StreamName), unique(carcass_df$StreamName))))))
+      # 'Choose Streams' = '',  
+      # selectInput('summ_streams', label = NULL, choices = choose_streams, selectize = TRUE, multiple = TRUE) 
+      selectInput('summ_streams', label = NULL, choices = choose_streams, selectize = FALSE, size =36, multiple = TRUE) 
   })
 
-  # SGS: Redd/Carcass Summary Table
+  # Produce SGS Summary data with streams filter APPLIED
+  summary_df <- eventReactive(input$summ_reset,{
+    summariseSGS(streamfilter = input$summ_streams, redd_data = redd_df, carcass_data = carcass_df)
+  }) 
+
+  # SGS: Redd/Carcass Summary Table Output
   output$summ_table <- DT::renderDataTable({
-    tmp_summ <- summary_tmp()
-    DT::datatable(tmp_summ, options = list(orderClasses = TRUE), filter = 'top')
+    tmp_summ <- summary_df()
+    DT::datatable(tmp_summ, options = list(orderClasses = TRUE, autoWidth = TRUE, dom = 'tpl'),
+                   filter = 'top')
   })
 
-  
 }) # Close Server
