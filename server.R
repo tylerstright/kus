@@ -26,6 +26,8 @@ source('./R/getDatasetView.R')
 source('./R/queryRiverData.R')
 source('./R/queryWindowCnts.R')
 source('./R/summariseSGS.R')
+source('./R/summariseRST.R')
+source('./R/location_list.R')
 
 # Outside Server - Static metadata tables
 # Need to set tribal specific variables
@@ -78,6 +80,8 @@ load('./data/carcass_df.rda')
 load('./data/age_df.rda')
 load('./data/abund_df.rda')
 load('./data/suv_df.rda')
+load('./data/locations_df.rda')
+
 
 redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
   mutate(SurveyDate = ymd(str_sub(SurveyDate,1,10)),
@@ -564,4 +568,48 @@ shinyServer(function(input, output, session) {
                    filter = 'top')
   })
 
+  #-----------------------------------------------------------------
+  #  Summarized RST Data Tab < summariseRST >
+  #-----------------------------------------------------------------
+  # Create RST locations df using location_list()
+  locs_rst <- location_list(locationtypeId = 1124)
+  locs_weir <- location_list(locationtypeId = 1123)
+
+  # RST Leaflet Map
+  output$RSTmap <- renderLeaflet({
+
+    map <- leaflet(options = leafletOptions(minZoom = 8, maxZoom = 8, 
+                                             zoomControl = FALSE, 
+                                             dragging = FALSE,
+                                             doubleClickZoom = FALSE)) %>%
+      setView(lat = 45.5,
+              lng = -116.1,
+              zoom = 8) %>%
+      addProviderTiles(providers$Esri.WorldTopoMap) %>%
+      addCircleMarkers(lng= locs_rst$Longitude, lat= locs_rst$Latitude, label= locs_rst$Name, radius = 8,
+                       color = 'black', layerId = locs_rst$Name, group = 'traps')
+  })
+  
+  # create reactive RST value for filter
+  values <- reactiveValues(RST = NULL)
+  # update RST value based on map click (RSTmap)
+  observeEvent(input$RSTmap_marker_click, {
+    mapclick <- input$RSTmap_marker_click
+    values$RST <- mapclick$id
+  })
+  
+  # Produce SGS Summary data with values$RST filter APPLIED
+  rstsumm_df <- eventReactive(values$RST,{
+    summariseRST(rstfilter = values$RST, rst_data = abund_df, suv_data = suv_df)
+  }) 
+  
+  # SGS: Redd/Carcass Summary Table Output
+  output$rstsumm_table <- DT::renderDataTable({
+    rst_tmp <- rstsumm_df()
+    DT::datatable(rst_tmp, options = list(orderClasses = TRUE, 
+                                          autoWidth = TRUE, 
+                                          dom = 'tpl'),
+                  filter = 'top') # scrollX = FALSE, scrollY = "500px", 
+  })
+    
 }) # Close Server
