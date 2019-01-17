@@ -13,16 +13,16 @@
 #' @export
 #' @return NULL
 
-location_list <- function(locationtypeId) {
+location_list <- function(data, locationtypeId) {
   
   # SGS Transects: 1122
   # Weirs : 1123
   # Rotary Screw Traps: 1124
   
   # partition CDMS getLocations output (Location/LocationType/WaterBody)
-  waterbody_tbl <- locations_df$WaterBody
-  locationtype_tbl <- locations_df$LocationType
-  locations_tbl <- select(locations_df, -LocationType, -WaterBody)
+  waterbody_tbl <- data$WaterBody
+  locationtype_tbl <- data$LocationType
+  locations_tbl <- select(data, -LocationType, -WaterBody)
   
   tmp_loc <- locations_tbl %>%
     filter(LocationTypeId == locationtypeId) %>%
