@@ -573,7 +573,6 @@ shinyServer(function(input, output, session) {
   #-----------------------------------------------------------------
   # Create RST locations df using location_list()
   locs_rst <- location_list(locationtypeId = 1124)
-  locs_weir <- location_list(locationtypeId = 1123)
 
   # RST Leaflet Map
   output$RSTmap <- renderLeaflet({

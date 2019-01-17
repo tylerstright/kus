@@ -13,7 +13,7 @@
 #' @export
 #' @return NULL
 
-location_list <- function(LocationTypeId) {
+location_list <- function(locationtypeId) {
   
   # SGS Transects: 1122
   # Weirs : 1123
@@ -25,7 +25,7 @@ location_list <- function(LocationTypeId) {
   locations_tbl <- select(locations_df, -LocationType, -WaterBody)
   
   tmp_loc <- locations_tbl %>%
-    filter(LocationTypeId == LocationTypeId) %>%
+    filter(LocationTypeId == locationtypeId) %>%
     select(Name, Latitude, Longitude)
 
    
