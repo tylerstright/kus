@@ -73,6 +73,22 @@ shinyUI(
                                     )
                                 )
                                ),
+                      tabPanel("Rotary Screw Traps",
+                        sidebarLayout(
+                          sidebarPanel(
+                            style = "position:fixed;width:22%",
+                            width = 3,
+                            fluidRow(column(12, helpText("Click a pin to populate the Summary Table."))),
+                            fluidRow(column(12, leafletOutput('RSTmap', height = 500, width = "100%")))
+                            ),
+                          mainPanel(
+                            fluidPage(
+                              fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("rstsumm_table")))),
+                              fluidRow(column(12, helpText("SE: Standard Error. LGR: Lower Granite Dam")))
+                              )
+                            )
+                          )
+                        ),
                       tabPanel("Weir Returns"),
                       tabPanel("Hydro-system Conditions and Fish Counts",
                                uiOutput("year_menu"),
