@@ -28,6 +28,7 @@ source('./R/queryWindowCnts.R')
 source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
 source('./R/location_list.R')
+source('./R/getSummaryGraph.R')
 
 # Outside Server - Static metadata tables
 # Need to set tribal specific variables
@@ -81,7 +82,6 @@ load('./data/age_df.rda')
 load('./data/abund_df.rda')
 load('./data/suv_df.rda')
 load('./data/locations_df.rda')
-
 
 redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
   mutate(SurveyDate = ymd(str_sub(SurveyDate,1,10)),
@@ -602,6 +602,23 @@ shinyServer(function(input, output, session) {
     summariseRST(rstfilter = values$RST, rst_data = abund_df, suv_data = suv_df)
   }) 
   
+  # Summary Graph Output - Abundance
+  output$abund_sum <- renderPlotly({
+    if(is.null(values$RST))
+      return()
+    p <- getSummaryGraph(data = abund_df, rstfilter = values$RST, yaxis = ~Abundance) %>%
+      layout(title = paste0('Juvenile Abundance Estimates for ', word(values$RST, sep = ' Rotary Screw Trap')))
+  })
+  
+  # Summary Graph Output - Survival
+  output$surv_sum <- renderPlotly({
+    if(is.null(values$RST))
+      return()
+    p <- getSummaryGraph(data = suv_df, rstfilter = values$RST, yaxis = ~Survival) %>%
+      layout(title = paste0('Percent Survival from ', values$RST, ' to Lower Granite Dam'),
+             legend = list(x = 0, y = -0.15, orientation = 'h'))
+  })
+    
   # SGS: Redd/Carcass Summary Table Output
   output$rstsumm_table <- DT::renderDataTable({
     rst_tmp <- rstsumm_df()

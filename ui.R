@@ -15,6 +15,7 @@ library(lubridate)
 library(plotly)
 library(leaflet)
 library(shinyjs)
+library(viridis)
 
 # Define UI for application that draws a histogram
 shinyUI(
@@ -78,14 +79,27 @@ shinyUI(
                           sidebarPanel(
                             style = "position:fixed;width:22%",
                             width = 3,
-                            fluidRow(column(12, helpText("Click a pin to populate the Summary Table."))),
-                            fluidRow(column(12, leafletOutput('RSTmap', height = 500, width = "100%")))
+                            fluidRow(column(12, helpText("Click a pin to populate Graphs and Summary Table."))),
+                            fluidRow(column(12, leafletOutput('RSTmap', height = 500, width = '100%')))
                             ),
                           mainPanel(
-                            fluidPage(
-                              fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("rstsumm_table")))),
-                              fluidRow(column(12, helpText("SE: Standard Error. LGR: Lower Granite Dam")))
-                              )
+                            tabsetPanel(
+                              tabPanel('Abundance Estimates',
+                                       fluidPage(
+                                         br(), #blank spacing
+                                         fluidRow(column(12, withSpinner(plotlyOutput('abund_sum', height = 500))))
+                                       )),
+                              tabPanel('Survival Estimates',
+                                       fluidPage(
+                                         br(),
+                                         fluidRow(column(12, withSpinner(plotlyOutput('surv_sum', height = 500)))))
+                            )),
+                             fluidPage(
+                               hr(),
+                            #   fluidRow(column(12, withSpinner(plotlyOutput('surv_sum', height = 500)))),
+                               fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("rstsumm_table")))),
+                               fluidRow(column(12, helpText("SE: Standard Error. LGR: Lower Granite Dam")))
+                               )
                             )
                           )
                         ),
@@ -110,6 +124,7 @@ shinyUI(
                                 column(3, uiOutput("raw_dataset_menu"))
                             ),
                           fluidRow(
+                            titlePanel("Rotary Screw Trap Summary Dawgs"),
                             column(6, helpText("Select the desired dataset then the project, stream and locations of interest and click submit query.")),
                             column(2, offset = 2, align = "center",
                                    actionButton("raw_submit", label = "Submit Query", class = "mybutton")),
