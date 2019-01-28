@@ -130,7 +130,7 @@ load('./data/map_data.Rdata')
 #          Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville'),
 #          Date = as.Date(Date)) %>%
 #   select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
-# 
+
 
 #------------------------------------------
 # Javascript for "Enter" button
@@ -183,20 +183,19 @@ shinyServer(function(input, output, session) {
   })
 
   # Create a Login Link that disappears after successful login
-    output$log_link <- renderUI({
-    if(is.null(login_status)) {
-      actionLink('login_link', 'Login Link')
-    } else {
-      if(status_code(login_status)!=200){
-        actionLink('login_link', 'Login Link')
-      } else {
-          if(status_code(login_status)==200) {
-            NULL }
-        }
-      }
-   })
-
-
+   output$log_link <- renderUI({
+   if(is.null(login_status)) {
+     actionLink('login_link', 'Login Link')
+   } else {
+     if(status_code(login_status)!=200){
+       actionLink('login_link', 'Login Link')
+     } else {
+         if(status_code(login_status)==200) {
+           NULL }
+       }
+     }
+  })
+   
   # Display Full Name after successful login
   output$full_name <- renderText({
     if(is.null(login_status)){
@@ -266,20 +265,24 @@ shinyServer(function(input, output, session) {
    # Decided on four plots; spatial map of redd counts, redd count trend, window counts, hydrosystem and flow/spill,
    # could also include carcass sex ratios and size
   
-  
-  
   # 1. Spatial redd locations
+  # Create List of Dam and Weir Locations
+    Name <- c('Lower Granite Dam', 'Little Goose Dam', 'Lower Monumental Dam',
+              'Ice Harbor Dam', 'John Day Dam', 'The Dalles Dam', 'Bonneville Dam', 'McNary Dam')
+    Site <- c('LWG', 'LGS', 'LMN', 'IHR', 'JDA', 'TDA', 'BON', 'MCN')
+    Latitude <- c(46.661, 46.584, 46.563, 46.25, 45.715, 45.614, 45.645, 45.936)
+    Longitude <- c(-117.428, -118.027, -118.538, -118.88, -120.693, -121.133, -121.941, -119.298)
+    locs_dam <- tibble(Name, Site, Latitude, Longitude)
   
+    locs_weir <- location_list(data = locations_df, locationtypeId = 1123)
+
+    icon.weir <- makeAwesomeIcon(icon = 'cogs', markerColor = 'black', library='fa',
+                               iconColor = 'yellow')
+    icon.dam <- makeAwesomeIcon(icon = 'fort-awesome', markerColor = 'red', library='fa',
+                                 iconColor = 'black') 
+
   output$redd_map <- renderLeaflet({
     
-    # weirIcon <- makeIcon(
-    #   iconUrl = './www/icon_weir.png',
-    #   iconW = 50, iconHeight = 50,
-    #   iconAnchorX = 50, iconAnchorY = 0)
-    
-    icon.jcw <- makeAwesomeIcon(icon = 'bold', markerColor = 'red', library='fa',
-                               iconColor = 'black')
-
     pal <- colorFactor(palette = rainbow(3),
                        redd_locs$ReddSpecies)
     
@@ -296,10 +299,11 @@ shinyServer(function(input, output, session) {
                    lat2 = 49) %>%
       addProviderTiles(providers$Esri.WorldTopoMap,
                        options = providerTileOptions(minZoom = 6)) %>%
-    addAwesomeMarkers(
-      lng= -115.4888535, lat= 44.90124512,
-      label='Johnson Creek Weir',
-      icon = icon.jcw)
+      addAwesomeMarkers(lng= locs_weir$Longitude, lat= locs_weir$Latitude, label= locs_weir$Name,
+                       layerId = locs_weir$Name, icon = icon.weir) %>%
+      addAwesomeMarkers(lng= locs_dam$Longitude, lat= locs_dam$Latitude, label= locs_dam$Name,
+                        layerId = locs_dam$Site, icon = icon.dam)#,  # SITE (vs. name?) HERE
+                       # popup = popupTable(tmp_window, row.numbers = FALSE, feature.id = 'Daily Counts')) # problem is here
     
     #for(s in spp){
       for(y in yr){
@@ -319,6 +323,24 @@ shinyServer(function(input, output, session) {
   #    addLegend(pal = pal, values = ~ReddSpecies, title = '', position = 'bottomleft')
 
   })
+  
+  # create reactive DAM value for filter
+  values <- reactiveValues(DAM = NULL)
+  # update RST value based on map click (RSTmap)
+  observeEvent(input$redd_map_marker_click, {
+    mapclick <- input$redd_map_marker_click
+    values$DAM <- mapclick$id
+  })
+  
+
+   # tmp_window <- eventReactive(input$redd_map_marker_click, {
+   #     tmp_win_df <- win_df %>%
+   #      filter(Site == "values$DAM",
+   #             Date == '2018-07-08') %>%
+   #      select(Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey) 
+   #   temptable <- DT::datatable(tmp_win_df)
+   # })
+  
 
   # 1. Trend redd counts
 
@@ -551,8 +573,6 @@ shinyServer(function(input, output, session) {
   # Stream Selection Input (All unique streams in Carcass and Redd Data)
     output$streams_menu <- renderUI({
       choose_streams <- c(as.character(sort(unique(c(unique(redd_df$StreamName), unique(carcass_df$StreamName))))))
-      # 'Choose Streams' = '',  
-      # selectInput('summ_streams', label = NULL, choices = choose_streams, selectize = TRUE, multiple = TRUE) 
       selectInput('summ_streams', label = NULL, choices = choose_streams, selectize = FALSE, size =36, multiple = TRUE) 
   })
 
@@ -569,14 +589,13 @@ shinyServer(function(input, output, session) {
   })
 
   #-----------------------------------------------------------------
-  #  Summarized RST Data Tab < summariseRST >
+  #  JUVENILE METRICS Tab < summariseRST >
   #-----------------------------------------------------------------
-  # Create RST locations df using location_list()
+  # Create Rotary Screw Trap (RST) locations df using location_list()
   locs_rst <- location_list(data = locations_df, locationtypeId = 1124)
 
   # RST Leaflet Map
   output$RSTmap <- renderLeaflet({
-
     map <- leaflet(options = leafletOptions(minZoom = 8, maxZoom = 8, 
                                              zoomControl = FALSE, 
                                              dragging = FALSE,
@@ -597,35 +616,75 @@ shinyServer(function(input, output, session) {
     values$RST <- mapclick$id
   })
   
-  # Produce SGS Summary data with values$RST filter APPLIED
+
+  # Summary Graph Output - Abundance and Survival
+  output$juv_sum1 <- renderPlotly({
+    if(is.null(values$RST))
+      return()
+  getSummaryGraph(data = abund_df, rstfilter = values$RST, yaxis = ~Abundance) #%>%
+      # layout(title = paste0('Juvenile Abundance and Survival Estimates to Lower Granite Dam for ',
+      #                       word(values$RST, sep = ' Rotary Screw Trap'))) %>%
+      # layout(legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15),
+      #        xaxis = list(title = 'Year'),
+      #        yaxis = list(title = 'Abundance'),
+      #        xaxis2 = list(title = 'Year'),
+      #        yaxis2 = list(title = 'Survival', side = 'right'))
+  })
+  
+  output$juv_sum2 <- renderPlotly({
+    if(is.null(values$RST))
+      return()
+    getSummaryGraph(data= suv_df, rstfilter = values$RST, yaxis = ~Survival) 
+  })
+  
+  # Produce Juvenile Summary data with values$RST filter APPLIED
   rstsumm_df <- eventReactive(values$RST,{
     summariseRST(rstfilter = values$RST, rst_data = abund_df, suv_data = suv_df)
   }) 
-  
-  # Summary Graph Output - Abundance
-  output$abund_sum <- renderPlotly({
-    if(is.null(values$RST))
-      return()
-    p <- getSummaryGraph(data = abund_df, rstfilter = values$RST, yaxis = ~Abundance) %>%
-      layout(title = paste0('Juvenile Abundance Estimates for ', word(values$RST, sep = ' Rotary Screw Trap')))
-  })
-  
-  # Summary Graph Output - Survival
-  output$surv_sum <- renderPlotly({
-    if(is.null(values$RST))
-      return()
-    p <- getSummaryGraph(data = suv_df, rstfilter = values$RST, yaxis = ~Survival) %>%
-      layout(title = paste0('Percent Survival from ', values$RST, ' to Lower Granite Dam'),
-             legend = list(x = 0, y = -0.15, orientation = 'h'))
-  })
     
-  # SGS: Redd/Carcass Summary Table Output
+  # Summary Table Output
   output$rstsumm_table <- DT::renderDataTable({
     rst_tmp <- rstsumm_df()
     DT::datatable(rst_tmp, options = list(orderClasses = TRUE, 
                                           autoWidth = TRUE, 
                                           dom = 'tpl'),
-                  filter = 'top') # scrollX = FALSE, scrollY = "500px", 
+                  filter = 'top') 
+  })
+  
+  #-----------------------------------------------------------------
+  #  Summarized Snake Basin Populaiton Indicators and Metrics
+  #-----------------------------------------------------------------
+  
+  copop <- colorFactor(topo.colors(n = n_distinct(ch_pop$POP_NAME)),ch_pop$POP_NAME)
+  co_bpa <- colorFactor(topo.colors(n=n_distinct(ch_pop$BPA_Tier)),ch_pop$BPA_Tier, na.color = '#808080')
+  
+  output$MPGmap <- renderLeaflet({
+    leaflet(options = leafletOptions(minZoom = 6)) %>%
+      fitBounds(-117.5, 43, -113, 47.8) %>%
+      setMaxBounds(lng1 = -118.5,
+                   lat1 = 43,
+                   lng2 = -112.5,
+                   lat2 = 47.8) %>%
+      addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+      addPolygons(data = ch_mpg, group = "MPG", fill = FALSE,
+                  color = 'black', weight = 2, opacity = 1) %>%
+      addPolygons(data = ch_pop, group = "Population", popup = ~as.character(TRT_POPID), layerId = ch_pop$POP_NAME,
+                  stroke = TRUE, color = 'black', weight = 1, fillOpacity = .5, fillColor = ~copop(POP_NAME)) #%>%
+      # addLayersControl(
+      #   overlayGroups = c("Population"),
+      #   options = layersControlOptions(collapsed = FALSE))
+    })
+  
+  # create reactive MPG or POP value for filter
+  values <- reactiveValues(MPG = NULL)
+  # update RST value based on map click (RSTmap)
+  observeEvent(input$MPGmap_shape_click, {
+    mapclick <- input$MPGmap_shape_click
+    values$MPG <- mapclick$id
+  })
+  
+  output$MPGfilter <- renderText({
+    paste0("POP_NAME filter is: ", values$MPG)
   })
     
 }) # Close Server
