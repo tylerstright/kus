@@ -33,7 +33,7 @@ shinyUI(
              position = "fixed-top",
              collapsible = TRUE,
              footer = div(id = "footer-id",
-                          "     The data presented in the Kus web application is not solely collected, managed or owned
+                          "The data presented in the Kus web application is not solely collected, managed or owned
                           by the Nez Perce Tribe. All data should be considered draft and is not guaranteed for
                           accuracy.  Permission to use the data should be sought from the original collectors."),
              
