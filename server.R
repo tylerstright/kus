@@ -96,7 +96,7 @@ redd_locs <- redd_df %>%
 
 # get map data
 load('./data/map_data.Rdata')
-
+load('./data/res_bounds.Rdata')
 # # get river flow data
 # river_df <- bind_rows(queryRiverData(site = 'LWG',
 #                                      year = 2018, #year(Sys.Date()),
@@ -299,6 +299,10 @@ shinyServer(function(input, output, session) {
                    lat2 = 49) %>%
       addProviderTiles(providers$Esri.WorldTopoMap,
                        options = providerTileOptions(minZoom = 6)) %>%
+      addPolygons(data = icc, fill = FALSE,
+                  color = 'black', weight = 2, opacity = 1) %>%
+      addPolygons(data = npt1863, fill = 'red',
+                  color = 'black', weight = 2, opacity = .25) %>%
       addAwesomeMarkers(lng= locs_weir$Longitude, lat= locs_weir$Latitude, label= locs_weir$Name,
                        layerId = locs_weir$Name, icon = icon.weir) %>%
       addAwesomeMarkers(lng= locs_dam$Longitude, lat= locs_dam$Latitude, label= locs_dam$Name,

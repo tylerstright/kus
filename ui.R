@@ -33,10 +33,9 @@ shinyUI(
              position = "fixed-top",
              collapsible = TRUE,
              footer = div(id = "footer-id",
-                          "The data presented in the Kus web application is not solely collected, managed or owned
+                          "     The data presented in the Kus web application is not solely collected, managed or owned
                           by the Nez Perce Tribe. All data should be considered draft and is not guaranteed for
-                          accuracy.  Permission to use the data should be sought from the original collectors and managers
-                          which can be found on the About Us tab."),
+                          accuracy.  Permission to use the data should be sought from the original collectors."),
              
              tabPanel("Kus Home",
                       useShinyjs(),   # include Shiny JS
@@ -134,12 +133,10 @@ shinyUI(
                                titlePanel('Juvenile Metrics: Abundance and Survival'),
                                br(),
                                fluidRow(
-                                        column(6, withSpinner(plotlyOutput('juv_sum1', height = 500))),
-                                        column(6, withSpinner(plotlyOutput('juv_sum2', height = 500)))
-                                        ),
+                                        column(6, plotlyOutput('juv_sum1', height = 500)),
+                                        column(6, plotlyOutput('juv_sum2', height = 500))                                        ),
                                hr(),
-                               fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("rstsumm_table")))),
-                               fluidRow(column(12, helpText("SE: Standard Error. LGR: Lower Granite Dam")))
+                               fluidRow(column(12, offset = 0, DT::dataTableOutput("rstsumm_table")))
                             )
                           )
                         )
