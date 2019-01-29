@@ -578,16 +578,35 @@ shinyServer(function(input, output, session) {
   })
 
   # Produce SGS Summary data with streams filter APPLIED
-  summary_df <- eventReactive(input$summ_reset,{
+  sgs_summary <- eventReactive(input$summ_reset,{
     summariseSGS(streamfilter = input$summ_streams, redd_data = redd_df, carcass_data = carcass_df)
   }) 
 
   # SGS: Redd/Carcass Summary Table Output
   output$summ_table <- DT::renderDataTable({
-    tmp_summ <- summary_df()
+    tmp_summ <- sgs_summary()[[1]]
     DT::datatable(tmp_summ, options = list(orderClasses = TRUE, autoWidth = TRUE, dom = 'tpl'),
                    filter = 'top')
   })
+
+  #===========================# SGS: Graph outputs
+  # Total Redds/Year
+  output$sgs1 <- renderPlotly({
+    sgs_summary()[[2]]
+  })
+  # % Females
+  output$sgs2 <- renderPlotly({
+    sgs_summary()[[3]]
+  })
+  # pHOS
+  output$sgs3 <- renderPlotly({
+    sgs_summary()[[4]]
+  })
+  # Prespawn Mortality
+  output$sgs4 <- renderPlotly({
+    sgs_summary()[[5]]
+  })
+  #============================#
 
   #-----------------------------------------------------------------
   #  JUVENILE METRICS Tab < summariseRST >

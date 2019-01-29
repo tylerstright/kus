@@ -89,6 +89,7 @@ shinyUI(
                                     fluidRow(column(12, leafletOutput('MPGmap', height = 700, width = '100%')))
                                     ),
                                   mainPanel(
+                                    titlePanel('Population Indicators and Metrics'),
                                     fluidPage(
                                       fluidRow(column(12, textOutput('MPGfilter')))
                                     )#column(12, offset = 0, withSpinner(DT::dataTableOutput("mpg_table"))))
@@ -107,10 +108,19 @@ shinyUI(
                                    ),
                                  mainPanel(
                                     titlePanel('Spawning Ground Surveys: Redd and Carcass Summaries'),
-                                    fluidPage(column(12, offset = 0, withSpinner(DT::dataTableOutput("summ_table"))))
+                                    fluidPage(
+                                      fluidRow(column(12, withSpinner(plotlyOutput(outputId = 'sgs1', height = 400, width = '120%')))),
+                                      fluidRow(
+                                               splitLayout(cellWidths = c('40%', '40%', '40%'), 
+                                                           withSpinner(plotlyOutput(outputId = 'sgs2', height = 300)),
+                                                           withSpinner(plotlyOutput(outputId = 'sgs3', height = 300, width = '100%')),
+                                                           withSpinner(plotlyOutput(outputId = 'sgs4', height = 300 )))
+                                             ),                                      
+                                      fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("summ_table"))))
                                     )
                                   )
-                                ),
+                                )
+                              ),
                       tabPanel("Juvenile Metrics",
                         sidebarLayout(
                           sidebarPanel(
@@ -121,6 +131,7 @@ shinyUI(
                             ),
                           mainPanel(
                             fluidPage(
+                               titlePanel('Juvenile Metrics: Abundance and Survival'),
                                br(),
                                fluidRow(
                                         column(6, withSpinner(plotlyOutput('juv_sum1', height = 500))),
