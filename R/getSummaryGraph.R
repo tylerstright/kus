@@ -41,6 +41,8 @@ tmp_data <- data %>%
   )) %>%
   arrange(MigratoryYear)
 
+
+
 p <- plot_ly(data = tmp_data, 
              x = ~MigratoryYear, 
              y = yaxis, 
@@ -50,7 +52,6 @@ p <- plot_ly(data = tmp_data,
              colors = viridis_pal(option = "D")(8),
              text = ~paste(cohort)) %>%
   layout(legend = list(x = 0, y = -0.15, orientation = 'h'))
-
 
 return(p)
 
