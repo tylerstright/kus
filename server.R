@@ -266,20 +266,24 @@ shinyServer(function(input, output, session) {
    # could also include carcass sex ratios and size
   
   # 1. Spatial redd locations
-  # Create List of Dam and Weir Locations
+  # Create List of Dam and Weir Locations:
     Name <- c('Lower Granite Dam', 'Little Goose Dam', 'Lower Monumental Dam',
               'Ice Harbor Dam', 'John Day Dam', 'The Dalles Dam', 'Bonneville Dam', 'McNary Dam')
     Site <- c('LWG', 'LGS', 'LMN', 'IHR', 'JDA', 'TDA', 'BON', 'MCN')
     Latitude <- c(46.661, 46.584, 46.563, 46.25, 45.715, 45.614, 45.645, 45.936)
     Longitude <- c(-117.428, -118.027, -118.538, -118.88, -120.693, -121.133, -121.941, -119.298)
-    locs_dam <- tibble(Name, Site, Latitude, Longitude)
+    locs_dam <- tibble(Name, Site, Latitude, Longitude) # Dams
+    
+    locs_rst <- location_list(data = locations_df, locationtypeId = 1124) # Screw Traps
   
-    locs_weir <- location_list(data = locations_df, locationtypeId = 1123)
-
+    locs_weir <- location_list(data = locations_df, locationtypeId = 1123) # Weirs
+    # Create Icons:
     icon.weir <- makeAwesomeIcon(icon = 'cogs', markerColor = 'black', library='fa',
                                iconColor = 'yellow')
     icon.dam <- makeAwesomeIcon(icon = 'fort-awesome', markerColor = 'red', library='fa',
-                                 iconColor = 'black') 
+                                 iconColor = 'black')
+    icon.rst <- makeAwesomeIcon(icon = 'cogs', markerColor = 'blue', library='fa',
+                                iconColor = 'black') 
 
   output$redd_map <- renderLeaflet({
     
@@ -300,14 +304,21 @@ shinyServer(function(input, output, session) {
       addProviderTiles(providers$Esri.WorldTopoMap,
                        options = providerTileOptions(minZoom = 6)) %>%
       addPolygons(data = icc, fill = FALSE,
-                  color = 'black', weight = 2, opacity = 1) %>%
+                  color = 'black', weight = 2, opacity = 1, group = '1855 Reservation') %>%
       addPolygons(data = npt1863, fill = 'red',
-                  color = 'black', weight = 2, opacity = .25) %>%
+                  color = 'black', weight = 2, opacity = .25, group = 'Nez Perce Reservation') %>%
       addAwesomeMarkers(lng= locs_weir$Longitude, lat= locs_weir$Latitude, label= locs_weir$Name,
-                       layerId = locs_weir$Name, icon = icon.weir) %>%
+                       layerId = locs_weir$Name, icon = icon.weir, group = 'Weirs') %>%
       addAwesomeMarkers(lng= locs_dam$Longitude, lat= locs_dam$Latitude, label= locs_dam$Name,
-                        layerId = locs_dam$Site, icon = icon.dam)#,  # SITE (vs. name?) HERE
-                       # popup = popupTable(tmp_window, row.numbers = FALSE, feature.id = 'Daily Counts')) # problem is here
+                        layerId = locs_dam$Site, icon = icon.dam, group = 'Dams') %>% #,  # SITE (vs. name?) HERE
+                        # popup = popupTable(tmp_window, row.numbers = FALSE, feature.id = 'Daily Counts')) # problem is here
+      addAwesomeMarkers(lng= locs_rst$Longitude, lat= locs_rst$Latitude, label= locs_rst$Name,
+                        layerId = locs_rst$Name, icon = icon.rst, group = 'Screw Traps') %>%
+      addLayersControl(
+        overlayGroups = c('Nez Perce Reservation', '1855 Reservation', 'Dams', 'Weirs', 'Screw Traps'),
+        options = layersControlOptions(collapsed = FALSE)) %>%
+      addScaleBar(position = 'topright', options = scaleBarOptions())
+      
     
     #for(s in spp){
     #   for(y in yr){
@@ -615,9 +626,6 @@ shinyServer(function(input, output, session) {
   #-----------------------------------------------------------------
   #  JUVENILE METRICS Tab < summariseRST >
   #-----------------------------------------------------------------
-  # Create Rotary Screw Trap (RST) locations df using location_list()
-  locs_rst <- location_list(data = locations_df, locationtypeId = 1124)
-
   # RST Leaflet Map
   output$RSTmap <- renderLeaflet({
     map <- leaflet(options = leafletOptions(minZoom = 8, maxZoom = 8, 
@@ -629,7 +637,8 @@ shinyServer(function(input, output, session) {
               zoom = 8) %>%
       addProviderTiles(providers$Esri.WorldTopoMap) %>%
       addCircleMarkers(lng= locs_rst$Longitude, lat= locs_rst$Latitude, label= locs_rst$Name, radius = 8,
-                       color = 'black', layerId = locs_rst$Name, group = 'traps')
+                       color = 'black', layerId = locs_rst$Name, group = 'traps') %>%
+      addScaleBar(position = 'bottomleft', options = scaleBarOptions())
   })
   
   # create reactive RST value for filter
@@ -678,10 +687,11 @@ shinyServer(function(input, output, session) {
   #-----------------------------------------------------------------
   #  Summarized Snake Basin Populaiton Indicators and Metrics
   #-----------------------------------------------------------------
-  
-  copop <- colorFactor(topo.colors(n = n_distinct(ch_pop$POP_NAME)),ch_pop$POP_NAME)
-  co_bpa <- colorFactor(topo.colors(n=n_distinct(ch_pop$BPA_Tier)),ch_pop$BPA_Tier, na.color = '#808080')
-  
+  # chinook colors
+  ch_copop <- colorFactor(topo.colors(n = n_distinct(ch_pop$POP_NAME)),ch_pop$POP_NAME)
+  # steelhead colors
+  st_copop <- colorFactor(topo.colors(n = n_distinct(st_pop$POP_NAME)),st_pop$POP_NAME)
+  # MPG Map
   output$MPGmap <- renderLeaflet({
     leaflet(options = leafletOptions(minZoom = 6)) %>%
       fitBounds(-117.5, 43, -113, 47.8) %>%
@@ -690,14 +700,28 @@ shinyServer(function(input, output, session) {
                    lng2 = -112.5,
                    lat2 = 47.8) %>%
       addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
-      addPolygons(data = ch_mpg, group = "MPG", fill = FALSE,
-                  color = 'black', weight = 2, opacity = 1) %>%
-      addPolygons(data = ch_pop, group = "Population", popup = ~as.character(TRT_POPID), layerId = ch_pop$POP_NAME,
-                  stroke = TRUE, color = 'black', weight = 1, fillOpacity = .5, fillColor = ~copop(POP_NAME)) #%>%
-      # addLayersControl(
-      #   overlayGroups = c("Population"),
-      #   options = layersControlOptions(collapsed = FALSE))
+      addScaleBar(position = 'bottomleft', options = scaleBarOptions()) 
     })
+  # Layer MPG polys on radio button select
+  observeEvent(input$mpg_spc, {
+    if(input$mpg_spc == 'Chinook salmon') {
+    leafletProxy('MPGmap') %>%
+        clearGroup('Steelhead Populations') %>%
+        addPolygons(data = ch_mpg, group = "Chinook Populations", layerId = ch_mpg, fill = FALSE,
+                    color = 'black', weight = 2, opacity = 1) %>%
+        addPolygons(data = ch_pop, group = "Chinook Populations", popup = ~as.character(TRT_POPID), layerId = ch_pop$POP_NAME,
+                    stroke = TRUE, color = 'black', weight = 1, fillOpacity = .5, fillColor = ~ch_copop(POP_NAME)) 
+    } else {
+      if(input$mpg_spc == 'Steelhead') {
+    leafletProxy('MPGmap') %>%
+        clearGroup('Chinook Populations') %>%
+        addPolygons(data = st_mpg, group = "Steelhead Populations", layerId = st_mpg, fill = FALSE,
+                    color = 'black', weight = 2, opacity = 1) %>%
+        addPolygons(data = st_pop, group = "Steelhead Populations", popup = ~as.character(TRT_POPID), layerId = st_pop$POP_NAME,
+                    stroke = TRUE, color = 'black', weight = 1, fillOpacity = .5, fillColor = ~st_copop(POP_NAME))
+      }
+    }
+  })
   
   # create reactive MPG or POP value for filter
   values <- reactiveValues(MPG = NULL)
