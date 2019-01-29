@@ -306,20 +306,21 @@ shinyServer(function(input, output, session) {
                        # popup = popupTable(tmp_window, row.numbers = FALSE, feature.id = 'Daily Counts')) # problem is here
     
     #for(s in spp){
-      for(y in yr){
-      d = redd_locs[redd_locs$SurveyYear==y,]
+    #   for(y in yr){
+    #   d = redd_locs[redd_locs$SurveyYear==y,]
+    # 
+    #   map = map %>% addCircleMarkers(data = d, lat = ~Latitude, lng = ~Longitude, label = ~WPTName,
+    #                        group = y, color = ~pal(ReddSpecies),
+    #                        clusterOptions = markerClusterOptions(),
+    #                        fillOpacity = .25)
+    # #  }
+    # }
 
-      map = map %>% addCircleMarkers(data = d, lat = ~Latitude, lng = ~Longitude, label = ~WPTName,
-                           group = y, color = ~pal(ReddSpecies),
-                           clusterOptions = markerClusterOptions(),
-                           fillOpacity = .25)
-    #  }
-    }
-
-    map %>% 
-    addLayersControl(
-       overlayGroups = yr,
-      options = layersControlOptions(collapsed = TRUE)) #%>%
+    map 
+    #%>% 
+    #addLayersControl(
+    #   overlayGroups = yr,
+    #  options = layersControlOptions(collapsed = TRUE)) #%>%
   #    addLegend(pal = pal, values = ~ReddSpecies, title = '', position = 'bottomleft')
 
   })
