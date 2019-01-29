@@ -80,10 +80,12 @@ shinyUI(
                       )
               ),
               navbarMenu("Summarized Data",
-                       tabPanel("Snake Basin Populaiton Indicators and Metrics",
+                       tabPanel("Snake Basin Population Indicators and Metrics",
                                 sidebarLayout(
                                   sidebarPanel(
-                                    style = "position:fixed;width:25%",
+                                    radioButtons(inputId = 'mpg_spc', label = 'Select Species:', choices= c('Chinook salmon', 'Steelhead'),
+                                                selected = character(0), inline = TRUE),
+                                    style = "position:fixed;width:23%",
                                     width = 3,
                                     fluidRow(column(12, leafletOutput('MPGmap', height = 700, width = '100%')))
                                     ),
