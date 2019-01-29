@@ -1,6 +1,6 @@
 #' @title summariseSGS:
 #'
-#' @description Summarise Redd/Carcass data by Stream/Year. Filter = Streams
+#' @description Summarise & Graph Redd/Carcass data by Stream/Year. Filter = Streams
 #'
 #' @param streamfilter input$summ_streams
 #'
@@ -11,11 +11,14 @@
 #' @import lubridate dplyr? tidyr?
 #' @export
 #' @return NULL
+#' @note summariseSGS.R exists in 'getSGSgraph.R  - ALL changes here should be mirrored in that script.
 
 
 summariseSGS <- function(streamfilter, redd_data, carcass_data) {
-  
+
+  # Summarise Data-  
 tmp_reddsum <- redd_data %>%
+  #filter(StreamName %in% streamfilter) %>% 
   distinct(ActivityId, .keep_all = TRUE) %>%
   separate(`SurveyDate`, into = 'SurveyDate', sep = "T") %>%
   mutate(`SurveyDate` = ymd(`SurveyDate`),
@@ -26,6 +29,7 @@ tmp_reddsum <- redd_data %>%
   select(StreamName, SurveyYear, TargetSpecies, TotalRedds)
 
 tmp_carcsum <- carcass_data %>%
+  #filter(StreamName %in% streamfilter) %>% 
   separate(`SurveyDate`, into = 'SurveyDate', sep = "T") %>%
   mutate(`SurveyDate` = ymd(`SurveyDate`),
          `SurveyYear` = year(`SurveyDate`)) %>%
@@ -78,7 +82,7 @@ summary_df <- left_join(tmp_reddsum, PF_tmp, by = c('StreamName', 'SurveyYear', 
     left_join(phos_tmp, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
     left_join(psm_tmp, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
     left_join(all_carc, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
-    filter(StreamName %in% streamfilter) %>% 
+    filter(StreamName %in% streamfilter) %>%
     mutate(`Species` = case_when(
       `TargetSpecies` == 'F_CHN' ~ 'Fall Chinook',
       `TargetSpecies` == 'S_CHN' ~ 'Spring/Summer Chinook',
@@ -89,6 +93,89 @@ summary_df <- left_join(tmp_reddsum, PF_tmp, by = c('StreamName', 'SurveyYear', 
     rename('Stream Name' = StreamName, 'Year' = SurveyYear, 'Total Redds' = TotalRedds,
            'Hatchery Origin' = Hatchery, 'Natural Origin' = Natural, '% Hatchery Spawners' = pHOS)
   
-return(summary_df)
 
-} 
+# Graph Data -
+# # total Redds / year
+# sgs_sum1 <- plot_ly(data = summary_df, x= ~Year, y = ~`Total Redds`, type = 'scatter',
+#                 mode = 'lines+markers', name = 'Total Redds')
+# 
+# # phos/%f/year
+# sgs_sum2 <- plot_ly(data = summary_df, x= ~Year, y = ~`%Females`, type = 'scatter',
+#                 mode = 'lines+markers', name = 'Percent Females') %>%
+#   add_trace(y = ~`% Hatchery Spawners`, name = '% Hatchery Spawners', mode = 'lines+markers')
+# 
+# 
+# sgs_sum3 <- subplot(sgs_sum1, sgs_sum2, nrows = 2, shareY = FALSE) %>%
+#   layout(title = paste0('Total Redds, % Females, % Hatchery Spawners, by Year')) %>%
+#   layout(legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15),
+#          xaxis = list(title = 'Year'),
+#          yaxis = list(title = 'Total Redds'),
+#          xaxis2 = list(title = 'Year'),
+#          yaxis2 = list(title = 'Percent'))
+
+sgs_redds <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `Total Redds`, colour = `Stream Name`)) +
+                   geom_point(size = 0.8, position = position_dodge(0.05)) +  
+                   geom_line(size = 0.5, position = position_dodge(0.05)) +
+                   theme_bw() +
+                   theme(legend.title = element_blank()) +
+                   theme(legend.position = 'bottom') +
+                   scale_y_continuous(labels = scales::comma) +
+                   scale_color_viridis_d() +
+                   labs(title = 'Total Redds, Percent Females, Percent Hatchery Origin Spawners (pHOS), and Prespawn Mortalities per Spawn Year',
+                         caption = 'some caption',
+                         x = 'Spawn Year',
+                         y = 'Total Redds',
+                         colour = 'Stream')) %>%
+  layout(legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.2))
+
+
+sgs_fem <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `%Females`, colour = `Stream Name`)) +
+                   geom_point(size = 0.8, position = position_dodge(0.05)) +  
+                   geom_line(size = 0.5, position = position_dodge(0.05)) +
+                   theme_bw() +
+                   theme(legend.title = element_blank()) +
+                   theme(legend.position = 'bottom') +
+                   scale_y_continuous(labels = scales::comma) +
+                   scale_color_viridis_d() +
+                   labs(#title = '% Females',
+                       caption = 'some caption',
+                       x = '',
+                       y = '% Females',
+                       colour = 'Stream')) 
+
+
+
+sgs_phos <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `% Hatchery Spawners`, colour = `Stream Name`)) +
+                   geom_point(size = 0.8, position = position_dodge(0.05)) +  
+                   geom_line(size = 0.5, position = position_dodge(0.05)) +
+                   theme_bw() +
+                   theme(legend.title = element_blank()) +
+                   theme(legend.position = 'bottom') +
+                   scale_y_continuous(labels = scales::comma) +
+                   scale_color_viridis_d() +
+                   labs(#title = '% Hatchery Spawners',
+                       caption = 'some caption',
+                       x = '',
+                       y = 'pHOS',
+                       colour = 'Stream')) 
+
+
+sgs_mort <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `Prespawn Mortality`, colour = `Stream Name`)) +
+                   geom_point(size = 0.8, position = position_dodge(0.05)) +  
+                   geom_line(size = 0.5, position = position_dodge(0.05)) +
+                   theme_bw() +
+                   theme(legend.title = element_blank()) +
+                   theme(legend.position = 'bottom') +
+                   scale_y_continuous(labels = scales::comma) +
+                   scale_color_viridis_d() +
+                   labs(#title = 'Prespawn Mortalities',
+                       caption = 'some caption',
+                       x = '',
+                       y = 'Prespawn Mortalities',
+                       colour = 'Stream')) 
+
+
+
+return(sgs_figs = list(summary_df, sgs_redds, sgs_fem, sgs_phos, sgs_mort))
+
+}
