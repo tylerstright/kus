@@ -29,6 +29,7 @@ source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
 source('./R/location_list.R')
 source('./R/getSummaryGraph.R')
+source('./R/summariseSGS.R')
 
 # Outside Server - Static metadata tables
 # Need to set tribal specific variables
