@@ -147,7 +147,7 @@ shinyUI(
                       tabPanel("Hydro-system Conditions and Fish Counts",
                                uiOutput("year_menu"),
                                actionButton("year_submit", "Query River Data", class = 'mybutton'),
-                               withSpinner(plotOutput("river_plot")),
+                               withSpinner(plotlyOutput("river_plot")),
                                uiOutput("river_menu"),
                                withSpinner(plotOutput("window_plot")),
                                uiOutput("spp_menu")

@@ -29,6 +29,7 @@ source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
 source('./R/location_list.R')
 source('./R/getSummaryGraph.R')
+source('./R/uniqueLocations.R')
 
 # Outside Server - Static metadata tables
 # Need to set tribal specific variables
@@ -310,8 +311,8 @@ shinyServer(function(input, output, session) {
       addAwesomeMarkers(lng= locs_weir$Longitude, lat= locs_weir$Latitude, label= locs_weir$Name,
                        layerId = locs_weir$Name, icon = icon.weir, group = 'Weirs') %>%
       addAwesomeMarkers(lng= locs_dam$Longitude, lat= locs_dam$Latitude, label= locs_dam$Name,
-                        layerId = locs_dam$Site, icon = icon.dam, group = 'Dams') %>% #,  # SITE (vs. name?) HERE
-                        # popup = popupTable(tmp_window, row.numbers = FALSE, feature.id = 'Daily Counts')) # problem is here
+                        layerId = locs_dam$Site, icon = icon.dam, group = 'Dams') %>%
+                        #popup = popupTable(tmp_window, row.numbers = FALSE, feature.id = 'Daily Counts')),
       addAwesomeMarkers(lng= locs_rst$Longitude, lat= locs_rst$Latitude, label= locs_rst$Name,
                         layerId = locs_rst$Name, icon = icon.rst, group = 'Screw Traps') %>%
       addLayersControl(
@@ -331,7 +332,7 @@ shinyServer(function(input, output, session) {
     # #  }
     # }
 
-    map 
+   #map 
     #%>% 
     #addLayersControl(
     #   overlayGroups = yr,
@@ -340,22 +341,22 @@ shinyServer(function(input, output, session) {
 
   })
   
-  # create reactive DAM value for filter
-  values <- reactiveValues(DAM = NULL)
-  # update RST value based on map click (RSTmap)
-  observeEvent(input$redd_map_marker_click, {
-    mapclick <- input$redd_map_marker_click
-    values$DAM <- mapclick$id
-  })
-  
-
-   # tmp_window <- eventReactive(input$redd_map_marker_click, {
-   #     tmp_win_df <- win_df %>%
-   #      filter(Site == "values$DAM",
-   #             Date == '2018-07-08') %>%
-   #      select(Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey) 
-   #   temptable <- DT::datatable(tmp_win_df)
-   # })
+  # # create reactive DAM value for filter
+  # values <- reactiveValues(DAM = NULL)
+  # # update RST value based on map click (RSTmap)
+  # observeEvent(input$redd_map_marker_click, {
+  #   mapclick <- input$redd_map_marker_click
+  #   values$DAM <- mapclick$id
+  # })
+  # 
+  # 
+  #  tmp_window <- eventReactive(input$redd_map_marker_click, {
+  #      tmp_win_df <- win_df %>%
+  #       filter(Site == "values$DAM",
+  #              Date == '2018-07-08') %>%
+  #       select(Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
+  #    temptable <- DT::datatable(tmp_win_df)
+  #  })
   
 
   # 1. Trend redd counts
@@ -479,8 +480,8 @@ shinyServer(function(input, output, session) {
    })
    
    # Plot river conditions
-   output$river_plot <- renderPlot({
-     flow_df() %>%
+   output$river_plot <- renderPlotly({
+     ggplotly(flow_df() %>%
        ggplot(aes(x = as.Date(Date), y = as.numeric(!!as.symbol(input$river_metric)))) +
        geom_line(colour = '#536872', size = 1) +
        scale_x_date(date_labels = format('%b-%d')) +
@@ -492,15 +493,17 @@ shinyServer(function(input, output, session) {
             subtitle = paste0('Daily ', input$river_metric, ' at Bonneville and Lower Granite Dam from during ', isolate(input$obs_year),'.'),
             title = 'Mainstem River Conditions'
             )
+       )
    })
+  
    
    # Gather window count data
    window_df <- eventReactive(input$year_submit, {
-     bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                            spawn_yr = 2018, start_day = '01/01', end_day = format(Sys.Date(), '%m/%d')) %>%
+       bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+                            spawn_yr = 2019, start_day = '01/01', end_day = '01/15') %>% #format(Sys.Date(), '%m/%d')) %>%
                  mutate(Site = 'LWG'),
                       queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                      spawn_yr = 2018, start_day = '01/01', end_day = format(Sys.Date(), '%m/%d')) %>%
+                                      spawn_yr = 2019, start_day = '01/01', end_day = '01/15') %>% #format(Sys.Date(), '%m/%d')) %>%
                  mutate(Site = 'BON')) %>%
        mutate(Chinook = Chinook + Jack_Chinook,
               Coho = Coho + Jack_Coho,
@@ -626,6 +629,9 @@ shinyServer(function(input, output, session) {
   #-----------------------------------------------------------------
   #  JUVENILE METRICS Tab < summariseRST >
   #-----------------------------------------------------------------
+  # Create list of Hatchery Release Locations
+  # locs_rel <- uniqueLocations() %>%
+  #   filter(grepl('Survival', type))
   # RST Leaflet Map
   output$RSTmap <- renderLeaflet({
     map <- leaflet(options = leafletOptions(minZoom = 8, maxZoom = 8, 
@@ -637,8 +643,10 @@ shinyServer(function(input, output, session) {
               zoom = 8) %>%
       addProviderTiles(providers$Esri.WorldTopoMap) %>%
       addCircleMarkers(lng= locs_rst$Longitude, lat= locs_rst$Latitude, label= locs_rst$Name, radius = 8,
-                       color = 'black', layerId = locs_rst$Name, group = 'traps') %>%
-      addScaleBar(position = 'bottomleft', options = scaleBarOptions())
+                       color = 'black', layerId = locs_rst$Name, group = 'Screw Traps') %>%
+      # addCircleMarkers(lng= locs_rel$Longitude, lat= locs_rel$Latitude, label= locs_rel$Name, radius = 8,
+      #                  color = 'green', layerId = locs_rel$Name, group = 'Screw Traps') %>%
+      addScaleBar(position = 'topright')
   })
   
   # create reactive RST value for filter
@@ -700,7 +708,7 @@ shinyServer(function(input, output, session) {
                    lng2 = -112.5,
                    lat2 = 47.8) %>%
       addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
-      addScaleBar(position = 'bottomleft', options = scaleBarOptions()) 
+      addScaleBar(position = 'topright') 
     })
   # Layer MPG polys on radio button select
   observeEvent(input$mpg_spc, {
