@@ -30,6 +30,7 @@ source('./R/summariseRST.R')
 source('./R/location_list.R')
 source('./R/getSummaryGraph.R')
 source('./R/uniqueLocations.R')
+source('./R/summariseSGS.R')
 
 # Outside Server - Static metadata tables
 # Need to set tribal specific variables
@@ -458,15 +459,16 @@ shinyServer(function(input, output, session) {
   
    # Gather river conditions from DART
     flow_df <- eventReactive(input$year_submit, {
+
       bind_rows(queryRiverData(site = 'LWG', 
-                             year = input$obs_year, #year(Sys.Date()),
+                             year = input$obs_year,
                              start_day = '01/01',
-                             end_day = format(Sys.Date(), '%m/%d')) %>%
+                             end_day = '12/31') %>%
                           mutate_all(as.character), 
                     queryRiverData(site = 'BON', 
-                                   year = input$obs_year, #year(Sys.Date()),
+                                   year = input$obs_year,
                                    start_day = '01/01',
-                                   end_day = format(Sys.Date(), '%m/%d')) %>%
+                                   end_day = '12/31') %>%
                       mutate_all(as.character)) %>%
      mutate(Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville')) %>%
      select(Dam, Site, Date, everything())
@@ -499,13 +501,21 @@ shinyServer(function(input, output, session) {
    
    # Gather window count data
    window_df <- eventReactive(input$year_submit, {
-       bind_rows(queryWindowCnts(dam = 'LWG', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                            spawn_yr = 2019, start_day = '01/01', end_day = '01/15') %>% #format(Sys.Date(), '%m/%d')) %>%
-                 mutate(Site = 'LWG'),
-                      queryWindowCnts(dam = 'BON', spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                                      spawn_yr = 2019, start_day = '01/01', end_day = '01/15') %>% #format(Sys.Date(), '%m/%d')) %>%
-                 mutate(Site = 'BON')) %>%
-       mutate(Chinook = Chinook + Jack_Chinook,
+
+     
+    bind_rows(queryWindowCnts(dam = 'LWG',
+                              spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+                              spawn_yr = input$obs_year,
+                              start_day = '01/01',
+                              end_day = '12/31') %>%
+                          mutate(Site = 'LWG'),
+              queryWindowCnts(dam = 'BON',
+                              spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
+                              spawn_yr = input$obs_year,
+                              start_day = '01/01',
+                              end_day = '12/31') %>%
+                          mutate(Site = 'BON')) %>%
+        mutate(Chinook = Chinook + Jack_Chinook,
               Coho = Coho + Jack_Coho,
               Dam = ifelse(Site == 'LWG', 'Lower Granite', 'Bonneville')) %>%
        select(Site, Dam, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
@@ -520,7 +530,8 @@ shinyServer(function(input, output, session) {
    # Plot window counts
    output$window_plot <- renderPlot({
      window_df() %>%
-       ggplot(aes(x = as.Date(Date), y = as.numeric(!!as.symbol(input$window_spp)))) +
+       ggplot(aes(x = as.Date(Date),
+                  y = as.numeric(!!as.symbol(input$window_spp)))) +
        geom_bar(stat = 'identity') +
        scale_colour_viridis_d() +
        scale_x_date(date_labels = format('%b-%d')) +
