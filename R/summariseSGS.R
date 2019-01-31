@@ -2,11 +2,11 @@
 #'
 #' @description Summarise & Graph Redd/Carcass data by Stream/Year. Filter = Streams
 #'
-#' @param streamfilter input$summ_streams
+#' @param streams input$summ_streams
 #'
 #' @author Tyler Stright
 #'
-#' @examples summariseSGS(streamfilter = input$summstreams, redd_data = redd_df, carcass_data = carc_df)
+#' @examples summariseSGS(streams = input$summstreams, redd_data = redd_df, carcass_data = carc_df)
 #'
 #' @import lubridate dplyr? tidyr?
 #' @export
@@ -14,11 +14,11 @@
 #' @note summariseSGS.R exists in 'getSGSgraph.R  - ALL changes here should be mirrored in that script.
 
 
-summariseSGS <- function(streamfilter, redd_data, carcass_data) {
+summariseSGS <- function(redd_data, carcass_data, species, startyear, endyear, streams) {
 
   # Summarise Data-  
 tmp_reddsum <- redd_data %>%
-  #filter(StreamName %in% streamfilter) %>% 
+  #filter(StreamName %in% streams) %>% 
   distinct(ActivityId, .keep_all = TRUE) %>%
   separate(`SurveyDate`, into = 'SurveyDate', sep = "T") %>%
   mutate(`SurveyDate` = ymd(`SurveyDate`),
@@ -29,7 +29,7 @@ tmp_reddsum <- redd_data %>%
   select(StreamName, SurveyYear, TargetSpecies, TotalRedds)
 
 tmp_carcsum <- carcass_data %>%
-  #filter(StreamName %in% streamfilter) %>% 
+  #filter(StreamName %in% streams) %>% 
   separate(`SurveyDate`, into = 'SurveyDate', sep = "T") %>%
   mutate(`SurveyDate` = ymd(`SurveyDate`),
          `SurveyYear` = year(`SurveyDate`)) %>%
@@ -82,13 +82,16 @@ summary_df <- left_join(tmp_reddsum, PF_tmp, by = c('StreamName', 'SurveyYear', 
     left_join(phos_tmp, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
     left_join(psm_tmp, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
     left_join(all_carc, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
-    filter(StreamName %in% streamfilter) %>%
     mutate(`Species` = case_when(
       `TargetSpecies` == 'F_CHN' ~ 'Fall Chinook',
       `TargetSpecies` == 'S_CHN' ~ 'Spring/Summer Chinook',
       `TargetSpecies` == 'S_STH' ~ 'Summer Steelhead',
       `TargetSpecies` == 'BT' ~ 'Bull Trout'
     )) %>%
+  filter(StreamName %in% streams) %>%
+  filter(Species == species) %>%
+  filter(SurveyYear >= startyear) %>%
+  filter(SurveyYear <= endyear) %>%
     select(StreamName, SurveyYear, Species,  everything(), -TargetSpecies) %>%
     rename('Stream Name' = StreamName, 'Year' = SurveyYear, 'Total Redds' = TotalRedds,
            'Hatchery Origin' = Hatchery, 'Natural Origin' = Natural, '% Hatchery Spawners' = pHOS)
