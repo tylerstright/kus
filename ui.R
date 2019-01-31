@@ -42,7 +42,7 @@ shinyUI(
                       fluidPage(
                         #fluidRow(div(id = 'header-id',"KUS")),
                         h2('Department of Fisheries Resources Management'),
-                        h3('Data Summaries, Analyses and Visualizations'),
+                        h3('Data Summaries, Analyses, and Visualizations'),
                         fluidRow(
                           column(12, leafletOutput('redd_map', height = 690, width = "100%"))
                         ),
@@ -143,7 +143,36 @@ shinyUI(
                           )
                         )
                       ),
-                      tabPanel("Weir Returns"),
+                      tabPanel("Weir Returns",
+                               sidebarLayout(
+                                 sidebarPanel(
+                                   style = "position:fixed;width:22%",
+                                   width = 3,
+                                   radioButtons(inputId = 'weir_spc', label = 'Select Species, Weirs, and Years:', choices= c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead'),
+                                                selected = character(0), inline = TRUE),
+                                    fluidRow(column(width = 8, uiOutput('weir_select')), 
+                                             column(width = 4, uiOutput('weiryear_select'))),
+                                    fluidRow(column(12, actionButton('weir_reset', 'Refresh', width = '100%'))),
+                                    fluidRow(column(12, helpText("Click 'Refresh' to populate Graphs and  Tables."))),
+                                    fluidRow(column(12, leafletOutput('weir_map', height = 400, width = '100%')))
+                                 ),
+                                 mainPanel(
+                                   fluidPage(
+                                     titlePanel('Weir Returns: Summarized Adult Trapping Data'),
+                                     br(),
+                                     fluidRow(
+                                       column(12, plotlyOutput('weir_totals', height = 500))
+                                     ),
+                                     hr(),
+                                     titlePanel('Origin and SexSummary Table'),
+                                     fluidRow(column(12, offset = 0, DT::dataTableOutput("weircatch_table"))),
+                                     hr(),
+                                     titlePanel('Disposition Summary Table'),
+                                     fluidRow(column(12, offset = 0, DT::dataTableOutput("weirdisp_table")))
+                                    ) 
+                                  ) 
+                                ) 
+                              ),
                       tabPanel("Hydro-system Conditions and Fish Counts",
                                uiOutput("year_menu"),
                                actionButton("year_submit", "Query River Data", class = 'mybutton'),

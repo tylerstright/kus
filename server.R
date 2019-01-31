@@ -84,6 +84,7 @@ load('./data/age_df.rda')
 load('./data/abund_df.rda')
 load('./data/suv_df.rda')
 load('./data/locations_df.rda')
+load('./data/fins_df.rda')
 
 redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitude', 'Longitude')) %>%
   mutate(SurveyDate = ymd(str_sub(SurveyDate,1,10)),
@@ -653,8 +654,10 @@ shinyServer(function(input, output, session) {
               lng = -116.1,
               zoom = 8) %>%
       addProviderTiles(providers$Esri.WorldTopoMap) %>%
-      addCircleMarkers(lng= locs_rst$Longitude, lat= locs_rst$Latitude, label= locs_rst$Name, radius = 8,
-                       color = 'black', layerId = locs_rst$Name, group = 'Screw Traps') %>%
+      # addCircleMarkers(lng= locs_rst$Longitude, lat= locs_rst$Latitude, label= locs_rst$Name, radius = 8,
+      #                  color = 'black', layerId = locs_rst$Name, group = 'Screw Traps') %>%
+      addAwesomeMarkers(lng= locs_rst$Longitude, lat= locs_rst$Latitude, label= locs_rst$Name,
+                        layerId = locs_rst$Name, icon = icon.rst, group = 'Screw Traps') %>%
       # addCircleMarkers(lng= locs_rel$Longitude, lat= locs_rel$Latitude, label= locs_rel$Name, radius = 8,
       #                  color = 'green', layerId = locs_rel$Name, group = 'Screw Traps') %>%
       addScaleBar(position = 'topright')
@@ -744,7 +747,7 @@ shinyServer(function(input, output, session) {
   
   # create reactive MPG or POP value for filter
   values <- reactiveValues(MPG = NULL)
-  # update RST value based on map click (RSTmap)
+  # & update on map click (RSTmap)
   observeEvent(input$MPGmap_shape_click, {
     mapclick <- input$MPGmap_shape_click
     values$MPG <- mapclick$id
@@ -753,5 +756,117 @@ shinyServer(function(input, output, session) {
   output$MPGfilter <- renderText({
     paste0("POP_NAME filter is: ", values$MPG)
   })
-    
+  
+  #-----------------------------------------------------------------
+  #  Weir Returns Tab 
+  #-----------------------------------------------------------------
+  # Weir Location Leaflet Map
+  output$weir_map <- renderLeaflet({
+    map <- leaflet(options = leafletOptions(minZoom = 7, doubleClickZoom = FALSE)) %>%
+      setView(lat = 45.8,
+              lng = -116.1,
+              zoom = 7) %>%
+      setMaxBounds(lng1 = -119,
+                   lat1 = 42,
+                   lng2 = -114,
+                   lat2 = 49) %>%
+      addProviderTiles(providers$Esri.WorldTopoMap) %>%
+      addAwesomeMarkers(lng= locs_weir$Longitude, lat= locs_weir$Latitude, label= locs_weir$Name,
+                        layerId = locs_weir$Name, icon = icon.weir, group = 'Weirs', 
+                        labelOptions = labelOptions(noHide = TRUE, direction = 'top')) %>%
+      addScaleBar(position = 'topright')
+  })
+  
+  # base weir dataframe (e.g. FINS)
+  weir_df <- fins_df %>%
+      filter(Species %in% c('Steelhead', 'Chinook')) %>%
+      separate(Trap, into = c('Weir', 'Trap'), sep = ' - ') %>%
+      separate(`Trapped Date`, into = 'Trapped Date', sep = ' ') %>%
+      mutate(Year = year(`Trapped Date`),
+             SppRun = paste(`Run`, `Species`)) 
+
+  # input$summ_weir
+  output$weir_select <- renderUI({
+    choose_weir <- c(as.character(sort(unique(c(unique(weir_df$Weir))))))
+    selectInput('summ_weir', label = NULL, choices = choose_weir, selectize = FALSE, size = 7, multiple = TRUE)
+  })
+  
+  # input$weiryear
+  output$weiryear_select <- renderUI({
+    choose_trapyear <- c(as.character(sort(unique(weir_df$Year), decreasing = TRUE)))
+    selectInput('weir_year', label =  NULL, choices = choose_trapyear, selectize = FALSE, size = 7, multiple = TRUE)
+  })
+  
+  # Summarise Weir Totals - df / graph
+  weirtotals_df <- eventReactive(input$weir_reset, {
+    tmp_weirtot  <- fins_df %>%
+        filter(Species %in% c('Steelhead', 'Chinook')) %>%
+        separate(Trap, into = c('Weir', 'Trap'), sep = ' - ') %>%
+        mutate(Year = year(`Trapped Date`),
+               SppRun = paste(`Run`, `Species`)) %>%
+        group_by(Year, Weir, SppRun) %>%
+        summarise(TotalCatch = sum(Count, na.rm = TRUE)) %>%
+        #arrange(Weir) %>%
+        filter(Weir %in% input$summ_weir,
+               Year %in% input$weir_year,
+               SppRun == input$weir_spc)
+  })
+  
+  # Total Catch / Year Graph
+  output$weir_totals <- renderPlotly({
+    if(is.null(input$summ_weir) | is.null(input$weir_year) | is.null(input$weir_spc))
+      return()
+     ggplotly(ggplot(data= weirtotals_df(), aes(x = Year, y = TotalCatch)) +
+                geom_point(aes(color = Weir)) +   
+                geom_line(aes(color = Weir), linetype = 1, size = 0.3) +
+                theme_bw() +
+                scale_color_viridis_d() +
+                labs(x = 'Trap Year', 
+                     y = 'Total Catch', 
+                     title = paste0('Total ', input$weir_spc, ' Catch by Year')))
+  })
+
+  # Produce Weir Disposition Summary Data
+  weirdisp_df <- eventReactive(input$weir_reset,{
+    tmp_weir <- weir_df %>%
+      group_by(Year, Weir, SppRun, Origin, Sex, Disposition) %>%
+      summarise(Count = sum(Count, na.rm = TRUE)) %>%
+      spread(key = Disposition, value = Count) %>%
+      filter(Weir %in% input$summ_weir,
+             Year %in% input$weir_year)
+  })
+  
+  # Disposition Summary Table
+  output$weirdisp_table <- DT::renderDataTable({
+    weir_tmp <- weirdisp_df()
+    DT::datatable(weir_tmp, options = list(orderClasses = TRUE,
+                                          autoWidth = TRUE,
+                                          dom = 'tpl'),
+                  filter = 'top')
+  })
+  
+  # Produce Weir Catch Summary Data
+  weircatch_df <- eventReactive(input$weir_reset,{
+    tmp_weir1 <- weir_df %>%
+      mutate(Origin = case_when(
+        Origin %in% c('natural', 'Natural') ~ 'Natural',
+        Origin %in% c('Hatchery-Stray', 'hatchery', 'Hatchery', 
+                      'supplement', 'Hatchery-Supplementation') ~ 'Hatchery',
+        Origin %in% c(NA, 'unknown', 'Unknown', 'Uncategorized') ~ 'Unknown')) %>%
+      group_by(Year, Weir, SppRun, Origin, Sex) %>%
+      summarise(Count = sum(Count, na.rm = TRUE)) %>%
+      spread(key= Sex, value = Count) %>%
+      filter(Weir %in% input$summ_weir,
+             Year %in% input$weir_year)
+  })
+  
+  # Weir Catch Summary Table
+  output$weircatch_table <- DT::renderDataTable({
+    weir_tmp1 <- weircatch_df()
+    DT::datatable(weir_tmp1, options = list(orderClasses = TRUE,
+                                           autoWidth = TRUE,
+                                           dom = 'tpl'),
+                  filter = 'top')
+  })
+  
 }) # Close Server
