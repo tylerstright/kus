@@ -23,36 +23,31 @@
 
 
 # Grab and filter data for one of two tables: Survival OR Abundance
-getSummaryGraph <- function(data, rstfilter, yaxis) {
+getSummaryGraph <- function(data, metric) {
 
 # data filter based on chosen RST (via mapclick)  
 tmp_data <- data %>%
-  filter(Location == rstfilter,
-         Lifestage %in% c('Presmolt', 'Smolt')) %>%
-  mutate(cohort = case_when(
-    SpeciesRun == 'S_STH' & Origin == 'Natural' & Lifestage == 'Presmolt' ~ 'Natural Steelhead Presmolt',
-    SpeciesRun == 'S_STH' & Origin == 'Natural' & Lifestage == 'Smolt' ~ 'Natural Steelhead Smolt',
-    SpeciesRun == 'S_STH' & Origin == 'Hatchery' & Lifestage == 'Presmolt' ~ 'Hatchery Steelhead Presmolt',
-    SpeciesRun == 'S_STH' & Origin == 'Hatchery' & Lifestage == 'Smolt' ~ 'Hatchery Steelhead Smolt',
-    SpeciesRun == 'S_CHN' & Origin == 'Natural' & Lifestage == 'Presmolt' ~ 'Natural Chinook Presmolt',
-    SpeciesRun == 'S_CHN' & Origin == 'Natural' & Lifestage == 'Smolt' ~ 'Natural Chinook Smolt',
-    SpeciesRun == 'S_CHN' & Origin == 'Hatchery' & Lifestage == 'Presmolt' ~ 'Hatchery Chinook Presmolt',
-    SpeciesRun == 'S_CHN' & Origin == 'Hatchery' & Lifestage == 'Smolt' ~ 'Hatchery Chinook Smolt'
-  )) %>%
+  mutate(cohort = paste0(Origin, ' Origin ',Species)) %>%
   arrange(MigratoryYear)
-
-
-
-p <- plot_ly(data = tmp_data, 
-             x = ~MigratoryYear, 
-             y = yaxis, 
-             type = 'scatter',
-             mode = 'lines+markers',
-             color = ~cohort,
-             colors = viridis_pal(option = "D")(8),
-             text = ~paste(cohort)) %>%
-  layout(legend = list(x = 0, y = -0.15, orientation = 'h'))
-
+  
+  if(metric == ~Abundance){
+    df <- tmp_data %>% filter(Lifestage == 'Smolt')
+  }
+  
+  if(metric == ~Survival){
+    df <- tmp_data %>% filter(Lifestage == 'Smolt')
+  }
+  
+    p <- plot_ly(data = df, 
+                 x = ~MigratoryYear, 
+                 y = metric, 
+                 type = 'scatter',
+                 mode = 'lines+markers',
+                 color = ~cohort,
+                 colors = viridis_pal(option = "D")(8),
+                 text = ~paste(cohort)) %>%
+      layout(legend = list(x = 0, y = -0.15, orientation = 'h'))
+  
 return(p)
 
 }

@@ -44,7 +44,7 @@ shinyUI(
                         h2('Department of Fisheries Resources Management'),
                         h3('Data Summaries and Visualizations Web Application'))),
                         fluidRow(
-                          column(12, leafletOutput('home_map', height = 690, width = "100%"))
+                          column(12, withSpinner(leafletOutput('home_map', height = 690, width = "100%")))
                         ),
                         fluidRow(
                           column(12,
@@ -59,35 +59,41 @@ shinyUI(
                       )
               ),
               navbarMenu("Summarized Data",
-                       tabPanel("Snake Basin Population Indicators and Metrics"),
-                                # sidebarLayout(
-                                #   sidebarPanel(
-                                #     radioButtons(inputId = 'mpg_spc', label = 'Select Species:', choices= c('Chinook salmon', 'Steelhead'),
-                                #                 selected = character(0), inline = TRUE),
-                                #     style = "position:fixed;width:23%",
-                                #     width = 3,
-                                #     fluidRow(column(12, leafletOutput('MPGmap', height = 700, width = '100%')))
-                                #     ),
-                                #   mainPanel(
-                                #     titlePanel('Population Indicators and Metrics'),
-                                #     fluidPage(
-                                #       fluidRow(column(12, textOutput('MPGfilter')))
-                                #     )
-                                #   )
-                                #   )
-                                # ),
+                       tabPanel("Snake Basin Population Indicators and Metrics",
+                                 sidebarLayout(
+                                  sidebarPanel(
+                                    style = "position:fixed;width:25%",
+                                    width = 3,
+                                    h3('Chinook and Steelhead Population Indicators and Metrics'),
+                                    helpText('Select species, population and spawn year range of intrest then click "Query Data".'),
+                                    uiOutput('pop_spp_menu'),
+                                    uiOutput('pop_menu'), 
+                                    uiOutput('pop_year_menu'),
+                                    actionButton('weir_reset', 'Query Data', class = "mybutton", width = '100%'),
+                                    hr(),
+                                    leafletOutput('pop_map', height = 400, width = '100%')
+                                    ),
+                                  mainPanel(
+                                    titlePanel('Population Indicators and Metrics'),
+                                    fluidPage(
+                                      fluidRow(column(12, textOutput('MPGfilter')))
+                                    )
+                                  )
+                                  )
+                                ),
                        tabPanel("Adult Weir Returns",
                                 sidebarLayout(
                                   sidebarPanel(
-                                    style = "position:fixed;width:22%",
+                                    style = "position:fixed;width:25%",
                                     width = 3,
-                                    radioButtons(inputId = 'weir_spc', label = 'Select Species, Weirs, and Years:', choices= c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead'),
-                                                 selected = character(0), inline = TRUE),
-                                    fluidRow(column(width = 8, uiOutput('weir_select')), 
-                                             column(width = 4, uiOutput('weiryear_select'))),
-                                    fluidRow(column(12, actionButton('weir_reset', 'Refresh', width = '100%'))),
-                                    fluidRow(column(12, helpText("Click 'Refresh' to populate Graphs and  Tables."))),
-                                    fluidRow(column(12, leafletOutput('weir_map', height = 400, width = '100%')))
+                                    h3('Data Collected From Hatchery and Weir Sites'),
+                                    helpText('Select species, trap site and spawn year range of intrest then click "Query Data".'),
+                                    uiOutput('weir_spp_menu'),
+                                    uiOutput('weir_menu'), 
+                                    uiOutput('weir_year_menu'),
+                                    actionButton('weir_reset', 'Query Data', class = "mybutton", width = '100%'),
+                                    hr(),
+                                    leafletOutput('weir_map', height = 400, width = '100%')
                                   ),
                                   mainPanel(
                                     fluidPage(
@@ -109,17 +115,18 @@ shinyUI(
                        tabPanel("Spawning Ground Surveys",
                                sidebarLayout(
                                    sidebarPanel(
-                                     style = "position:fixed;width:15%;",
-                                     width = 2,
-                                     helpText('Select species, spawn year range and streams of intrest then click "Query Data".'),
-                                      uiOutput("sgs_species_menu"),
-                                      uiOutput("sgs_year_menu"),
-                                      uiOutput("sgs_streams_menu"),
-                                      actionButton("summ_reset", label = "Query Data", class = "mybutton",
-                                                   position = 'center', width = '100%')
+                                     style = "position:fixed;width:25%;",
+                                     width = 3,
+                                     h3('Data Collected From Spawning Ground Surveys'),
+                                     helpText('Select species, streams and spawn year range of intrest then click "Query Data".'),
+                                     uiOutput("sgs_species_menu"),
+                                     uiOutput("sgs_streams_menu"),                                     
+                                     uiOutput("sgs_year_menu"),
+                                     actionButton("summ_reset", label = "Query Data", class = "mybutton", width = '100%'),
+                                     hr(),
+                                     leafletOutput('sgs_map', height = 400, width = '100%')
                                    ),
                                  mainPanel(
-                                    titlePanel('Spawning Ground Surveys: Redd and Carcass Summaries'),
                                     fluidPage(
                                       fluidRow(column(12, withSpinner(plotlyOutput(outputId = 'sgs1', height = 400, width = '120%')))),
                                       fluidRow(
@@ -136,10 +143,16 @@ shinyUI(
                       tabPanel("Juvenile Abundance and Survival",
                         sidebarLayout(
                           sidebarPanel(
-                            style = "position:fixed;width:22%",
+                            style = "position:fixed;width:25%;",
                             width = 3,
-                            fluidRow(column(12, helpText("Click a pin to populate Graphs and Summary Table."))),
-                            fluidRow(column(12, leafletOutput('RSTmap', height = 500, width = '100%')))
+                            h3('Data Collected From Rotary Screw Traps and Hatchery Releases'),
+                            helpText('Select species, trap site and spawn year range of intrest then click "Query Data".'),
+                            uiOutput("juv_species_menu"),
+                            uiOutput("juv_streams_menu"),                                     
+                            uiOutput("juv_year_menu"),
+                            actionButton("juv_reset", label = "Query Data", class = "mybutton", width = '100%'),
+                            hr(),
+                            leafletOutput('juv_map', height = 400, width = '100%')
                             ),
                           mainPanel(
                             fluidPage(
@@ -155,14 +168,27 @@ shinyUI(
                         )
                       ),
                       tabPanel("Hydro-system Conditions and Fish Counts",
-                               uiOutput("year_menu"),
-                               actionButton("year_submit", "Query River Data", class = 'mybutton'),
-                               withSpinner(plotlyOutput("river_plot")),
-                               uiOutput("river_menu"),
-                               withSpinner(plotOutput("window_plot")),
-                               uiOutput("spp_menu")
+                               sidebarLayout(
+                                 sidebarPanel(
+                                   style = "position:fixed;width:25%;",
+                                   width = 3,
+                                   h3('Adult Return Counts and River Conditions at FCRPS Dams'),
+                                   h4('Data obtained from Columbia Basin Research and the DART website.'),
+                                   helpText('Select the hydrosystem project and return year of intrest then click "Query Data".'),
+                                   uiOutput("hydro_menu"),                                     
+                                   uiOutput("hydro_year_menu"),
+                                   actionButton("hydro_reset", label = "Query Data", class = "mybutton", width = '100%'),
+                                   helpText('Change the plot output by selecting species and/or river metric of interest.'),
+                                   uiOutput("hydro_species_menu"),
+                                   uiOutput("hydro_metric_menu")
+                                 ),
+                                 mainPanel(
+                                   plotOutput("window_plot"),
+                                   plotOutput("river_plot")
+                                   )
+                                 )
                                )
-             ),
+                      ),
              navbarMenu("Fish Management",
                         tabPanel(tags$a("In-season Snake Basin Management")),
                         tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
