@@ -52,6 +52,24 @@ redd_df <- mutate_at(redd_df, .funs = as.numeric, .vars = c('NewRedds', 'Latitud
   mutate(SurveyDate = ymd(str_sub(SurveyDate,1,10)),
          SurveyYear = as.integer(year(SurveyDate)))
 
+# base weir dataframe (e.g. FINS)
+fins_df <- fins_df %>%
+  separate(Trap, into = c('Weir', 'Trap'), sep = ' - ') %>%      
+  mutate(Year = year(`Trapped Date`),
+         Run = case_when(
+           Species == 'Chinook' & Run == 'Spring' ~ 'Spring/Summer',
+           Species == 'Chinook' & Run == 'Summer' ~ 'Spring/Summer',
+           TRUE ~ Run),
+         Origin = str_to_title(Origin),
+         Origin = case_when(
+           Origin == 'Supplement' ~ 'Hatchery-Supplementation',
+           Origin == 'Native' ~ 'Natural',
+           TRUE ~ Origin),
+         SppRun = case_when(
+           Species == 'Chinook' ~ paste(Run, Species),
+           Species == 'Steelhead' ~ paste(Run, Species),
+           TRUE ~ Species))
+
 #------------------------------------------------------------------------------
 # Set Tribal specific variables
 #------------------------------------------------------------------------------
@@ -89,6 +107,7 @@ shinyServer(function(input, output, session) {
 #------------------------------------------------------------------------------
 # Hide
   observe({
+    hide(selector = "#kus_navbar li a[data-value=tab_reports]" )   # reports data
     hide(selector = "#kus_navbar li a[data-value=tab_rawdata]" )   # raw data
     hide(selector = "#kus_navbar li a[data-value=data_entry]" )    # data entry
   })
@@ -101,6 +120,7 @@ shinyServer(function(input, output, session) {
               NULL
             } else {
                 if(status_code(login_status)==200) {
+                  show(selector = "#kus_navbar li a[data-value=tab_reports]")
                   show(selector = "#kus_navbar li a[data-value=tab_rawdata]")
                   show(selector = "#kus_navbar li a[data-value=data_entry]")
                 }
@@ -337,112 +357,73 @@ shinyServer(function(input, output, session) {
       addScaleBar(position = 'topright')
   })
   
-  # base weir dataframe (e.g. FINS)
-  weir_df <- fins_df %>%
-    separate(Trap, into = c('Weir', 'Trap'), sep = ' - ') %>%      
-    mutate(Year = year(`Trapped Date`),
-           Run = case_when(
-             Species == 'Chinook' & Run == 'Spring' ~ 'Spring/Summer',
-             Species == 'Chinook' & Run == 'Summer' ~ 'Spring/Summer',
-             TRUE ~ Run),
-           Origin = str_to_title(Origin),
-           Origin = case_when(
-             Origin == 'Supplement' ~ 'Hatchery-Supplementation',
-             Origin == 'Native' ~ 'Natural',
-             TRUE ~ Origin),
-           SppRun = case_when(
-             Species == 'Chinook' ~ paste(Run, Species),
-             Species == 'Steelhead' ~ paste(Run, Species),
-             TRUE ~ Species))
-  
   # Weir species
   output$weir_spp_menu <- renderUI({
-    choose_spp <- sort(unique(weir_df$SppRun)) #c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead')
+    choose_spp <- sort(unique(fins_df$SppRun)) #c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead')
   selectInput(inputId = 'weir_spp', label = 'Species:', choices = choose_spp, selectize = FALSE, size = 5, multiple = TRUE)
   })
   
   # Weir Site
   output$weir_menu <- renderUI({
-    choose_weir <- sort(unique(weir_df$Weir))
+    choose_weir <- sort(unique(fins_df$Weir))
     selectInput('weir_site', label = 'Trap Site:', choices = choose_weir, selectize = FALSE, size = 5, multiple = TRUE)
   })
   
   # Weir Year
   output$weir_year_menu <- renderUI({
-    choose_year <- range(weir_df$Year)
+    choose_year <- range(fins_df$Year)
     sliderInput("weir_year", label = 'Spawn Year:', min = choose_year[1], max = choose_year[2], value = c(choose_year[1], choose_year[2]), sep='')
   })
   
-  # Summarise Weir Totals - df / graph
-  weirtotals_df <- eventReactive(input$weir_reset, {
-    weir_df %>%
-      group_by(Year, Weir, SppRun, Origin) %>%
-      summarise(TotalCatch = sum(Count, na.rm = TRUE)) %>%
-      filter(Weir %in% input$weir_site,
-             Year %in% input$weir_year,
-             SppRun %in% input$weir_spp)
+  # Summarise Weir Counts
+  weir_df <- eventReactive(input$weir_button, {
+    fins_df %>%
+      filter(SppRun %in% input$weir_spp) %>%
+      filter(Weir %in% input$weir_site) %>%
+      filter(Year >= input$weir_year[1]) %>%
+      filter(Year <= input$weir_year[2]) %>%
+    group_by(Year, Weir, SppRun, Origin, Sex, Disposition) %>%
+      summarise(Count = sum(Count, na.rm = TRUE))
   })
+
   
-  # Total Catch / Year Graph
-  output$weir_totals <- renderPlotly({
-    if(is.null(input$weir_site) | is.null(input$weir_year) | is.null(input$weir_spp))
-      return()
-    ggplotly(ggplot(data= weirtotals_df(), aes(x = Year, y = TotalCatch)) +
-               geom_point(aes(color = Weir)) +   
-               geom_line(aes(color = Weir, linetype = Origin), size = 0.3) +
-               theme_bw() +
-               scale_color_viridis_d() +
-               labs(x = 'Trap Year', 
-                    y = 'Total Catch',
-                    colour = 'Weir',
-                    linetype = 'Origin',
-                    title = paste0('Total ', input$weir_spc, ' Catch by Year')))
-  })
-  
-  # Produce Weir Disposition Summary Data
-  weirdisp_df <- eventReactive(input$weir_reset,{
-    weir_df %>%
-      filter(Weir %in% input$summ_weir,
-             Year %in% input$weir_year) %>%      
-      group_by(Year, Weir, SppRun, Origin, Sex, Disposition) %>%
-      summarise(Count = sum(Count, na.rm = TRUE)) %>%
-      spread(key = Disposition, value = Count)
-  })
-  
+
   # Disposition Summary Table
-  output$weirdisp_table <- DT::renderDataTable({
-    weir_tmp <- weirdisp_df()
+  output$weir_table <- DT::renderDataTable({
+    
+    weir_tmp <- weir_df() %>%
+      spread(key = Disposition, value = Count)
+    
     DT::datatable(weir_tmp, options = list(orderClasses = TRUE,
                                            autoWidth = TRUE,
                                            dom = 'tpl'),
                   filter = 'top')
   })
   
-  # Produce Weir Catch Summary Data
-  weircatch_df <- eventReactive(input$weir_reset,{
-    tmp_weir1 <- weir_df %>%
-      mutate(Origin = case_when(
-        Origin %in% c('natural', 'Natural') ~ 'Natural',
-        Origin %in% c('Hatchery-Stray', 'hatchery', 'Hatchery', 
-                      'supplement', 'Hatchery-Supplementation') ~ 'Hatchery',
-        Origin %in% c(NA, 'unknown', 'Unknown', 'Uncategorized') ~ 'Unknown')) %>%
+  
+  # # Total Catch / Year Graph
+  output$weir_totals <- renderPlot({
+   if(is.null(input$weir_site) | is.null(input$weir_year[1]) | is.null(input$weir_spp))
+     return()
+    
+   weir_df() %>%
       group_by(Year, Weir, SppRun, Origin, Sex) %>%
-      summarise(Count = sum(Count, na.rm = TRUE)) %>%
-      spread(key= Sex, value = Count) %>%
-      filter(Weir %in% input$summ_weir,
-             Year %in% input$weir_year)
+      summarise(Trapped = sum(Count, na.rm=TRUE)) %>%
+      ggplot(aes(x = Year, y = Trapped)) +
+               geom_point(aes(colour = Weir)) +
+               geom_line(aes(color = Weir, linetype = Sex), size = 0.3) +
+               theme_bw() +
+               scale_color_viridis_d() +
+               facet_wrap(~ Origin, ncol = 2) +
+               labs(x = 'Trap Year',
+                    y = 'Total Catch',
+                    colour = 'Weir',
+                    linetype = 'Sex',
+                    title = paste0('Total ', input$weir_spp, ' Catch by Year'))
+
   })
-  
-  # Weir Catch Summary Table
-  output$weircatch_table <- DT::renderDataTable({
-    weir_tmp1 <- weircatch_df()
-    DT::datatable(weir_tmp1, options = list(orderClasses = TRUE,
-                                            autoWidth = TRUE,
-                                            dom = 'tpl'),
-                  filter = 'top')
-  })
-  
-  
+
+
 #----------------------------------------------------------------------------
 #  Summarized SGS Data
 #----------------------------------------------------------------------------

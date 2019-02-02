@@ -91,26 +91,26 @@ shinyUI(
                                     uiOutput('weir_spp_menu'),
                                     uiOutput('weir_menu'), 
                                     uiOutput('weir_year_menu'),
-                                    actionButton('weir_reset', 'Query Data', class = "mybutton", width = '100%'),
+                                    actionButton("weir_button", "Query Data", class = 'mybutton', width = '100%'),                                    
                                     hr(),
                                     leafletOutput('weir_map', height = 400, width = '100%')
                                   ),
                                   mainPanel(
                                     fluidPage(
-                                      titlePanel('Weir Returns: Summarized Adult Trapping Data'),
-                                      br(),
-                                      fluidRow(
-                                        column(12, plotlyOutput('weir_totals', height = 500))
-                                      ),
-                                      hr(),
-                                      titlePanel('Origin and SexSummary Table'),
-                                      fluidRow(column(12, offset = 0, DT::dataTableOutput("weircatch_table"))),
-                                      hr(),
-                                      titlePanel('Disposition Summary Table'),
-                                      fluidRow(column(12, offset = 0, DT::dataTableOutput("weirdisp_table")))
+                                    #  titlePanel('Weir Returns: Summarized Adult Trapping Data'),
+                                     # br(),
+                                      fluidRow(column(12, plotOutput('weir_totals', height = 500))),
+                                      #),
+                                      #hr(),
+                                      #titlePanel('Origin and SexSummary Table'),
+                                      fluidRow(column(12, withSpinner(DT::dataTableOutput("weir_table"))))
+                                      #hr(),
+                                      #titlePanel('Disposition Summary Table'),
+                                      #fluidRow(column(12, offset = 0, DT::dataTableOutput("weirdisp_table")))
                                     ) 
-                                  ) 
-                                ) 
+                                  )
+                                )
+                                 
                        ),
                        tabPanel("Spawning Ground Surveys",
                                sidebarLayout(
@@ -128,12 +128,12 @@ shinyUI(
                                    ),
                                  mainPanel(
                                     fluidPage(
-                                      fluidRow(column(12, withSpinner(plotlyOutput(outputId = 'sgs1', height = 400, width = '120%')))),
+                                      fluidRow(column(12, plotlyOutput(outputId = 'sgs1', height = 400, width = '120%'))),
                                       fluidRow(
                                                splitLayout(cellWidths = c('40%', '40%', '40%'), 
-                                                           withSpinner(plotlyOutput(outputId = 'sgs2', height = 300)),
-                                                           withSpinner(plotlyOutput(outputId = 'sgs3', height = 300, width = '100%')),
-                                                           withSpinner(plotlyOutput(outputId = 'sgs4', height = 300 )))
+                                                           plotlyOutput(outputId = 'sgs2', height = 300),
+                                                           plotlyOutput(outputId = 'sgs3', height = 300, width = '100%'),
+                                                           plotlyOutput(outputId = 'sgs4', height = 300 ))
                                              ),                                      
                                       fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("summ_table"))))
                                     )
@@ -162,7 +162,7 @@ shinyUI(
                                         column(6, plotlyOutput('juv_sum1', height = 500)),
                                         column(6, plotlyOutput('juv_sum2', height = 500))                                        ),
                                hr(),
-                               fluidRow(column(12, offset = 0, DT::dataTableOutput("rstsumm_table")))
+                               fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("rstsumm_table"))))
                             )
                           )
                         )
@@ -183,7 +183,7 @@ shinyUI(
                                    uiOutput("hydro_metric_menu")
                                  ),
                                  mainPanel(
-                                   plotOutput("window_plot"),
+                                   withSpinner(plotOutput("window_plot")),
                                    plotOutput("river_plot")
                                    )
                                  )
@@ -194,6 +194,7 @@ shinyUI(
                         tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
                         tabPanel(tags$a("PITtrackR", href = "https://nptfisheries.shinyapps.io/PITtrackR/"))
                         ),
+             tabPanel("Reporting", id = 'report_stuff', value = 'tab_reports'),
              tabPanel("Raw Data", id = 'raw_data', value = 'tab_rawdata',
                       fluidPage(
                           fluidRow(
