@@ -26,7 +26,7 @@ shinyUI(
   navbarPage(title = div(div(id = 'user-name', textOutput('full_name')),
                          div(id = 'user-name', uiOutput('log_link')),
                          div(id = 'logo-id',img(src="NPTlogos2.png", height = "70px")),
-                         tags$a("DFRM Home",href = 'http://www.nptfisheries.org')
+                         tags$a("DFRM Home",href = 'http://www.nptfisheries.org', target = '_blank')
 
                          ),
              id = "kus_navbar",
@@ -192,9 +192,9 @@ shinyUI(
                                )
                       ),
              navbarMenu("Fish Management",
-                        tabPanel(tags$a("In-season Snake Basin Management")),
-                        tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/")),
-                        tabPanel(tags$a("PITtrackR", href = "https://nptfisheries.shinyapps.io/PITtrackR/"))
+                        tabPanel(tags$a("In-season Snake Basin Management", target = '_blank')),
+                        tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank')),
+                        tabPanel(tags$a("PITtrackR", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank'))
                         ),
              tabPanel("Reporting", id = 'report_stuff', value = 'tab_reports'),
              tabPanel("Raw Data", id = 'raw_data', value = 'tab_rawdata',
@@ -214,8 +214,8 @@ shinyUI(
                       withSpinner(DT::dataTableOutput("raw_table"))
                 ),
              navbarMenu("Data Entry", menuName = 'data_entry',
-                        tabPanel(tags$a("CDMS - Project Data Entry", href = "https://cdms.nptfisheries.org/index.html#/projects")),
-                        tabPanel(tags$a("LSRCP FINS", href = "https://www.finsnet.org/"))
+                        tabPanel(tags$a("CDMS - Project Data Entry", href = "https://cdms.nptfisheries.org/index.html#/projects", target = '_blank')),
+                        tabPanel(tags$a("LSRCP FINS", href = "https://www.finsnet.org/", target = '_blank'))
                         )
   ) # close navbarPage
 ) # close shinyUI
