@@ -145,7 +145,7 @@ shinyServer(function(input, output, session) {
      }
    }
  })
-
+   
   # Login Modal
   observeEvent(input$login_link,
                showModal(modalDialog(
@@ -174,8 +174,8 @@ shinyServer(function(input, output, session) {
         footer = "Please fill in your username and password correctly."
       ))
     } else {
-      login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host) 
-      
+       login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host) 
+
       if(status_code(login_status) != 200) {
         showModal(modalDialog(
           textInput('username','Username'),
@@ -202,14 +202,11 @@ shinyServer(function(input, output, session) {
   
   # Logout - reset to startup values
     observeEvent(input$logout_link, {
-        username <- 'api_user'
-        login_status <- NULL
-        startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
-        user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
-        hideElement(selector = "#kus_navbar li a[data-value=tab_reports]") # hide tabs
+        login_status <<- NULL
+        hideElement(selector = "#kus_navbar li a[data-value=tab_reports]") 
         hideElement(selector = "#kus_navbar li a[data-value=tab_rawdata]")
         hideElement(selector = "#kus_navbar li a[data-value=data_entry]")
-        output$login_logout <- renderUI({actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'))}) # activate login_link
+        output$login_logout <- renderUI({actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'))}) 
       })
 
 #------------------------------------------------------------------
