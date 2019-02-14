@@ -18,13 +18,13 @@ library(plotly)
 library(leaflet)
 library(shinyjs)
 library(viridis)
-library(mapview)
-library(RColorBrewer)
+# library(mapview)
+# library(RColorBrewer)
 
 # Define UI for application that draws a histogram
 shinyUI(
-  navbarPage(title = div(div(id = 'user-name', textOutput('full_name')),
-                         div(id = 'user-name', uiOutput('log_link')),
+  navbarPage(title = div(
+                         div(id = 'user-name', uiOutput('login_logout')), # both Log IN and OUT
                          div(id = 'logo-id',img(src="NPTlogos2.png", height = "70px")),
                          tags$a("DFRM Home",href = 'http://www.nptfisheries.org', target = '_blank')
 

@@ -81,7 +81,7 @@ api_key <- "15305445313005328123958241094395824109453772653886054226254075054264
 #------------------------------------------------------------------------------
 # Set login variables
 login_status <- NULL
-makeReactiveBinding("login_status") # for Login Functionality
+makeReactiveBinding("login_status")
 html_code <- NULL
 user_info <- NULL
 # Initial login without restricted permissions
@@ -103,34 +103,28 @@ if(html_code == 200){
 #------------------------------------------------------------------------------
 shinyServer(function(input, output, session) {
 #------------------------------------------------------------------------------
-# Hide Tabs and Show Tabs
+# Hide & show Tabs 
 #------------------------------------------------------------------------------
-# Hide
   observe({
-    hide(selector = "#kus_navbar li a[data-value=tab_reports]" )   # reports data
-    hide(selector = "#kus_navbar li a[data-value=tab_rawdata]" )   # raw data
-    hide(selector = "#kus_navbar li a[data-value=data_entry]" )    # data entry
+    if(is.null(login_status)) {
+    hideElement(selector = "#kus_navbar li a[data-value=tab_reports]" )  
+    hideElement(selector = "#kus_navbar li a[data-value=tab_rawdata]" ) 
+    hideElement(selector = "#kus_navbar li a[data-value=data_entry]" )
+    } else {
+      if(status_code(login_status) != 200) {
+        hideElement(selector = "#kus_navbar li a[data-value=tab_reports]" )  
+        hideElement(selector = "#kus_navbar li a[data-value=tab_rawdata]" ) 
+        hideElement(selector = "#kus_navbar li a[data-value=data_entry]" )
+      } else {
+          showElement(selector = "#kus_navbar li a[data-value=tab_reports]")
+          showElement(selector = "#kus_navbar li a[data-value=tab_rawdata]")
+          showElement(selector = "#kus_navbar li a[data-value=data_entry]")
+      }
+    }
   })
   
-# Show     
-
-  observeEvent(input$login, {
-      delay(1000, 
-            if(is.null(login_status)) {
-              NULL
-            } else {
-                if(status_code(login_status)==200) {
-                  show(selector = "#kus_navbar li a[data-value=tab_reports]")
-                  show(selector = "#kus_navbar li a[data-value=tab_rawdata]")
-                  show(selector = "#kus_navbar li a[data-value=data_entry]")
-                }
-            } 
-      )
-    })
-  
-
 #------------------------------------------------------------------------------
-# Restricted Login
+# Restricted Login and Logout button
 #------------------------------------------------------------------------------
   
   # User information
@@ -138,34 +132,20 @@ shinyServer(function(input, output, session) {
     httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
   })
 
-  # Create a Login Link that disappears after successful login
-   output$log_link <- renderUI({
+  # Create Login / Logout Functionality
+   output$login_logout <- renderUI({
    if(is.null(login_status)) {
-     actionLink('login_link', 'Login Link')
+     actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'))
    } else {
-     if(status_code(login_status)!=200){
-       actionLink('login_link', 'Login Link')
-     } else {
-         if(status_code(login_status)==200) {
-           NULL }
-       }
+     if(status_code(login_status) == 200) {
+      actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
+                 icon = icon('sign-out-alt'))
+   } else {
+     actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'))
      }
-  })
+   }
+ })
    
-  # Display Full Name after successful login
-  output$full_name <- renderText({
-    if(is.null(login_status)){
-      NULL
-    } else {
-      if(status_code(login_status)!=200){
-        NULL
-      } else {
-        user_info()$Fullname
-      }
-    }
-  })
-  
-
   # Login Modal
   observeEvent(input$login_link,
                showModal(modalDialog(
@@ -194,8 +174,8 @@ shinyServer(function(input, output, session) {
         footer = "Please fill in your username and password correctly."
       ))
     } else {
-      login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host) 
-      
+       login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host) 
+
       if(status_code(login_status) != 200) {
         showModal(modalDialog(
           textInput('username','Username'),
@@ -208,11 +188,26 @@ shinyServer(function(input, output, session) {
           footer = "I'm sorry you are having trouble. Try re-checking the post-it note on your computer screen. :)"
         ))
       } else {
-        removeModal()
+          removeModal()
+          showElement(selector = "#kus_navbar li a[data-value=tab_reports]")
+          showElement(selector = "#kus_navbar li a[data-value=tab_rawdata]")
+          showElement(selector = "#kus_navbar li a[data-value=data_entry]")
+          output$login_logout <- renderUI({
+            actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
+                       icon = icon('sign-out-alt'))
+             })
+          }
       }
-    }
   })
   
+  # Logout - reset to startup values
+    observeEvent(input$logout_link, {
+        login_status <<- NULL
+        hideElement(selector = "#kus_navbar li a[data-value=tab_reports]") 
+        hideElement(selector = "#kus_navbar li a[data-value=tab_rawdata]")
+        hideElement(selector = "#kus_navbar li a[data-value=data_entry]")
+        output$login_logout <- renderUI({actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'))}) 
+      })
 
 #------------------------------------------------------------------
 # Homepage figures and data summaries
