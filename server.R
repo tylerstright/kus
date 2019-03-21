@@ -107,16 +107,16 @@ shinyServer(function(input, output, session) {
 #------------------------------------------------------------------------------
   observe({
     if(is.null(login_status)) {
-    hideElement(selector = "#kus_navbar li a[data-value=tab_reports]" )  
+    #hideElement(selector = "#kus_navbar li a[data-value=tab_reports]" )  
     hideElement(selector = "#kus_navbar li a[data-value=tab_rawdata]" ) 
     hideElement(selector = "#kus_navbar li a[data-value=data_entry]" )
     } else {
       if(status_code(login_status) != 200) {
-        hideElement(selector = "#kus_navbar li a[data-value=tab_reports]" )  
+        #hideElement(selector = "#kus_navbar li a[data-value=tab_reports]" )  
         hideElement(selector = "#kus_navbar li a[data-value=tab_rawdata]" ) 
         hideElement(selector = "#kus_navbar li a[data-value=data_entry]" )
       } else {
-          showElement(selector = "#kus_navbar li a[data-value=tab_reports]")
+          #showElement(selector = "#kus_navbar li a[data-value=tab_reports]")
           showElement(selector = "#kus_navbar li a[data-value=tab_rawdata]")
           showElement(selector = "#kus_navbar li a[data-value=data_entry]")
       }
@@ -189,7 +189,7 @@ shinyServer(function(input, output, session) {
         ))
       } else {
           removeModal()
-          showElement(selector = "#kus_navbar li a[data-value=tab_reports]")
+          #showElement(selector = "#kus_navbar li a[data-value=tab_reports]")
           showElement(selector = "#kus_navbar li a[data-value=tab_rawdata]")
           showElement(selector = "#kus_navbar li a[data-value=data_entry]")
           output$login_logout <- renderUI({
@@ -203,7 +203,7 @@ shinyServer(function(input, output, session) {
   # Logout - reset to startup values
     observeEvent(input$logout_link, {
         login_status <<- NULL
-        hideElement(selector = "#kus_navbar li a[data-value=tab_reports]") 
+       # hideElement(selector = "#kus_navbar li a[data-value=tab_reports]") 
         hideElement(selector = "#kus_navbar li a[data-value=tab_rawdata]")
         hideElement(selector = "#kus_navbar li a[data-value=data_entry]")
         output$login_logout <- renderUI({actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'))}) 
@@ -687,7 +687,7 @@ shinyServer(function(input, output, session) {
             title = 'Mainstem River Conditions'
             )
    })
-  
+
 #-----------------------------------------------------------------
 #  Raw Data
 #-----------------------------------------------------------------
