@@ -611,7 +611,7 @@ shinyServer(function(input, output, session) {
     
   # Hydro year
   output$hydro_year_menu <- renderUI({
-    choose_year <- 2006:2018
+    choose_year <- 2006:year(Sys.Date())
     sliderInput("hydro_year", label = 'Year:', min = min(choose_year), max = max(choose_year), step = 1, value = max(choose_year), sep='')
   })
   
@@ -633,7 +633,7 @@ shinyServer(function(input, output, session) {
     window_df <- eventReactive(input$hydro_reset, {
            queryWindowCnts(dam = 'LWG', #input$hydro_locs,
                       spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw', 'fl'),
-                      spawn_yr = 2018, #input$hydro_year,
+                      spawn_yr = input$hydro_year,
                       start_day = '01/01',
                       end_day = '12/31') %>%
               mutate(Chinook = Chinook + Jack_Chinook,
