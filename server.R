@@ -9,6 +9,7 @@ library(tidyverse)
 library(httr)
 library(plotly)
 library(leaflet)
+library(sf)
 
 # Load GitHub Packages
 library(cdmsR)
@@ -73,7 +74,7 @@ fins_df <- fins_df %>%
 #------------------------------------------------------------------------------
 # Set Tribal specific variables
 #------------------------------------------------------------------------------
-cdms_host <- 'https://cdms.nptfisheries.org'
+cdms_host <- 'localhost'#'https://cdms.nptfisheries.org'
 username <- 'api_user'
 api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
 #------------------------------------------------------------------------------
@@ -417,8 +418,166 @@ shinyServer(function(input, output, session) {
                     title = paste0('Total ', input$weir_spp, ' Catch by Year'))
 
   })
+#----------------------------------------------------------------------------
+# Summarized Dabom Data
+#----------------------------------------------------------------------------
+  # Load DABOM Stuff
+  load('./data/DABOM_map_data.rda')
+  site_meta <- read_csv('./data/dabom_site_metadata.csv')
+  
+  CR_sites <- CR_sites %>%
+    left_join(site_meta, by =  'SiteID') %>%
+    mutate(DABOMsite = case_when(
+      DABOMsite == TRUE ~ TRUE,
+      DABOMsite == FALSE ~ FALSE,
+      is.na(DABOMsite) ~ FALSE)) %>%
+    select(contains('Site'), operations, firstYearO, lastYearOp, Basin,
+           GRA_Locati, Area, Branch, Funding, SitePurpose, PreFastTrack, contains('DABOM'),
+           ManagementCritical, `PTAGISO&M`, `O&M_Agency`, OperationalTime,
+           `CH_POP_coverage%`, ChinookGSI, `ST_POP_coverage%`, SteelheadGSI, Latitude, Longitude, geometry)
+  
+  # %>%
+  #   select(-contains('Trib_'))
+  
+  #------------------------------------------------------------------------------
+  # Create lists of possible values to choose interactively
+  #------------------------------------------------------------------------------
 
+  
+  output$dabom_basin <- renderUI({
+    choose_basin <- unique(CR_sites$Basin) # shiny select box
+    selectInput("dabom_basin", label = 'Basin:', choices = choose_basin, selectize = FALSE, size = 5, multiple = TRUE)
+  })
+  
+  output$dabom_sitetype <- renderUI({
+    choose_type <- unique(CR_sites$SiteType) # shiny select box
+    selectInput("dabom_type", label = 'Site Type:', choices = choose_type, selectize = FALSE, size = 5, multiple = TRUE)
+  })
+  
+  output$dabom_sitetypename <- renderUI({
+    choose_typename <- unique(CR_sites$SiteTypeNa) # shiny select box
+    selectInput("dabom_typename", label = 'Site Type Name:', choices = choose_typename, selectize = FALSE, size = 5, multiple = TRUE)
+  })
+  
+  output$dabom_modelsites <- renderUI({
+    choose_modelsite <- unique(CR_sites$DABOMsite)
+    selectInput("dabom_modelsite", label = 'DABOM Model Site:', choices = choose_modelsite, selectize = FALSE, size = 2, multiple = TRUE)
+    
+  })
+  
+  output$dabom_spp <- renderUI({
+    choose_spp <- c('Chinook', 'Steelhead') # shiny select box
+    selectInput("dabom_spp", label = 'Species:', choices = choose_spp, selectize = FALSE, size = 1, multiple = FALSE)
+  })
+  
+  pops <- eventReactive(input$dabom_spp, {
+    
+    if(input$dabom_spp == 'Chinook'){
+      return(SR_ch_pop)
+    }
 
+    if(input$dabom_spp == 'Steelhead'){
+      return(SR_st_pop)
+    }
+
+  })
+  
+  output$dabom_mpg <- renderUI({
+    choose_mpgs = unique(pops()$MPG) # shiny select box
+    selectInput("dabom_mpgs", label = 'Major Population Groups:', choices = choose_mpgs, selectize = FALSE, size = 7, multiple = TRUE)
+  })
+  
+
+  output$dabom_map <- renderLeaflet({
+
+    leaflet(options = leafletOptions(minZoom = 7, doubleClickZoom = FALSE)) %>%
+      setView(lat = 45.8,
+              lng = -116.1,
+              zoom = 7) %>%
+      setMaxBounds(lng1 = -119,
+                   lat1 = 42,
+                   lng2 = -114,
+                   lat2 = 49) %>%
+      #addProviderTiles(providers$OpenStreetMap)
+      addProviderTiles(providers$Esri.WorldTopoMap) %>%
+      addPolylines(data = CR_streams, weight = 2) %>%
+      addScaleBar(position = 'topright')
+    
+  })
+  
+  map_sites <- eventReactive(input$dabom_btn, {
+    CR_sites %>%
+      filter(SiteType %in% input$dabom_type,
+             SiteTypeNa %in% input$dabom_typename,
+             DABOMsite %in% input$dabom_modelsite,
+             Basin %in% input$dabom_basin)
+  })
+  
+  
+  observeEvent(input$dabom_btn,{
+
+    map_pops <- pops() %>%
+      filter(MPG %in% input$dabom_mpgs)
+
+    copop <- colorFactor(topo.colors(n = n_distinct(map_pops$POP_NAME)),map_pops$POP_NAME)
+    
+    leafletProxy("dabom_map") %>%
+      clearMarkers() %>%
+      clearGroup("polys") %>%
+      clearGroup("sites") %>%
+      addPolygons(data = map_pops, group = "polys",
+                  popup = ~as.character(TRT_POPID), layerId = map_pops$POP_NAME,
+                  stroke = TRUE, color = 'black', weight = 1, fillOpacity = .5,
+                  fillColor = ~copop(POP_NAME)) %>%  
+      addCircles(map_sites()$Longitude, map_sites()$Latitude, group = 'sites', radius = 15,
+                 color = 'red', 
+                 popup = paste("<b>Site ID:</b>", map_sites()$SiteID, "<br>",
+                               "<b>Site Type:</b>", map_sites()$SiteType, "<br>",
+                               "<b>Site Name:</b>", map_sites()$SiteName, "<br>",
+                               "<b>DABOM Site:</b>", map_sites()$DABOMsite),
+                 popupOptions = popupOptions(noHide = T, textsize = "15px"),
+                 highlightOptions = highlightOptions(color = "white",
+                                                     weight = 5, bringToFront = F, opacity = 1))
+  })
+  
+
+    
+    output$x1 = DT::renderDT(CR_sites, selection = 'none', editable = TRUE)
+    
+    proxy = DT::dataTableProxy('x1')
+    
+    observeEvent(input$x1_cell_edit, {
+      info = input$x1_cell_edit
+      str(info)
+      i = info$row
+      j = info$col
+      v = info$value
+      CR_sites[i, j] <<- DT::coerceValue(v, CR_sites[i, j])
+      DT::replaceData(proxy, CR_sites, resetPaging = FALSE)  # important
+    })
+    
+    # function for downloading data
+    output$dabom_export <- downloadHandler(
+      filename = function() {
+        paste0("dabom_site_config", Sys.Date(), ".csv")
+      },
+      content = function(file) {
+        write.csv(CR_sites, file, row.names = FALSE)
+      },
+      contentType = "text/csv"
+    )
+    
+    #output$site_table <- DT::renderDT({    
+    # site_tmp <- map_sites() %>%
+    #   select(contains('Site'))
+    # 
+    # DT::datatable(site_tmp, options = list(orderClasses = TRUE,
+    #                                        autoWidth = TRUE,
+    #                                        dom = 'tpl'),
+    #               filter = 'top')
+  #})
+  
+  
 #----------------------------------------------------------------------------
 #  Summarized SGS Data
 #----------------------------------------------------------------------------

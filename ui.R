@@ -113,6 +113,29 @@ shinyUI(
                                 )
                                  
                        ),
+                       tabPanel("In-Stream PIT Tag Abundance",
+                                sidebarLayout(
+                                  sidebarPanel(
+                                    style = "position:width:25%;",#fixed
+                                    width = 3,
+                                    h3('Spring/summer Chinook salmon and Steelhead Abundance Estimates'),
+                                    helpText('Select basin and site type to limit the number of PTAGIS sites shown.'),
+                                    uiOutput("dabom_basin"),
+                                    uiOutput("dabom_sitetype"),  
+                                    uiOutput("dabom_sitetypename"),
+                                    uiOutput("dabom_modelsites"),
+                                    uiOutput("dabom_spp"),
+                                    uiOutput("dabom_mpg"),
+                                    actionButton("dabom_btn", "Refresh", class = 'mybutton', width = '100%'),
+                                    downloadButton("dabom_export", label = "Export .CSV File", class = "mybutton")
+                                  ),
+                                  mainPanel(
+                                    withSpinner(leafletOutput('dabom_map', width = '100%', height = 900)),
+                                    withSpinner(DT::DTOutput("x1"))                                    
+                                    #withSpinner(DT::DTOutput("site_table"))
+                                  )
+                                )
+                       ),
                        tabPanel("Spawning Ground Surveys",
                                sidebarLayout(
                                    sidebarPanel(
@@ -195,15 +218,15 @@ shinyUI(
                         tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank')),
                         tabPanel(tags$a("PITtrackR", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank'))
                         ),
-             navbarMenu("Reporting",
-                        tabPanel("Juvenile Report", id = 'juv_report', value = 'tab_juvreport',
-                                            tags$iframe(style="height:900px; width:100%; scrolling=yes", 
-                                                        src="juv_draft1.pdf")#, #in www folder
-                                  ),
-                        tabPanel("Adult Report", id = 'adult_report', value = 'tab_adultreport',
-                                 tags$iframe(style="height:900px; width:100%; scrolling=yes", 
-                                                         src="juv_draft1.pdf")) #in www folder)
-                       ),
+             # navbarMenu("Reporting",
+             #            tabPanel("Juvenile Report", id = 'juv_report', value = 'tab_juvreport',
+             #                                tags$iframe(style="height:900px; width:100%; scrolling=yes", 
+             #                                            src="juv_draft1.pdf")#, #in www folder
+             #                      ),
+             #            tabPanel("Adult Report", id = 'adult_report', value = 'tab_adultreport',
+             #                     tags$iframe(style="height:900px; width:100%; scrolling=yes", 
+             #                                             src="juv_draft1.pdf")) #in www folder)
+             #           ),
              tabPanel("Raw Data", id = 'raw_data', value = 'tab_rawdata',
                       fluidPage(
                           fluidRow(
