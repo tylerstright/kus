@@ -218,15 +218,15 @@ shinyUI(
                         tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank')),
                         tabPanel(tags$a("PITtrackR", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank'))
                         ),
-             # navbarMenu("Reporting",
-             #            tabPanel("Juvenile Report", id = 'juv_report', value = 'tab_juvreport',
-             #                                tags$iframe(style="height:900px; width:100%; scrolling=yes", 
-             #                                            src="juv_draft1.pdf")#, #in www folder
-             #                      ),
-             #            tabPanel("Adult Report", id = 'adult_report', value = 'tab_adultreport',
-             #                     tags$iframe(style="height:900px; width:100%; scrolling=yes", 
-             #                                             src="juv_draft1.pdf")) #in www folder)
-             #           ),
+             navbarMenu("Reporting",
+                        tabPanel("Juvenile Report", id = 'juv_report', value = 'tab_juvreport',
+                                            tags$iframe(style="height:900px; width:100%; scrolling=yes",
+                                                        src="juv_draft1.pdf")#, #in www folder
+                                  ),
+                        tabPanel("Adult Report", id = 'adult_report', value = 'tab_adultreport',
+                                 tags$iframe(style="height:900px; width:100%; scrolling=yes",
+                                                         src="juv_draft1.pdf")) #in www folder)
+                       ),
              tabPanel("Raw Data", id = 'raw_data', value = 'tab_rawdata',
                       fluidPage(
                           fluidRow(
