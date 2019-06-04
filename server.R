@@ -1,17 +1,15 @@
-#------------------------------------------------------------------------------
-# Server Logic
-# KUS: DFRM Data Summary and Visualization Web Application
+# KUS: DFRM Data Summary and Visualization Web Application: Server Logic
 # Authors: Ryan N. Kinzer and Tyler Stright
-#------------------------------------------------------------------------------
-# Load CRAN Packages
+
+# Load Packages ----
+  # CRAN
 library(shiny)
 library(tidyverse)
 library(httr)
 library(plotly)
 library(leaflet)
 library(sf)
-
-# Load GitHub Packages
+  # GitHub
 library(cdmsR)
 #library(cuyem)
 
@@ -25,9 +23,7 @@ source('./R/getSummaryGraph.R')
 source('./R/uniqueLocations.R')
 source('./R/summariseSGS.R')
 
-#------------------------------------------------------------------------------
 # Javascript for "Enter" button
-#------------------------------------------------------------------------------
 jscode <- '
 $(document).keyup(function(event) {
 if ((event.keyCode == 13)) {
@@ -35,9 +31,7 @@ $("#login").click();
 }
 });
 '
-#------------------------------------------------------------------------------
-# Load Static Map, Locations and Fish Data and any trasformations 
-#------------------------------------------------------------------------------
+# Load Static Map, Locations and Fish Data and any trasformations ----
 load('./data/kus_static_map_data.Rdata')
 #save.image('./data/kus_static_map_data.Rdata')
 
@@ -71,41 +65,30 @@ fins_df <- fins_df %>%
            Species == 'Steelhead' ~ paste(Run, Species),
            TRUE ~ Species))
 
-#------------------------------------------------------------------------------
-# Set Tribal specific variables
-#------------------------------------------------------------------------------
+# Set variables ----
+  # Tribal Specific
 cdms_host <- 'https://cdms.nptfisheries.org'
 username <- 'api_user'
 api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
-#------------------------------------------------------------------------------
-# Login landing page
-#------------------------------------------------------------------------------
-# Set login variables
+  # Login
 login_status <- NULL
 makeReactiveBinding("login_status")
 html_code <- NULL
 user_info <- NULL
-# Initial login without restricted permissions
+  # Initial login without restricted permissions
 startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
 html_code <- status_code(startup_status)
 user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
-#------------------------------------------------------------------------------
-# Gather static session data from CDMS
-#------------------------------------------------------------------------------
-
+# Gather static session data from CDMS----
 if(html_code == 200){
   datasets <- getDatastores(cdms_host = cdms_host) %>%
     rename(DatastoreId = Id, DatastoreName = Name)
 }
 
-#------------------------------------------------------------------------------
-# Define server logic
-#------------------------------------------------------------------------------
+# Start of Server ----
 shinyServer(function(input, output, session) {
-#------------------------------------------------------------------------------
-# Hide & show Tabs 
-#------------------------------------------------------------------------------
+# Hide & show Tabs ----
   observe({
     if(is.null(login_status)) {
     #hideElement(selector = "#kus_navbar li a[data-value=tab_reports]" )  
@@ -124,10 +107,8 @@ shinyServer(function(input, output, session) {
     }
   })
   
-#------------------------------------------------------------------------------
-# Restricted Login and Logout button
-#------------------------------------------------------------------------------
-  
+# Restricted Login and Logout button ----
+
   # User information
   user_info <- reactive({
     httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
@@ -210,9 +191,7 @@ shinyServer(function(input, output, session) {
         output$login_logout <- renderUI({actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'))}) 
       })
 
-#------------------------------------------------------------------
-# Homepage figures and data summaries
-#------------------------------------------------------------------
+# Kus Home Tab ----
 
   output$home_map <- renderLeaflet({
     
@@ -260,12 +239,11 @@ shinyServer(function(input, output, session) {
 
   })
   
-#----------------------------------------------------------------------------
-# Summarized Data Tab
-#----------------------------------------------------------------------------  
-#  Summarized Snake Basin Populaiton Indicators and Metrics
-#----------------------------------------------------------------------------
-
+# Summarized Data Menu ----
+    
+  #//////////////////////////////////////////////////////////////////////////////
+  # Snake Basin Population Tab ----
+  #//////////////////////////////////////////////////////////////////////////////
   # Pop species
   output$pop_spp_menu <- renderUI({
     choose_spp <- c('Spring/Summer Chinook', 'Fall Chinook', 'Summer Steelhead')
@@ -316,23 +294,39 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  # create reactive MPG or POP value for filter
+  # create reactive MPG value for filter
   values <- reactiveValues(MPG = NULL)
-  # update RST value based on map click (RSTmap)
+  # update MPG value based on pop_map click
   observeEvent(input$pop_map_shape_click, {
     mapclick <- input$pop_map_shape_click
     values$MPG <- mapclick$id
   })
 
+  # MPG Filter Test
   output$MPGfilter <- renderText({
     paste0("POP_NAME filter is: ", values$MPG)
   })
   
   
-#----------------------------------------------------------------------------
-# Weir Data
-#----------------------------------------------------------------------------
+  #//////////////////////////////////////////////////////////////////////////////
+  # Adult Weir Tab ----
+  #//////////////////////////////////////////////////////////////////////////////
   
+  # Weir species
+  output$weir_spp_menu <- renderUI({
+    choose_spp <- sort(unique(fins_df$SppRun)) #c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead')
+  selectInput(inputId = 'weir_spp', label = 'Species:', choices = choose_spp, selectize = FALSE, size = 5, multiple = TRUE)
+  })
+  # Weir Site
+  output$weir_menu <- renderUI({
+    choose_weir <- sort(unique(fins_df$Weir))
+    selectInput('weir_site', label = 'Trap Site:', choices = choose_weir, selectize = FALSE, size = 5, multiple = TRUE)
+  })
+  # Weir Year
+  output$weir_year_menu <- renderUI({
+    choose_year <- range(fins_df$Year)
+    sliderInput("weir_year", label = 'Spawn Year:', min = choose_year[1], max = choose_year[2], value = c(choose_year[1], choose_year[2]), sep='')
+  })
   # Weir Location Leaflet Map
   output$weir_map <- renderLeaflet({
     
@@ -353,24 +347,6 @@ shinyServer(function(input, output, session) {
       addScaleBar(position = 'topright')
   })
   
-  # Weir species
-  output$weir_spp_menu <- renderUI({
-    choose_spp <- sort(unique(fins_df$SppRun)) #c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead')
-  selectInput(inputId = 'weir_spp', label = 'Species:', choices = choose_spp, selectize = FALSE, size = 5, multiple = TRUE)
-  })
-  
-  # Weir Site
-  output$weir_menu <- renderUI({
-    choose_weir <- sort(unique(fins_df$Weir))
-    selectInput('weir_site', label = 'Trap Site:', choices = choose_weir, selectize = FALSE, size = 5, multiple = TRUE)
-  })
-  
-  # Weir Year
-  output$weir_year_menu <- renderUI({
-    choose_year <- range(fins_df$Year)
-    sliderInput("weir_year", label = 'Spawn Year:', min = choose_year[1], max = choose_year[2], value = c(choose_year[1], choose_year[2]), sep='')
-  })
-  
   # Summarise Weir Counts
   weir_df <- eventReactive(input$weir_button, {
     fins_df %>%
@@ -382,22 +358,7 @@ shinyServer(function(input, output, session) {
       summarise(Count = sum(Count, na.rm = TRUE))
   })
 
-  
-
-  # Disposition Summary Table
-  output$weir_table <- DT::renderDataTable({
-    
-    weir_tmp <- weir_df() %>%
-      spread(key = Disposition, value = Count)
-    
-    DT::datatable(weir_tmp, options = list(orderClasses = TRUE,
-                                           autoWidth = TRUE,
-                                           dom = 'tpl'),
-                  filter = 'top')
-  })
-  
-  
-  # # Total Catch / Year Graph
+  # Total Catch/Year Graph - weir_totals
   output$weir_totals <- renderPlot({
    if(is.null(input$weir_site) | is.null(input$weir_year[1]) | is.null(input$weir_spp))
      return()
@@ -418,9 +379,23 @@ shinyServer(function(input, output, session) {
                     title = paste0('Total ', input$weir_spp, ' Catch by Year'))
 
   })
-#----------------------------------------------------------------------------
-# Summarized Dabom Data
-#----------------------------------------------------------------------------
+  
+  # Disposition Summary - weir_table
+  output$weir_table <- DT::renderDataTable({
+    
+    weir_tmp <- weir_df() %>%
+      spread(key = Disposition, value = Count)
+    
+    DT::datatable(weir_tmp, options = list(orderClasses = TRUE,
+                                           autoWidth = TRUE,
+                                           dom = 'tpl'),
+                  filter = 'top')
+  })
+  
+  #//////////////////////////////////////////////////////////////////////////////
+  # In-Stream Abundance Tab ----
+  #//////////////////////////////////////////////////////////////////////////////
+  
   # Load DABOM Stuff
   load('./data/DABOM_map_data.rda')
   site_meta <- read_csv('./data/dabom_site_metadata.csv')
@@ -435,59 +410,62 @@ shinyServer(function(input, output, session) {
            GRA_Locati, Area, Branch, Funding, SitePurpose, PreFastTrack, contains('DABOM'),
            ManagementCritical, `PTAGISO&M`, `O&M_Agency`, OperationalTime,
            `CH_POP_coverage%`, ChinookGSI, `ST_POP_coverage%`, SteelheadGSI, Latitude, Longitude, geometry)
-  
   # %>%
   #   select(-contains('Trib_'))
   
-  #------------------------------------------------------------------------------
-  # Create lists of possible values to choose interactively
-  #------------------------------------------------------------------------------
-
-  
+  # DABOM Basin
   output$dabom_basin <- renderUI({
     choose_basin <- unique(CR_sites$Basin) # shiny select box
     selectInput("dabom_basin", label = 'Basin:', choices = choose_basin, selectize = FALSE, size = 5, multiple = TRUE)
   })
-  
+  # DABOM Site Type
   output$dabom_sitetype <- renderUI({
     choose_type <- unique(CR_sites$SiteType) # shiny select box
     selectInput("dabom_type", label = 'Site Type:', choices = choose_type, selectize = FALSE, size = 5, multiple = TRUE)
   })
-  
+  # DABOM Site Type Name
   output$dabom_sitetypename <- renderUI({
     choose_typename <- unique(CR_sites$SiteTypeNa) # shiny select box
     selectInput("dabom_typename", label = 'Site Type Name:', choices = choose_typename, selectize = FALSE, size = 5, multiple = TRUE)
   })
-  
+  # DABOM Model Sites
   output$dabom_modelsites <- renderUI({
     choose_modelsite <- unique(CR_sites$DABOMsite)
     selectInput("dabom_modelsite", label = 'DABOM Model Site:', choices = choose_modelsite, selectize = FALSE, size = 2, multiple = TRUE)
     
   })
-  
+  # DABOM Species
   output$dabom_spp <- renderUI({
     choose_spp <- c('Chinook', 'Steelhead') # shiny select box
     selectInput("dabom_spp", label = 'Species:', choices = choose_spp, selectize = FALSE, size = 1, multiple = FALSE)
   })
-  
+  # DABOM MPG  
   pops <- eventReactive(input$dabom_spp, {
-    
     if(input$dabom_spp == 'Chinook'){
       return(SR_ch_pop)
     }
-
     if(input$dabom_spp == 'Steelhead'){
       return(SR_st_pop)
     }
-
   })
-  
+
   output$dabom_mpg <- renderUI({
     choose_mpgs = unique(pops()$MPG) # shiny select box
     selectInput("dabom_mpgs", label = 'Major Population Groups:', choices = choose_mpgs, selectize = FALSE, size = 7, multiple = TRUE)
   })
   
-
+  # DABOM Export data
+  output$dabom_export <- downloadHandler(
+    filename = function() {
+      paste0("dabom_site_config", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(CR_sites, file, row.names = FALSE)
+    },
+    contentType = "text/csv"
+  )
+  
+  # DABOM Map
   output$dabom_map <- renderLeaflet({
 
     leaflet(options = leafletOptions(minZoom = 7, doubleClickZoom = FALSE)) %>%
@@ -540,8 +518,7 @@ shinyServer(function(input, output, session) {
                                                      weight = 5, bringToFront = F, opacity = 1))
   })
   
-
-    
+  # DABOM Data Table  
     output$x1 = DT::renderDT(CR_sites, selection = 'none', editable = TRUE)
     
     proxy = DT::dataTableProxy('x1')
@@ -556,17 +533,6 @@ shinyServer(function(input, output, session) {
       DT::replaceData(proxy, CR_sites, resetPaging = FALSE)  # important
     })
     
-    # function for downloading data
-    output$dabom_export <- downloadHandler(
-      filename = function() {
-        paste0("dabom_site_config", Sys.Date(), ".csv")
-      },
-      content = function(file) {
-        write.csv(CR_sites, file, row.names = FALSE)
-      },
-      contentType = "text/csv"
-    )
-    
     #output$site_table <- DT::renderDT({    
     # site_tmp <- map_sites() %>%
     #   select(contains('Site'))
@@ -578,11 +544,27 @@ shinyServer(function(input, output, session) {
   #})
   
   
-#----------------------------------------------------------------------------
-#  Summarized SGS Data
-#----------------------------------------------------------------------------
+  #//////////////////////////////////////////////////////////////////////////////
+  # SGS Tab ----
+  #//////////////////////////////////////////////////////////////////////////////
   
-  # SGS Location Leaflet Map
+  # Species Selection
+  output$sgs_species_menu <- renderUI({
+    choose_spp <- c('Spring/Summer Chinook', 'Fall Chinook', 'Summer Steelhead', 'Bull Trout')
+    selectInput("sgs_spp", label = 'Species:', choices = choose_spp, selectize = FALSE, size = 5, multiple = TRUE)
+  })
+  # Stream Selection
+  output$sgs_streams_menu <- renderUI({
+    choose_streams <- sort(unique(c(redd_df$StreamName, carcass_df$StreamName)))
+    selectInput('summ_streams', label = 'Streams:', choices = choose_streams, selectize = FALSE, size =5, multiple = TRUE)
+  })
+  # Year range selection
+  output$sgs_year_menu <- renderUI({
+    choose_year <- range(year(redd_df$SurveyDate))
+    sliderInput("sgs_year", label = 'Spawn Year:', min = choose_year[1], max = choose_year[2], value = c(choose_year[1], choose_year[2]), sep='')
+  })
+  
+  # SGS Map
   output$sgs_map <- renderLeaflet({
     
     locs_datatype <- locs %>% filter(LocationTypeName == 'Spawning Ground Survey')
@@ -601,61 +583,58 @@ shinyServer(function(input, output, session) {
                         labelOptions = labelOptions(noHide = FALSE, direction = 'top')) %>%
       addScaleBar(position = 'topright')
   })
-  
 
-  # Species Selection Input (All unique species in Carcass and Redd Data)
-  output$sgs_species_menu <- renderUI({
-    choose_spp <- c('Spring/Summer Chinook', 'Fall Chinook', 'Summer Steelhead', 'Bull Trout')
-    selectInput("sgs_spp", label = 'Species:', choices = choose_spp, selectize = FALSE, size = 5, multiple = TRUE)
-  })
-  
-  # Year range selection input.
-  output$sgs_year_menu <- renderUI({
-    choose_year <- range(year(redd_df$SurveyDate))
-    sliderInput("sgs_year", label = 'Spawn Year:', min = choose_year[1], max = choose_year[2], value = c(choose_year[1], choose_year[2]), sep='')
-  })
-  
-  # Stream Selection Input (All unique streams in Carcass and Redd Data)
-  output$sgs_streams_menu <- renderUI({
-    choose_streams <- sort(unique(c(redd_df$StreamName, carcass_df$StreamName)))
-    selectInput('summ_streams', label = 'Streams:', choices = choose_streams, selectize = FALSE, size =5, multiple = TRUE)
-  })
-   
-  # # Produce SGS Summary data with streams filter APPLIED
+  # # Produce SGS Summary data
   sgs_summary <- eventReactive(input$summ_reset,{
     summariseSGS(redd_df, carcass_df, species = input$sgs_spp, startyear = input$sgs_year[1],
                  endyear = input$sgs_year[2], streams = input$summ_streams)
   })
    
-  # # SGS: Redd/Carcass Summary Table Output
+  # SGS PLOTS:
+  # sgs1 - Total Redds/Year
+  output$sgs1 <- renderPlotly({
+    sgs_summary()[[2]]
+  })
+  # sgs2 - % Females
+  output$sgs2 <- renderPlotly({
+    sgs_summary()[[3]]
+  })
+  # sgs3 - pHOS
+  output$sgs3 <- renderPlotly({
+    sgs_summary()[[4]]
+  })
+  # sgs4 - Prespawn Mortality
+  output$sgs4 <- renderPlotly({
+    sgs_summary()[[5]]
+  })
+  
+  # SGS Summary Table
   output$summ_table <- DT::renderDataTable({
     tmp_summ <- sgs_summary()[[1]]
     DT::datatable(tmp_summ, options = list(orderClasses = TRUE, autoWidth = TRUE, dom = 'tpl'),
                   filter = 'top')
   })
   
-  # Total Redds/Year
-  output$sgs1 <- renderPlotly({
-    sgs_summary()[[2]]
+  #//////////////////////////////////////////////////////////////////////////////
+  # Juvenile Tab
+  #//////////////////////////////////////////////////////////////////////////////
+  # Species Selection
+  output$juv_species_menu <- renderUI({
+    choose_spp <- c('Spring/Summer Chinook', 'Fall Chinook', 'Summer Steelhead' )
+    selectInput("juv_spp", label = 'Species:', choices = choose_spp, selectize = FALSE, size = 3, multiple = FALSE)
   })
-  # % Females
-  output$sgs2 <- renderPlotly({
-    sgs_summary()[[3]]
+  # Stream Selection
+  output$juv_streams_menu <- renderUI({
+    choose_streams <- sort(unique(c(abund_df$Location, suv_df$Location)))
+    selectInput('juv_locations', label = 'Streams:', choices = choose_streams, selectize = FALSE, size =5, multiple = FALSE)
   })
-  # pHOS
-  output$sgs3 <- renderPlotly({
-    sgs_summary()[[4]]
-  })
-  # Prespawn Mortality
-  output$sgs4 <- renderPlotly({
-    sgs_summary()[[5]]
+  # Year range selection
+  output$juv_year_menu <- renderUI({
+    choose_year <- range(abund_df$MigratoryYear, suv_df$MigratoryYear)
+    sliderInput("juv_year", label = 'Migratory Year:', min = choose_year[1], max = choose_year[2], step = 1, value = c(choose_year[1], choose_year[2]), sep='')
   })
   
-  
-#-----------------------------------------------------------------
-#  Juvenile Metrics
-#-----------------------------------------------------------------
-  # SGS Location Leaflet Map
+  # Juvenile Map
   output$juv_map <- renderLeaflet({
     
     locs_datatype <- locs %>% filter(LocationTypeName %in% c('Rotary Screw Trap', 'Juvenile Survival'))
@@ -675,30 +654,12 @@ shinyServer(function(input, output, session) {
       addScaleBar(position = 'topright')
   })
   
-  # Species Selection Input (All unique species in Carcass and Redd Data)
-  output$juv_species_menu <- renderUI({
-    choose_spp <- c('Spring/Summer Chinook', 'Fall Chinook', 'Summer Steelhead' )
-    selectInput("juv_spp", label = 'Species:', choices = choose_spp, selectize = FALSE, size = 3, multiple = FALSE)
-  })
-  
-  # Year range selection input.
-  output$juv_year_menu <- renderUI({
-    choose_year <- range(abund_df$MigratoryYear, suv_df$MigratoryYear)
-    sliderInput("juv_year", label = 'Migratory Year:', min = choose_year[1], max = choose_year[2], step = 1, value = c(choose_year[1], choose_year[2]), sep='')
-  })
-  
-  # Stream Selection Input (All unique streams in Carcass and Redd Data)
-  output$juv_streams_menu <- renderUI({
-    choose_streams <- sort(unique(c(abund_df$Location, suv_df$Location)))
-    selectInput('juv_locations', label = 'Streams:', choices = choose_streams, selectize = FALSE, size =5, multiple = FALSE)
-  })
-  
-  # Produce Juvenile Summary data with values$RST filter APPLIED
+  # Produce Juvenile Summary data
   juv_df <- eventReactive(input$juv_reset,{
     summariseRST(abund_df, suv_df, input$juv_spp, input$juv_year[1], input$juv_year[2],input$juv_locations)
   }) 
 
-  # Summary Graph Output - Abundance and Survival
+  # juv_sum1 - Abundance
   output$juv_sum1 <- renderPlotly({
     if(is.null(input$juv_reset))
       return()
@@ -720,6 +681,7 @@ shinyServer(function(input, output, session) {
 
   })
   
+  # juv_sum2 - Survival
   output$juv_sum2 <- renderPlotly({
     if(is.null(input$juv_reset))
       return()
@@ -740,10 +702,8 @@ shinyServer(function(input, output, session) {
     #         text = ~paste(cohort)) %>%
     #   layout(legend = list(x = 0, y = -0.15, orientation = 'h'))
   })
-  
 
-  
-  # Summary Table Output
+  # Juvnile Summary Table 
   output$rstsumm_table <- DT::renderDataTable({
     rst_tmp <- juv_df()
     DT::datatable(rst_tmp, options = list(orderClasses = TRUE, 
@@ -753,27 +713,20 @@ shinyServer(function(input, output, session) {
   })
   
   
-#----------------------------------------------------------------------------
-# Hydro-system Conditions and Dam Counts
-#----------------------------------------------------------------------------
-   
+  #//////////////////////////////////////////////////////////////////////////////
+  # Hydro Tab
+  #//////////////////////////////////////////////////////////////////////////////
   # Hydro project selection
   output$hydro_menu <- renderUI({
     selectInput('hydro_locs', label = 'Hydrosystem Project:', choices = c('Lower Granite Dam' = 'LWG',
                                                                           'Bonneville Dam' = 'BON'),
                 selectize = FALSE, size =5, multiple = TRUE)
   })
-  
-  # output$test_hydro <- renderText({
-  #   input$hydro_locs
-  # })
-    
-  # Hydro year
+  # Hydro year selection
   output$hydro_year_menu <- renderUI({
     choose_year <- 2006:year(Sys.Date())
     sliderInput("hydro_year", label = 'Year:', min = min(choose_year), max = max(choose_year), step = 1, value = max(choose_year), sep='')
   })
-  
 
    # Gather river conditions from DART
     flow_df <- eventReactive(input$hydro_reset, {
@@ -800,16 +753,12 @@ shinyServer(function(input, output, session) {
               select(Year, Date, Chinook, Coho, Steelhead, Wild_Steelhead, Lamprey)
     })
     
-  
-    
-   # Hydro Species
+   # Hydro Species selection
     output$hydro_species_menu <- renderUI({
       choose_spp <- sort(names(window_df()[-c(1,2)]))# c('Chinook', 'Coho', 'Steelhead', 'Wild_Steelhead', 'Lamprey')
       selectInput("hydro_spp", label = 'Species:', choices = choose_spp, selectize = FALSE, size = 3, multiple = FALSE)
     })
-    
-      
-  # Get possible field names from river data  
+  # Hydro Metric selection
    output$hydro_metric_menu <- renderUI({
      metrics <- sort(names(flow_df()[-(1:3)]))  #c('Inflow', 'Temperature', 'TDG') #
      selectInput('river_metric', 'River Metric (y-axis)', choices = metrics, selected = 'Inflow', selectize = TRUE)
@@ -847,26 +796,29 @@ shinyServer(function(input, output, session) {
             )
    })
 
-#-----------------------------------------------------------------
-#  Raw Data
-#-----------------------------------------------------------------
+# Fish Management Menu (No Server Code) ----
    
-   output$raw_dataset_menu <- renderUI({
+# Reporting Menu (No Server Code) ----
+   
+#  Raw Data Menu ----
+   
+  # Dataset selection
+  output$raw_dataset_menu <- renderUI({
      
-     dataset <- datasets %>%
-       select(DatastoreId, DatastoreName) %>%
-       distinct(DatastoreId, .keep_all = TRUE) %>%
-       arrange(DatastoreName)
+    dataset <- datasets %>%
+      select(DatastoreId, DatastoreName) %>%
+      distinct(DatastoreId, .keep_all = TRUE) %>%
+      arrange(DatastoreName)
      
-     datasets_ls <- as.list(dataset[,1])
-     names(datasets_ls) <- dataset[,2]
-     selectInput("datasets", h3("Data Type:"), choices = datasets_ls, selectize = TRUE)
-   }) 
+    datasets_ls <- as.list(dataset[,1])
+    names(datasets_ls) <- dataset[,2]
+    selectInput("datasets", h3("Data Type:"), choices = datasets_ls, selectize = TRUE)
+  }) 
 
-   # get the full dataset view for selected spp, run and survey years
-   raw_dat <- eventReactive(input$raw_submit,{
-     getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
-     }) 
+  # get the full dataset view
+  raw_dat <- eventReactive(input$raw_submit,{
+    getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
+    }) 
    
   # raw_qry_params <- eventReactive(input$raw_submit,{
   #   paste0('Created by: ', user_info$Fullname,
@@ -876,8 +828,19 @@ shinyServer(function(input, output, session) {
   #          ', Stream: ', input$waterbody,
   #          ', Location: ', input$location) 
   # })
- 
- 
+   
+  # Dataset EXPORT
+  output$raw_export <- downloadHandler(
+    filename = function() {
+      paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(raw_dat(), file, row.names = FALSE)
+    },
+    contentType = "text/csv"
+  )
+
+ # Dataset Data Table
   output$raw_table <- DT::renderDataTable({
     
     tmp_df <- raw_dat()
@@ -888,15 +851,5 @@ shinyServer(function(input, output, session) {
   })
   
   
-  # function for downloading data
-  output$raw_export <- downloadHandler(
-    filename = function() {
-      paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
-    },
-    content = function(file) {
-      write.csv(raw_dat(), file, row.names = FALSE)
-    },
-    contentType = "text/csv"
-  )
 
 }) # Close Server

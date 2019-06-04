@@ -60,7 +60,7 @@ shinyUI(
                         )
                       )
               ),
-# Summarize Data Menu ----
+# Summarized Data Menu ----
               navbarMenu("Summarized Data",
 #//////////////////////////////////////////////////////////////////////////////
 # Snake Basin Population Tab
@@ -121,7 +121,9 @@ shinyUI(
                                 )
                                  
                        ),
-# In-Stream Abundance
+#//////////////////////////////////////////////////////////////////////////////
+# In-Stream Abundance Tab
+#//////////////////////////////////////////////////////////////////////////////
                        tabPanel("In-Stream PIT Tag Abundance",
                                 sidebarLayout(
                                   sidebarPanel(
@@ -145,7 +147,9 @@ shinyUI(
                                   )
                                 )
                        ),
+#//////////////////////////////////////////////////////////////////////////////
 # SGS Tab
+#//////////////////////////////////////////////////////////////////////////////
                        tabPanel("Spawning Ground Surveys",
                                sidebarLayout(
                                    sidebarPanel(
@@ -174,7 +178,9 @@ shinyUI(
                                   )
                                 )
                               ),
+#//////////////////////////////////////////////////////////////////////////////
 # Juvenile Tab
+#//////////////////////////////////////////////////////////////////////////////
                       tabPanel("Juvenile Abundance and Survival",
                         sidebarLayout(
                           sidebarPanel(
@@ -195,14 +201,17 @@ shinyUI(
                                br(),
                                fluidRow(
                                         column(6, plotlyOutput('juv_sum1', height = 500)),
-                                        column(6, plotlyOutput('juv_sum2', height = 500))                                        ),
+                                        column(6, plotlyOutput('juv_sum2', height = 500))
+                                        ),
                                hr(),
                                fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("rstsumm_table"))))
                             )
                           )
                         )
                       ),
+#//////////////////////////////////////////////////////////////////////////////
 # Hydro Tab
+#//////////////////////////////////////////////////////////////////////////////
                       tabPanel("Hydro-system Conditions and Fish Counts",
                                sidebarLayout(
                                  sidebarPanel(
