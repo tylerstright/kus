@@ -7,6 +7,7 @@
 #    http://shiny.rstudio.com/
 #
 
+# Load Packages ---- 
 library(shiny)
 library(shinycssloaders)
 library(tidyverse)
@@ -20,7 +21,7 @@ library(shinyjs)
 library(viridis)
 library(markdown)
 
-# Define UI for application that draws a histogram
+# Start of UI ---- 
 shinyUI(
   navbarPage(title = div(
                          div(id = 'user-name', uiOutput('login_logout')), # both Log IN and OUT
@@ -37,7 +38,7 @@ shinyUI(
              #              "The data presented in the Kus web application is not solely collected, managed or owned
              #              by the Nez Perce Tribe. All data should be considered draft and is not guaranteed for
              #              accuracy.  Permission to use the data should be sought from the original collectors."),
-             
+# Kus Home Tab ----             
              tabPanel("Kus Home",
                       useShinyjs(),   # include Shiny JS
                       fluidPage(
@@ -59,7 +60,11 @@ shinyUI(
                         )
                       )
               ),
+# Summarize Data Menu ----
               navbarMenu("Summarized Data",
+#//////////////////////////////////////////////////////////////////////////////
+# Snake Basin Population Tab
+#//////////////////////////////////////////////////////////////////////////////
                        tabPanel("Snake Basin Population Indicators and Metrics",
                                  sidebarLayout(
                                   sidebarPanel(
@@ -82,6 +87,9 @@ shinyUI(
                                   )
                                   )
                                 ),
+#//////////////////////////////////////////////////////////////////////////////
+# Adult Weir Tab
+#//////////////////////////////////////////////////////////////////////////////
                        tabPanel("Adult Weir Returns",
                                 sidebarLayout(
                                   sidebarPanel(
@@ -113,6 +121,7 @@ shinyUI(
                                 )
                                  
                        ),
+# In-Stream Abundance
                        tabPanel("In-Stream PIT Tag Abundance",
                                 sidebarLayout(
                                   sidebarPanel(
@@ -136,6 +145,7 @@ shinyUI(
                                   )
                                 )
                        ),
+# SGS Tab
                        tabPanel("Spawning Ground Surveys",
                                sidebarLayout(
                                    sidebarPanel(
@@ -164,6 +174,7 @@ shinyUI(
                                   )
                                 )
                               ),
+# Juvenile Tab
                       tabPanel("Juvenile Abundance and Survival",
                         sidebarLayout(
                           sidebarPanel(
@@ -191,6 +202,7 @@ shinyUI(
                           )
                         )
                       ),
+# Hydro Tab
                       tabPanel("Hydro-system Conditions and Fish Counts",
                                sidebarLayout(
                                  sidebarPanel(
@@ -213,11 +225,16 @@ shinyUI(
                                  )
                                )
                       ),
-             navbarMenu("Fish Management",
-                        tabPanel(tags$a("In-season Snake Basin Management", target = '_blank')),
-                        tabPanel(tags$a("Hydro-system Operations", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank')),
-                        tabPanel(tags$a("PITtrackR", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank'))
+# Fish Managment Menu ----
+             navbarMenu("Fish Management Applications",
+# In-season Managment Tab
+#                        tabPanel(tags$a("In-season Snake Basin Management", target = '_blank')),
+# Hydro Operation Tab                        
+                        tabPanel(tags$a("PITPH Web Application", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank')),
+# PITtrackR Tab
+                        tabPanel(tags$a("PITtrackR Web Application", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank'))
                         ),
+# Reporting Menu ----
              navbarMenu("Reporting",
                         tabPanel("Juvenile Report", id = 'juv_report', value = 'tab_juvreport',
                                             tags$iframe(style="height:900px; width:100%; scrolling=yes",
@@ -227,6 +244,7 @@ shinyUI(
                                  tags$iframe(style="height:900px; width:100%; scrolling=yes",
                                                          src="juv_draft1.pdf")) #in www folder)
                        ),
+# Raw Data Menu ----
              tabPanel("Raw Data", id = 'raw_data', value = 'tab_rawdata',
                       fluidPage(
                           fluidRow(
@@ -243,6 +261,7 @@ shinyUI(
                       hr(),
                       withSpinner(DT::dataTableOutput("raw_table"))
                 ),
+# Data Entry Menu ----
              navbarMenu("Data Entry", menuName = 'data_entry',
                         tabPanel(tags$a("CDMS - Project Data Entry", href = "https://cdms.nptfisheries.org/index.html#/projects", target = '_blank')),
                         tabPanel(tags$a("LSRCP FINS", href = "https://www.finsnet.org/", target = '_blank'))
