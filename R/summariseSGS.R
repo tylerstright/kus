@@ -1,100 +1,100 @@
-#' @title summariseSGS:
+#' @title summariseSGS
 #'
-#' @description Summarise & Graph Redd/Carcass data by Stream/Year. Filter = Streams
+#' @description Summarise & Graph Redd/Carcass data by POP_NAME/SurveyYear
 #'
-#' @param streams input$summ_streams
+#' @param redd_data = dsv_78 (getDatasetView(datastoreId=78))
+#' @param carcass_data = dsv_79 (getDatasetView(datastoreId=79))
 #'
 #' @author Tyler Stright
 #'
-#' @examples summariseSGS(streams = input$summstreams, redd_data = redd_df, carcass_data = carc_df)
+#' @examples summariseSGS(redd_data = dsv_78, carcass_data = dsv_79)
 #'
-#' @import lubridate dplyr? tidyr?
+#' @import lubridate dplyr tidyr
 #' @export
 #' @return NULL
-#' @note summariseSGS.R exists in 'getSGSgraph.R  - ALL changes here should be mirrored in that script.
 
 
-summariseSGS <- function(redd_data, carcass_data, species, startyear, endyear, streams) {
+summariseSGS <- function(redd_data = dsv_78, carcass_data = dsv_79) {
 
-  # Summarise Data-  
+  # Summarise Redd Data ---- 
 tmp_reddsum <- redd_data %>%
-  #filter(StreamName %in% streams) %>% 
   distinct(ActivityId, .keep_all = TRUE) %>%
-  separate(`SurveyDate`, into = 'SurveyDate', sep = "T") %>%
-  mutate(`SurveyDate` = ymd(`SurveyDate`),
-         `SurveyYear` = year(`SurveyDate`)) %>%
-  group_by(StreamName, SurveyYear, TargetSpecies) %>% 
-  summarise(TotalRedds = sum(NewRedds, na.rm = TRUE)) %>%
-  ungroup() %>%
-  select(StreamName, SurveyYear, TargetSpecies, TotalRedds)
+  mutate(SpeciesRun = paste(Run, SpeciesName),
+         SurveyYear = year(SurveyDate)) %>%
+  group_by(SurveyYear, POP_NAME, SpeciesRun) %>%
+  summarise(TotalRedds = sum(NewRedds, na.rm=TRUE))
 
+  # Summarise Carcass Data ----
 tmp_carcsum <- carcass_data %>%
-  #filter(StreamName %in% streams) %>% 
-  separate(`SurveyDate`, into = 'SurveyDate', sep = "T") %>%
-  mutate(`SurveyDate` = ymd(`SurveyDate`),
-         `SurveyYear` = year(`SurveyDate`)) %>%
-  select(StreamName, SurveyDate, SurveyYear, TargetSpecies, Count, Sex, SpawnedOut, PercentSpawned, AdiposeFinClipped, SnoutCollected, CWTCode) %>%
-  # mutate(`AdiposeFinClipped` = case_when(
-  #   `AdiposeFinClipped` %in%  c('NA', Unknown, NA) ~ 'No',   # ???? Need to deal with the odd AD values
-  #   `AdiposeFinClipped` == 'No' ~ 'No',
-  #   `AdiposeFinClipped` == 'Yes' ~ 'Yes'))
-  mutate(Origin = ifelse(`SnoutCollected` == 'Yes', 'Hatchery',
-                         ifelse(!is.na(`CWTCode`), 'Hatchery',
-                                ifelse(`AdiposeFinClipped` == 'Yes', 'Hatchery', 'Natural'))))  # this is imperfect. There are inconsistencies in the data.
+  mutate(SpeciesRun = case_when(
+            CarcassSpecies == 'BT' ~ 'Bull Trout',
+            CarcassSpecies == 'F_CHN' ~ 'Fall Chinook salmon',
+            CarcassSpecies == 'S_CHN' ~ 'Spring/summer Chinook salmon',
+            CarcassSpecies == 'S_STH' ~ 'Summer Steelhead'),
+         SurveyYear = year(SurveyDate),
+         Origin = case_when(
+            AdiposeFinClipped == 'No' & is.na(CWTCode) ~ "Natural",
+            AdiposeFinClipped == 'No' & CWTCode == 'NA' ~ "Natural",
+            AdiposeFinClipped == 'No' & !is.na(CWTCode) ~ "Hatchery",
+            AdiposeFinClipped == 'Yes' ~ "Hatchery",
+            is.na(AdiposeFinClipped) & is.na(CWTCode) ~ "Unknown",
+            is.na(AdiposeFinClipped) & CWTCode == 'NA' ~ "Unknown",
+            is.na(AdiposeFinClipped) & !is.na(CWTCode) ~ "Hatchery",
+            AdiposeFinClipped == 'NA' & is.na(CWTCode) ~ "Unknown",
+            AdiposeFinClipped == 'NA' & CWTCode == 'NA' ~ "Unknown",
+            AdiposeFinClipped == 'NA' & !is.na(CWTCode) ~ "Hatchery",
+            AdiposeFinClipped == 'Unknown' & is.na(CWTCode) ~ "Unknown",
+            AdiposeFinClipped == 'Unknown' & CWTCode == 'NA' ~ "Unknown",
+            AdiposeFinClipped == 'Unknown' & !is.na(CWTCode) ~ "Hatchery")
+         ) %>%
+  filter(!is.na(Count)) %>%
+  select(POP_NAME, SurveyYear, SpeciesRun, Origin, Count, Sex, SpawnedOut)
 
-# %F
-PF_tmp <- tmp_carcsum %>%
-  filter(Sex %in% c('Male', 'Female')) %>%
-  group_by(StreamName, SurveyYear, TargetSpecies, Sex) %>%
-  summarise(Count = sum(Count, na.rm = TRUE)) %>%
-  spread(key = Sex, value = Count, fill = 0) %>%
-  mutate(`%Females` = round(100*(`Female`/(`Female` + `Male`)), 2))
 
 # pHOS
 phos_tmp <- tmp_carcsum %>%
   filter(Origin %in% c('Natural', 'Hatchery')) %>%
-  group_by(StreamName, SurveyYear, TargetSpecies, Origin) %>%
+  group_by(POP_NAME, SurveyYear, SpeciesRun, Origin) %>%
   summarise(Count = sum(Count, na.rm = TRUE)) %>%
   spread(key = Origin, value = Count, fill = 0) %>%
-  mutate(pHOS = round(100*(`Hatchery`/(`Hatchery` + `Natural`)), 2))
+  mutate(pHOS = round(100*(`Hatchery`/(`Hatchery` + `Natural`)), 2)) %>%
+  select(-Hatchery, -Natural)
+
+# % Female
+PF_tmp <- tmp_carcsum %>%
+  filter(Sex %in% c('Male', 'Female')) %>%
+  group_by(POP_NAME, SurveyYear, SpeciesRun, Sex) %>%
+  summarise(Count = sum(Count, na.rm = TRUE)) %>%
+  spread(key = Sex, value = Count, fill = 0) %>%
+  mutate(`%Females` = round(100*(`Female`/(`Female` + `Male`)), 2)) %>%
+  select(-Male)
 
 # Prespawn Mortality
 psm_tmp <- tmp_carcsum %>%
   filter(Sex == "Female") %>%
-  mutate(`PrespawnMort` = case_when(
-    `SpawnedOut` == 'Yes' ~ 'No',
-    `SpawnedOut` == "No" ~ 'Prespawn Mortality',
-    `PercentSpawned` == -99 ~ 'Unknown',  # Lots of Unknowns.  May want to try and improve this.
-    `PercentSpawned` <= 25 ~ 'Prespawn Mortality' 
-  )) %>%
-  group_by(StreamName, SurveyYear, TargetSpecies, PrespawnMort ) %>%
+  mutate(PrespawnMort = case_when(
+    SpawnedOut == 'Yes' ~ 'Spawned',
+    SpawnedOut == 'No' ~ 'Prespawn Mortality',
+    SpawnedOut == 'Unknown' ~ 'Unknown',
+    SpawnedOut == 'NA' ~ "Unknown")
+  ) %>%
+  group_by(POP_NAME, SurveyYear, SpeciesRun, PrespawnMort) %>%
   summarise(Count = sum(Count, na.rm = TRUE)) %>%
-  spread(key = `PrespawnMort`, value = Count, fill = 0) %>%
-  select(-'<NA>', -No, -Unknown)
+  spread(key = PrespawnMort, value = Count, fill = 0) %>% 
+  left_join(PF_tmp, by = c('POP_NAME', 'SurveyYear', 'SpeciesRun')) %>%
+  mutate(PrespawnMortality = round(`Prespawn Mortality`/Female, 2)) %>%
+  select(-Spawned, -Unknown, -Female, -`Prespawn Mortality`)
 
 # Total Carcasses
 all_carc <- tmp_carcsum %>%
-  group_by(StreamName, SurveyYear, TargetSpecies) %>%
-  summarise(`Carcass Total` = sum(Count, na.rm = TRUE))
+  group_by(POP_NAME, SurveyYear, SpeciesRun) %>%
+  summarise(TotalCarcass = sum(Count, na.rm = TRUE))
 
 # Finalize SGS Summary Table (join redd/carcass tables from above and apply filters)
-summary_df <- left_join(tmp_reddsum, PF_tmp, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
-    left_join(phos_tmp, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
-    left_join(psm_tmp, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
-    left_join(all_carc, by = c('StreamName', 'SurveyYear', 'TargetSpecies')) %>%
-    mutate(`Species` = case_when(
-      `TargetSpecies` == 'F_CHN' ~ 'Fall Chinook',
-      `TargetSpecies` == 'S_CHN' ~ 'Spring/Summer Chinook',
-      `TargetSpecies` == 'S_STH' ~ 'Summer Steelhead',
-      `TargetSpecies` == 'BT' ~ 'Bull Trout'
-    )) %>%
-  filter(StreamName %in% streams) %>%
-  filter(Species == species) %>%
-  filter(SurveyYear >= startyear) %>%
-  filter(SurveyYear <= endyear) %>%
-    select(StreamName, SurveyYear, Species,  everything(), -TargetSpecies) %>%
-    rename('Stream Name' = StreamName, 'Year' = SurveyYear, 'Total Redds' = TotalRedds,
-           'Hatchery Origin' = Hatchery, 'Natural Origin' = Natural, '% Hatchery Spawners' = pHOS)
+summary_df <- left_join(tmp_reddsum, phos_tmp, by = c('POP_NAME', 'SurveyYear', 'SpeciesRun')) %>%
+    left_join(psm_tmp, by = c('POP_NAME', 'SurveyYear', 'SpeciesRun')) %>%
+    left_join(all_carc, by = c('POP_NAME', 'SurveyYear', 'SpeciesRun')) %>%
+    select(SurveyYear, POP_NAME, SpeciesRun,  TotalRedds, TotalCarcass, `%Females`, pHOS, PrespawnMortality)
   
 
 # Graph Data -
@@ -116,69 +116,69 @@ summary_df <- left_join(tmp_reddsum, PF_tmp, by = c('StreamName', 'SurveyYear', 
 #          xaxis2 = list(title = 'Year'),
 #          yaxis2 = list(title = 'Percent'))
 
-sgs_redds <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `Total Redds`, colour = `Stream Name`)) +
-                   geom_point(size = 0.8, position = position_dodge(0.05)) +  
-                   geom_line(size = 0.5, position = position_dodge(0.05)) +
-                   theme_bw() +
-                   theme(legend.title = element_blank()) +
-                   theme(legend.position = 'bottom') +
-                   scale_y_continuous(labels = scales::comma) +
-                   scale_color_viridis_d() +
-                   labs(title = 'Total Redds, Percent Females, Percent Hatchery Origin Spawners (pHOS), and Prespawn Mortalities per Spawn Year',
-                         caption = 'some caption',
-                         x = 'Spawn Year',
-                         y = 'Total Redds',
-                         colour = 'Stream')) %>%
-  layout(legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.2))
+# sgs_redds <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `Total Redds`, colour = `Stream Name`)) +
+#                    geom_point(size = 0.8, position = position_dodge(0.05)) +  
+#                    geom_line(size = 0.5, position = position_dodge(0.05)) +
+#                    theme_bw() +
+#                    theme(legend.title = element_blank()) +
+#                    theme(legend.position = 'bottom') +
+#                    scale_y_continuous(labels = scales::comma) +
+#                    scale_color_viridis_d() +
+#                    labs(title = 'Total Redds, Percent Females, Percent Hatchery Origin Spawners (pHOS), and Prespawn Mortalities per Spawn Year',
+#                          caption = 'some caption',
+#                          x = 'Spawn Year',
+#                          y = 'Total Redds',
+#                          colour = 'Stream')) %>%
+#   layout(legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.2))
+# 
+# 
+# sgs_fem <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `%Females`, colour = `Stream Name`)) +
+#                    geom_point(size = 0.8, position = position_dodge(0.05)) +  
+#                    geom_line(size = 0.5, position = position_dodge(0.05)) +
+#                    theme_bw() +
+#                    theme(legend.title = element_blank()) +
+#                    theme(legend.position = 'bottom') +
+#                    scale_y_continuous(labels = scales::comma) +
+#                    scale_color_viridis_d() +
+#                    labs(#title = '% Females',
+#                        caption = 'some caption',
+#                        x = '',
+#                        y = '% Females',
+#                        colour = 'Stream')) 
+# 
+# 
+# 
+# sgs_phos <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `% Hatchery Spawners`, colour = `Stream Name`)) +
+#                    geom_point(size = 0.8, position = position_dodge(0.05)) +  
+#                    geom_line(size = 0.5, position = position_dodge(0.05)) +
+#                    theme_bw() +
+#                    theme(legend.title = element_blank()) +
+#                    theme(legend.position = 'bottom') +
+#                    scale_y_continuous(labels = scales::comma) +
+#                    scale_color_viridis_d() +
+#                    labs(#title = '% Hatchery Spawners',
+#                        caption = 'some caption',
+#                        x = '',
+#                        y = 'pHOS',
+#                        colour = 'Stream')) 
+# 
+# 
+# sgs_mort <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `Prespawn Mortality`, colour = `Stream Name`)) +
+#                    geom_point(size = 0.8, position = position_dodge(0.05)) +  
+#                    geom_line(size = 0.5, position = position_dodge(0.05)) +
+#                    theme_bw() +
+#                    theme(legend.title = element_blank()) +
+#                    theme(legend.position = 'bottom') +
+#                    scale_y_continuous(labels = scales::comma) +
+#                    scale_color_viridis_d() +
+#                    labs(#title = 'Prespawn Mortalities',
+#                        caption = 'some caption',
+#                        x = '',
+#                        y = 'Prespawn Mortalities',
+#                        colour = 'Stream')) 
 
 
-sgs_fem <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `%Females`, colour = `Stream Name`)) +
-                   geom_point(size = 0.8, position = position_dodge(0.05)) +  
-                   geom_line(size = 0.5, position = position_dodge(0.05)) +
-                   theme_bw() +
-                   theme(legend.title = element_blank()) +
-                   theme(legend.position = 'bottom') +
-                   scale_y_continuous(labels = scales::comma) +
-                   scale_color_viridis_d() +
-                   labs(#title = '% Females',
-                       caption = 'some caption',
-                       x = '',
-                       y = '% Females',
-                       colour = 'Stream')) 
+# return(sgs_figs = list(summary_df, sgs_redds, sgs_fem, sgs_phos, sgs_mort))
 
-
-
-sgs_phos <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `% Hatchery Spawners`, colour = `Stream Name`)) +
-                   geom_point(size = 0.8, position = position_dodge(0.05)) +  
-                   geom_line(size = 0.5, position = position_dodge(0.05)) +
-                   theme_bw() +
-                   theme(legend.title = element_blank()) +
-                   theme(legend.position = 'bottom') +
-                   scale_y_continuous(labels = scales::comma) +
-                   scale_color_viridis_d() +
-                   labs(#title = '% Hatchery Spawners',
-                       caption = 'some caption',
-                       x = '',
-                       y = 'pHOS',
-                       colour = 'Stream')) 
-
-
-sgs_mort <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `Prespawn Mortality`, colour = `Stream Name`)) +
-                   geom_point(size = 0.8, position = position_dodge(0.05)) +  
-                   geom_line(size = 0.5, position = position_dodge(0.05)) +
-                   theme_bw() +
-                   theme(legend.title = element_blank()) +
-                   theme(legend.position = 'bottom') +
-                   scale_y_continuous(labels = scales::comma) +
-                   scale_color_viridis_d() +
-                   labs(#title = 'Prespawn Mortalities',
-                       caption = 'some caption',
-                       x = '',
-                       y = 'Prespawn Mortalities',
-                       colour = 'Stream')) 
-
-
-
-return(sgs_figs = list(summary_df, sgs_redds, sgs_fem, sgs_phos, sgs_mort))
-
+  return(summary_df)
 }
