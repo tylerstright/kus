@@ -160,7 +160,7 @@ server <- function(input, output, session) {
   # Project Count
     # Get Projects
       projects <- getProjects(cdms_host = "https://cdms.nptfisheries.org")
-    # Create datatable for Modal
+    # Create datatable for Project Count Modal
   output$project_dt <- renderTable({
     project_list <- projects %>%
       pull(Name)
@@ -171,30 +171,28 @@ server <- function(input, output, session) {
       summarise(Total = n()) %>%
       pull()
     
-    valueBox(#title = "Number of NPT Projects", 
-            value = project_count,
+    valueBox(value = project_count,
             color = 'aqua',
-            # subtitle = HTML("<b>Number of NPT Projects</b> <button id=\"button\" type=\"button\" class=\"btn btn-default action-button\">Show modal</button>")            
             subtitle = HTML("<b>Number of NPT Projects</b><a id=\"project_count_btn\" href=\"#\" class=\"action-button\">
      <i class=\"fa fa-question-circle\"></i>
                             
                             </a>")
     )
   })
-    # Show Modal on click
+    # Show Project Count Modal on click
   observeEvent(input$project_count_btn, {
     toggleModal(session, "project_count_modal", "open")
   })
   
   # NPT Datastores Count
   
-    # Create datatable for Modal
+    # Create datatable for Datastore Count Modal
   output$dataset_dt <- renderTable({
     project_list <- datasets %>%
       filter(!DatastoreId %in% c(81:84, 88:91)) %>%
       pull(DatastoreName)
   })
-    # infoBox
+    # Datastore Count infoBox
   output$dataset_count <- renderInfoBox({
     
     dataset_count <- datasets %>%
@@ -210,7 +208,7 @@ server <- function(input, output, session) {
             color = 'aqua'
     )
   })
-    # Show Modal on click
+    # Show Datastore Count Modal on click
   observeEvent(input$dataset_count_btn, {
     toggleModal(session, "dataset_count_modal", "open")
   })
