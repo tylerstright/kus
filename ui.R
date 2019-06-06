@@ -53,8 +53,10 @@ body <- dashboardBody(
               ),
               fluidRow(
                 column(8, leafletOutput('home_map', height = '600px')),
-                infoBoxOutput("project_count", width = 4),
+                valueBoxOutput("project_count", width = 4),
+                  bsModal(id="project_count_modal", title = "Nez Perce Tribe Research Projects:", tableOutput('project_dt'), trigger=""),
                 infoBoxOutput("dataset_count", width = 4),
+                  bsModal(id="dataset_count_modal", title = "Nez Perce Tribe Datastores:", tableOutput('dataset_dt'), trigger=""),
                 infoBox('UNUSED BOX 1', "Skibbadee"),
                 infoBox('UNUSED BOX 2', "Bibbadee"),
                 infoBox('UNUSED BOX 3', 'BOO!')

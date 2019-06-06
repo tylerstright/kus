@@ -158,19 +158,43 @@ server <- function(input, output, session) {
   })
   
   # Project Count
-  output$project_count <- renderInfoBox({
-    
-    project_count <- getProjects(cdms_host = "https://cdms.nptfisheries.org") %>%
-    summarise(Total = n()) %>%
+    # Get Projects
+      projects <- getProjects(cdms_host = "https://cdms.nptfisheries.org")
+    # Create datatable for Modal
+  output$project_dt <- renderTable({
+    project_list <- projects %>%
+      pull(Name)
+  })
+    # Project Count valueBox
+  output$project_count <- renderValueBox({
+    project_count <- projects %>%
+      summarise(Total = n()) %>%
       pull()
     
-    infoBox(title = "Number of NPT Projects", 
+    valueBox(#title = "Number of NPT Projects", 
             value = project_count,
-            color = 'aqua'
+            color = 'aqua',
+            # subtitle = HTML("<b>Number of NPT Projects</b> <button id=\"button\" type=\"button\" class=\"btn btn-default action-button\">Show modal</button>")            
+            subtitle = HTML("<b>Number of NPT Projects</b><a id=\"project_count_btn\" href=\"#\" class=\"action-button\">
+     <i class=\"fa fa-question-circle\"></i>
+                            
+                            </a>")
     )
   })
+    # Show Modal on click
+  observeEvent(input$project_count_btn, {
+    toggleModal(session, "project_count_modal", "open")
+  })
   
-  # NPT Datastores
+  # NPT Datastores Count
+  
+    # Create datatable for Modal
+  output$dataset_dt <- renderTable({
+    project_list <- datasets %>%
+      filter(!DatastoreId %in% c(81:84, 88:91)) %>%
+      pull(DatastoreName)
+  })
+    # infoBox
   output$dataset_count <- renderInfoBox({
     
     dataset_count <- datasets %>%
@@ -178,10 +202,17 @@ server <- function(input, output, session) {
       summarise(Total = n()) %>%
       pull()
     
-    infoBox(title = "Number of NPT Datastores", 
+    infoBox(title = HTML("<b>Number of NPT Datastores</b><a id=\"dataset_count_btn\" href=\"#\" class=\"action-button\">
+     <i class=\"fa fa-question-circle\"></i>
+                         
+                         </a>"), 
             value = dataset_count,
             color = 'aqua'
     )
+  })
+    # Show Modal on click
+  observeEvent(input$dataset_count_btn, {
+    toggleModal(session, "dataset_count_modal", "open")
   })
   
   # Adult Summaries Tab ----
