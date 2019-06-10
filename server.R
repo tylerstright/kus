@@ -166,14 +166,14 @@ server <- function(input, output, session) {
       pull(Name)
   })
     # Project Count valueBox
-  output$project_count <- renderValueBox({
+  output$project_count <- renderInfoBox({
     project_count <- projects %>%
       summarise(Total = n()) %>%
       pull()
     
-    valueBox(value = project_count,
+    infoBox(value = project_count,
             color = 'aqua',
-            subtitle = HTML("<b>Number of NPT Projects</b><a id=\"project_count_btn\" href=\"#\" class=\"action-button\">
+            title = HTML("<b>Number of NPT Projects</b><a id=\"project_count_btn\" href=\"#\" class=\"action-button\">
      <i class=\"fa fa-question-circle\"></i>
                             
                             </a>")
