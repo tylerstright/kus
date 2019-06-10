@@ -317,7 +317,7 @@ server <- function(input, output, session) {
       select(DatastoreId, DatastoreName) %>%
       distinct(DatastoreId, .keep_all = TRUE) %>%
       filter(!DatastoreId %in% c(81:84, 88:91)) %>%
-      add_row(DatastoreId=999, DatastoreName = 'SGS Summary') %>%
+      add_row(DatastoreId= c(999,998), DatastoreName = c('SGS Summary', 'RST Summary')) %>%
       arrange(DatastoreName)
     
     datasets_ls <- as.list(dataset[,1])
@@ -328,11 +328,15 @@ server <- function(input, output, session) {
   
     # get the full dataset view
   raw_dat <- eventReactive(input$raw_submit,{
-    if(input$datasets != 999) {  # we want this to NOT equal the summary [datasetId]s which don't exist in CDMS
+    if(input$datasets != 999 & input$datasets != 998) {  # we want this to NOT equal the summary [datasetId]s which don't exist in CDMS
       getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
     } else {
+      if(input$datasets != 998) {
       summariseSGS()
+    } else {
+        summariseRST()
       }
+    }
   }) 
   
     # Dataset EXPORT
