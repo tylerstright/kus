@@ -20,6 +20,7 @@ library(cdmsR)
 
 # Source
 source('./R/summariseSGS.R')
+source('./R/summariseRST.R')
 
 # Javascript for "Enter" button ----
 jscode <- '

@@ -1,40 +1,42 @@
-#' @title summariseRST:
+#' @title summariseRST
 #'
-#' @description Summarise Rotary Screw Trap data by Trap/Year, combine with survival data.
+#' @description Combine CDMS RST Abundance and Survival Summaries, calculate Equivalents.
 #'
-#' @param streamfilter input$summ_streams
+#' @param rst_abundance RST Abundance Data : dsv_85
+#' @param rst_survival RST Survival Data : dsv_86
 #'
 #' @author Tyler Stright
 #'
-#' @examples summariseRST(streamfilter = input$summrst, rst_data = abund_df, suv_data = suv_df)
+#' @examples summariseRST() 
 #'
-#' @import lubridate dplyr tidyr
+#' @import tidyverse
 #' @export
 #' @return NULL
 
 
-summariseRST <- function(rst_data, suv_data, species, startyear, endyear, location) {
+summariseRST <- function(rst_abundance = dsv_85, rst_survival = dsv_86) {
   
-  tmp_abund <- rst_data %>%
-    select(Location, BroodYear, MigratoryYear, SpeciesRun, Origin, Lifestage, Abundance,
-           `Abundance SE` = StdError)
-
-  tmp_suv <- suv_data %>%
-    select(Location, BroodYear, MigratoryYear, SpeciesRun, Origin, Lifestage,
-           `Survival` = Survival,
-           `Survival SE` = StdError)
-
-  rst_df <- full_join(tmp_abund, tmp_suv, by = c("Location", "BroodYear", "MigratoryYear", "SpeciesRun", "Origin", "Lifestage")) %>%
-    mutate(`Species` = case_when(
-      `SpeciesRun` == 'S_CHN' ~ 'Spring/Summer Chinook',
-      `SpeciesRun` == 'F_CHN' ~ 'Fall Chinook',
-      `SpeciesRun` == 'S_STH' ~ 'Summer Steelhead')) %>%
-    filter(Location %in% location) %>%
-    filter(Species %in% species) %>%
-    filter(MigratoryYear >= startyear) %>%
-    filter(MigratoryYear <= endyear) %>%
-    select(Location, BroodYear, MigratoryYear, Species, everything(), -SpeciesRun)
+  tmp_abundance <- rst_abundance %>%
+    mutate(SpeciesRun = paste(Run, SpeciesName)) %>%
+    rename(Ab_SE = StdError, Ab_L95 = Lower95, Ab_U95 = Upper95) %>%
+    select(POP_NAME, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage, 
+           Abundance, Ab_SE, Ab_L95, Ab_U95)
   
-return(rst_df)
+  tmp_survival <- rst_survival %>%
+    mutate(SpeciesRun = paste(Run, SpeciesName)) %>%
+    rename(Surv_SE = StdError, Surv_L95 = Lower95, Surv_U95 = Upper95) %>%
+    select(POP_NAME, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage, 
+           ReleaseType, SurvivalTo, Survival, Surv_SE) # Surv_L95, Surv_U95
+  
+  RSTsummary_df <- tmp_abundance %>%
+    left_join(tmp_survival, by = c('POP_NAME', 'SpeciesRun', 'Origin', 'BroodYear', 'MigratoryYear', 'Lifestage')) %>%
+    mutate(Ab_SE = round(Ab_SE, 0),
+           Equivalents = round(Abundance*Survival, 0),
+           Survival = round(Survival, 2),
+           Surv_SE = round(Surv_SE, 2)) %>%
+    filter(!is.na(Abundance))
+    
+
+return(RSTsummary_df)
   
 }
