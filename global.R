@@ -23,6 +23,8 @@ source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
 source('./R/cdms_api_keys.R')
 
+cdmsKeys()
+
 # Javascript for "Enter" button ----
 jscode <- '
 $(document).keyup(function(event) {
