@@ -19,10 +19,11 @@ library(cdmsR)
 #library(cuyem)
 
 # Source
-source('./R/cdms_api_keys.R')
 source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
+source('./R/cdms_api_keys.R')
 
+cdmsKeys()
 
 # Javascript for "Enter" button ----
 jscode <- '
@@ -32,25 +33,25 @@ $("#login").click();
 }
 });
 '
-cdmsKeys() # funciton calls API login keys
 
-# Login
+# Set variables ----
+  # Login
 login_status <- NULL
 html_code <- NULL
 user_info <- NULL
-# Initial login without restricted permissions
-startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
-html_code <- status_code(startup_status)
-user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
+  # Initial login without restricted permissions
+# startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
+# html_code <- status_code(startup_status)
+# user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
 # Gather static session data from CDMS----
-if(html_code == 200){
-  datasets <- getDatastores(cdms_host = cdms_host) %>%
-    rename(DatastoreId = Id, DatastoreName = Name)
-}
+# if(html_code == 200){
+#   datasets <- getDatastores(cdms_host = cdms_host) %>%
+#     rename(DatastoreId = Id, DatastoreName = Name)
+# }
 
 # LEAFLET: Load Static Map, Locations and Fish Data and any trasformations ----
-  #load('./data/kus_static_map_data.Rdata')
+  # load('./data/kus_static_map_data.Rdata')
   #save.image('./data/kus_static_map_data.Rdata')
 
   # set map icon
@@ -60,12 +61,12 @@ if(html_code == 200){
   # **** DATA SHOULD NOT BE LOADED ON STARTUP - BAD LOAD TIMES! ****
 
   # Parsing Transect Information (locations_df exists in kus_static_map_data.Rdata (global.R))
-  transect_detail <- locations_df %>%
-    separate(Description, into = c('Discard', 'Transect Type', 'Transect Length', 'Transect Description'),
-             sep = '- ') %>%
-    mutate(`Transect Type` = gsub('; Transect Length', '', `Transect Type`),
-           `Transect Length` = as.numeric(gsub(' km; Transect Description', '', `Transect Length`))) %>%
-    select(Id, Label, `Transect Type`, `Transect Length`, `Transect Description`)
+  # transect_detail <- locations_df %>%
+    # separate(Description, into = c('Discard', 'Transect Type', 'Transect Length', 'Transect Description'),
+    #          sep = '- ') %>%
+    # mutate(`Transect Type` = gsub('; Transect Length', '', `Transect Type`),
+    #        `Transect Length` = as.numeric(gsub(' km; Transect Description', '', `Transect Length`))) %>%
+    # select(Id, Label, `Transect Type`, `Transect Length`, `Transect Description`)
   
   # Redd data
   #dsv_78 <- getDatasetView(datastoreID = 78)

@@ -64,40 +64,46 @@ body <- dashboardBody(
               #       tableOutput('dataset_dt2'))
               # ),
               fluidRow(
-                HTML("Chinook salmon : <em>nacό’x</em>"), height = '200px', width = '90%',
-                    column(3, img(src='goldfish.jpg', class='fishpic')),
-                    column(9, 'Chinook salmon (Oncorhyncus tshawytscha) are the largest salmon species in the Columbia basin. Historical accounts report adults reaching 100 pounds.  As anadromous fish, Chinook migrate to the ocean as juveniles, spend several years in the ocean during adulthood, and return in the Fall to their natal streams to spawn and die.',
-                           'The Nez Perce Tribe have long relied on fish as a source of food, but none so much as the Chinook salmon. Chinook are also an important cultural and spiritual symbol, to the extent that the time of year was measured by the Chinook’s life cycle.  This reality is reflected in Nez Perce stories, legends, and ceremonies.'
+                column(8, p('The Kus web application is intended to provide near real-time data summaries and
+                  visualizations to the general public, Nez Perce Tribal members, and internal Research Division staff.  
+                  The tools also create easy access to valuable fish information for the public and will provide the 
+                  most current and best fishing oppurtunities to tribal fishermen.  Additionally, these provided resources 
+                  will help inform the Department of Fisheries Resources Management staff and
+                  support Snake Basin fisheries management decisions.')),
+                column(4, img(src='sunk_trap.jpg', class = 'pic'))
+              ),
+              fluidRow(div(br(), style= 'border-bottom: 1px solid rgb(0, 0, 0);'), br()), # clever spacer
+              fluidRow(height = '200px', width = '90%',
+                    column(3, img(src='goldfish.jpg', class='pic')),
+                    column(9, br(), h2(HTML("Chinook salmon : <em>nacό’x</em>")), 
+                           p('Chinook salmon (Oncorhyncus tshawytscha) are the largest salmon species in the Columbia basin. Historical accounts report adults reaching 100 pounds.  As anadromous fish, Chinook migrate to the ocean as juveniles, spend several years in the ocean during adulthood, and return in the Fall to their natal streams to spawn and die.',
+                           'The Nez Perce Tribe have long relied on fish as a source of food, but none so much as the Chinook salmon. Chinook are also an important cultural and spiritual symbol, to the extent that the time of year was measured by the Chinook’s life cycle.  This reality is reflected in Nez Perce stories, legends, and ceremonies.')
                     )
               ),
-              fluidRow(
-                box(title = h2(HTML('Steelhead trout : <em>héyey</em>')),
-                    column(9, p('Steelhead (Oncorhyncus mykiss) are another fish native to the Columbia and Snake River as well as an important food source for the tribe.  Unlike Chinook salmon, Steelhead regularly spend only one year in the ocean as adults before returning tin the Spring to spawn in their natal freshwater streams.  In some cases, the adults do not die after spawning and are able to spawn twice in their lifetime, a behavior known as iteroparity.  However, others choose not migrate to the ocean and are known as Rainbow trout.')
+              fluidRow(div(br(), style= 'border-bottom: 1px solid rgb(0, 0, 0);'), br()), # clever spacer
+              fluidRow(height = '200px', width = '90%',
+                    column(9, br(), h2(HTML('Steelhead trout : <em>héyey</em>')),
+                           p('Steelhead (Oncorhyncus mykiss) are another fish native to the Columbia and Snake River as well as an important food source for the tribe.  Unlike Chinook salmon, Steelhead regularly spend only one year in the ocean as adults before returning tin the Spring to spawn in their natal freshwater streams.  In some cases, the adults do not die after spawning and are able to spawn twice in their lifetime, a behavior known as iteroparity.  However, others choose not migrate to the ocean and are known as Rainbow trout.')
                     ),
-                    column(3, img(src='goldfish.jpg', class='fishpic'))
+                    column(3, img(src='goldfish.jpg', class='pic'))
+              ),
+              fluidRow(div(br(), style= 'border-bottom: 1px solid rgb(0, 0, 0);'), br()), # clever spacer
+              fluidRow(height = '200px', width = '90%',
+                    column(3, img(src='goldfish.jpg', class='pic')),
+                    column(9, br(), h2(HTML('Coho salmon : <em>kállay</em>')), 
+                           p('Coho salmon (Oncorhyncus kisutch) are another anadromous fish native to the Columbia Basin.  Dam construction on the Columbia and Snake rivers eventually led to the Snake River Coho runs being declared extinct in 1987 (Source?).  Coho restoration efforts are underway in attempt to restore and reestablish these salmon in the waters where they once flourished.  In 2017, juvenile Coho were reintroduced to the Wallowa River, and for the first time since 1987, adult Coho returned to the Wallowa River in 2018.')
                     )
               ),
-              fluidRow(
-                box(title = h2(HTML('Coho salmon : <em>kállay</em>')),
-                    column(3, img(src='goldfish.jpg', class='fishpic')),
-                    column(9, p('Coho salmon (Oncorhyncus kisutch) are another anadromous fish native to the Columbia Basin.  Dam construction on the Columbia and Snake rivers eventually led to the Snake River Coho runs being declared extinct in 1987 (Source?).  Coho restoration efforts are underway in attempt to restore and reestablish these salmon in the waters where they once flourished.  In 2017, juvenile Coho were reintroduced to the Wallowa River, and for the first time since 1987, adult Coho returned to the Wallowa River in 2018.')
-                    ))
-              ),
-              fluidRow(
-                box(title = h2(HTML('Pacific Lamprey : <em>hésu</em>')), 
-                    column(9, p('Pacific lampreys (Lampetra tridentate) are the most common lampreys in the Columbia Basin.  As juveniles, they spend up to six years in freshwater streams filtering food from the water until they are ready to migrate to the ocean.  During their adult life, the eels become parasitic, can reach lengths of up to thirty inches, and prey on species such as Chinook salmon. As yet another anadromous fish, Lamprey return to their natal freshwater streams to spawn and die.'),
+              fluidRow(div(br(), style= 'border-bottom: 1px solid rgb(0, 0, 0);'), br()), # clever spacer
+              fluidRow(height = '200px', width = '90%',
+                    column(9, br(), h2(HTML('Pacific Lamprey : <em>hésu</em>')),
+                           p('Pacific lampreys (Lampetra tridentate) are the most common lampreys in the Columbia Basin.  As juveniles, they spend up to six years in freshwater streams filtering food from the water until they are ready to migrate to the ocean.  During their adult life, the eels become parasitic, can reach lengths of up to thirty inches, and prey on species such as Chinook salmon. As yet another anadromous fish, Lamprey return to their natal freshwater streams to spawn and die.'),
                            p('Many tribes used eels as a food source (dried or smoked) and considered them as valuable as Salmon.'),
                            p('Recently, the tribe has begun lamprey relocation, taking eels captured at various dams and trucking them to be released high up in freshwater streams to spawn.  Efforts to develop a hatchery program for Pacific Lamprey have also begun.')
                     ),
-                    column(3, img(src='goldfish.jpg', class='fishpic'))
-                    )
-              ),
-              fluidRow(
-                box(title = h2('Rotary Screw Traps'), height = 325, status = "info", width = 12, solidHeader = TRUE, 
-                    column(7, p('Rotary screw traps are a tool used to estimate population of juvenile fish in a specific stream, river, or drainage as they migrate towards the ocean.  Population estimates help to inform management to determine whether the measures being taken to help recover these fish populations are producing the intended result. ')),
-                    column(5, align = 'left', img(src='lostine_rst.jpg', width = 425, style = 'position:absolute; padding-right:10px;'))
-                )
-              ),
+                    column(3, img(src='goldfish.jpg', class='pic'))
+              )
+            ),
               # fluidRow(
               #   column(4,
               #   infoBoxOutput("project_count", width = 12),
@@ -106,17 +112,6 @@ body <- dashboardBody(
               #     bsModal(id="dataset_count_modal", title = "Nez Perce Tribe Datastores:", tableOutput('dataset_dt'), trigger="")
               #   )
               # ),
-              fluidRow(
-                column(12,
-                       helpText('The Kus web application is intended to provide near real-time data summaries and
-                                visualizations for Department of Fisheries Resources Management staff and to
-                                support Snake Basin fisheries management decisions. The tools also creates easy access to
-                                valuable fish information for general public consumption and informs Nez Perce
-                                Tribal members of the most current and best fishing oppurtunities.',  
-                                width = '100%')
-                )
-                )
-      ),
   # Adult Summaries Tab ----
       # tabItem(tabName = 'tab_adult',
       #         fluidRow(
