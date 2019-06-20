@@ -1,8 +1,7 @@
 # Kus UI
 
 # DashboardHeader ----
-header <- dashboardHeader(title = "Kus",
-                          #span("Kus", style = "color: red; font-size: 28px; font-weight:bold; font-family: Arial "),
+header <- dashboardHeader(title = div(id = "kustitle", 'Kus'),
                           tags$li(tags$a("NPT Fisheries Home", href= 'http://www.nptfisheries.org', 
                                          style = "color: white; float:left;", target ='_blank'), class = 'dropdown', style= 'position:absolute; left:42px'),
                           tags$li(tags$a("CDMS - Project Data Entry", href = "https://cdms.nptfisheries.org/index.html#/projects", target = '_blank'), 
@@ -20,44 +19,83 @@ header <- dashboardHeader(title = "Kus",
                           # Logo
                           tags$li(img(src = 'NPTlogos2.png', title = 'Company Home', height = "30px"),
                             style = 'position:absolute; right:15px; padding-top:10px; padding-bottom:10px;',
-                                  # style = "padding-top:10px; padding-bottom:10px; padding-right:15px;",
                             class = "dropdown")
-  )
+                          )
 
 # Dashboard Sidebar ----
 sidebar <- dashboardSidebar(
     useShinyjs(), # Activate ShinyJS
     sidebarMenu(
-      # menuItem(div(style="display:inline-block;width:90%;text-align: center;", img(src="NPTlogos2.png", height = "90px")),
-      #          uiOutput('login_logout')),
-      # menuItem("Species Selector:", icon = icon('fish', lib = 'font-awesome'), tabName = 'tab_inputs',
-      #   selectInput('species', NULL, choices = c('Fall Chinook salmon', 'Spring/summer Chinook salmon', 
-                                                # 'Summer Steelhead'), selected = 'Spring/summer Chinook salmon')),
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
-      # menuItem('Adult Summaries', tabName = 'tab_adult', icon = icon("chart-bar")),
-      # menuItem('Juvenile Summaries', tabName = 'tab_juvenile', icon = icon("chart-line")),
-      # menuItem('Productivity Summaries', tabName = 'tab_productivity', icon = icon("chart-area")),
+      menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area")),
       menuItem('Raw Data Access', tabName = 'tab_rawdata', icon = icon('table'))
     )
   )
 
 # Dashboard Body ----
 body <- dashboardBody(
+  includeCSS('./www/styles.css'),
     tabItems(
   # KusHome Tab ----
       tabItem(tabName = 'tab_home',
+              # fluidRow(
+              #   valueBoxOutput("sgs_totalmiles", width = 4),
+              #   valueBoxOutput("sgs_groundmiles", width = 4),
+              #   valueBoxOutput("sgs_airmiles", width = 4)
+              # ),
+              # fluidRow(
+              #   box(status = 'info', 
+              #       # title = paste('Data Repositories (', dataset_count2, '):'), # working here Monday
+              #       background = 'blue',
+              #       solidHeader = TRUE, 
+              #       collapsible = TRUE, 
+              #       collapsed = TRUE,
+              #       width = 3, 
+              #       tableOutput('dataset_dt2'))
+              # ),
               fluidRow(
-                valueBoxOutput("sgs_totalmiles", width = 4),
-                valueBoxOutput("sgs_groundmiles", width = 4),
-                valueBoxOutput("sgs_airmiles", width = 4)
+                HTML("Chinook salmon : <em>nacό’x</em>"), height = '200px', width = '90%',
+                    column(3, img(src='goldfish.jpg', class='fishpic')),
+                    column(9, 'Chinook salmon (Oncorhyncus tshawytscha) are the largest salmon species in the Columbia basin. Historical accounts report adults reaching 100 pounds.  As anadromous fish, Chinook migrate to the ocean as juveniles, spend several years in the ocean during adulthood, and return in the Fall to their natal streams to spawn and die.',
+                           'The Nez Perce Tribe have long relied on fish as a source of food, but none so much as the Chinook salmon. Chinook are also an important cultural and spiritual symbol, to the extent that the time of year was measured by the Chinook’s life cycle.  This reality is reflected in Nez Perce stories, legends, and ceremonies.'
+                    )
               ),
               fluidRow(
-                column(8, leafletOutput('home_map', height = '600px')),
-                infoBoxOutput("project_count", width = 4),
-                  bsModal(id="project_count_modal", title = "Nez Perce Tribe Research Projects:", tableOutput('project_dt'), trigger=""),
-                infoBoxOutput("dataset_count", width = 4),
-                  bsModal(id="dataset_count_modal", title = "Nez Perce Tribe Datastores:", tableOutput('dataset_dt'), trigger="")
+                box(title = h2(HTML('Steelhead trout : <em>héyey</em>')),
+                    column(9, p('Steelhead (Oncorhyncus mykiss) are another fish native to the Columbia and Snake River as well as an important food source for the tribe.  Unlike Chinook salmon, Steelhead regularly spend only one year in the ocean as adults before returning tin the Spring to spawn in their natal freshwater streams.  In some cases, the adults do not die after spawning and are able to spawn twice in their lifetime, a behavior known as iteroparity.  However, others choose not migrate to the ocean and are known as Rainbow trout.')
+                    ),
+                    column(3, img(src='goldfish.jpg', class='fishpic'))
+                    )
               ),
+              fluidRow(
+                box(title = h2(HTML('Coho salmon : <em>kállay</em>')),
+                    column(3, img(src='goldfish.jpg', class='fishpic')),
+                    column(9, p('Coho salmon (Oncorhyncus kisutch) are another anadromous fish native to the Columbia Basin.  Dam construction on the Columbia and Snake rivers eventually led to the Snake River Coho runs being declared extinct in 1987 (Source?).  Coho restoration efforts are underway in attempt to restore and reestablish these salmon in the waters where they once flourished.  In 2017, juvenile Coho were reintroduced to the Wallowa River, and for the first time since 1987, adult Coho returned to the Wallowa River in 2018.')
+                    ))
+              ),
+              fluidRow(
+                box(title = h2(HTML('Pacific Lamprey : <em>hésu</em>')), 
+                    column(9, p('Pacific lampreys (Lampetra tridentate) are the most common lampreys in the Columbia Basin.  As juveniles, they spend up to six years in freshwater streams filtering food from the water until they are ready to migrate to the ocean.  During their adult life, the eels become parasitic, can reach lengths of up to thirty inches, and prey on species such as Chinook salmon. As yet another anadromous fish, Lamprey return to their natal freshwater streams to spawn and die.'),
+                           p('Many tribes used eels as a food source (dried or smoked) and considered them as valuable as Salmon.'),
+                           p('Recently, the tribe has begun lamprey relocation, taking eels captured at various dams and trucking them to be released high up in freshwater streams to spawn.  Efforts to develop a hatchery program for Pacific Lamprey have also begun.')
+                    ),
+                    column(3, img(src='goldfish.jpg', class='fishpic'))
+                    )
+              ),
+              fluidRow(
+                box(title = h2('Rotary Screw Traps'), height = 325, status = "info", width = 12, solidHeader = TRUE, 
+                    column(7, p('Rotary screw traps are a tool used to estimate population of juvenile fish in a specific stream, river, or drainage as they migrate towards the ocean.  Population estimates help to inform management to determine whether the measures being taken to help recover these fish populations are producing the intended result. ')),
+                    column(5, align = 'left', img(src='lostine_rst.jpg', width = 425, style = 'position:absolute; padding-right:10px;'))
+                )
+              ),
+              # fluidRow(
+              #   column(4,
+              #   infoBoxOutput("project_count", width = 12),
+              #     bsModal(id="project_count_modal", title = "Nez Perce Tribe Research Projects:", tableOutput('project_dt'), trigger=""),
+              #   infoBoxOutput("dataset_count", width = 12),
+              #     bsModal(id="dataset_count_modal", title = "Nez Perce Tribe Datastores:", tableOutput('dataset_dt'), trigger="")
+              #   )
+              # ),
               fluidRow(
                 column(12,
                        helpText('The Kus web application is intended to provide near real-time data summaries and

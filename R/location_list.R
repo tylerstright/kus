@@ -7,7 +7,7 @@
 #'
 #' @author Tyler Stright
 #'
-#' @examples location_list(data = locations_df, filter = 1124)   # Retrieve RST Locations
+#' @examples location_list(data = locations_df, locationtypeId = 1124)   # Retrieve RST Locations
 #'
 #' @import dplyr
 #' @export
@@ -20,7 +20,7 @@ location_list <- function(data, locationtypeId) {
   # 1122 : SGS Transects
   # 1123 : Adult Weir Site (FINS Data)
   # 1124 : Rotary Screw Trap Site (P4/PTAGIS)
-  # 1133 : In-Stream PIT Tag Array
+  # 1133 : In-Stream PIT Tag Array, 
   # 1134 : Age Data Sampling Locations
   # 1135 : Juvenile Survival 
 
