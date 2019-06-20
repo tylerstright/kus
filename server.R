@@ -3,12 +3,12 @@ server <- function(input, output, session) {
   # Hide & show Tabs based on login status ----
   observe({
     if(is.null(login_status)) {
-      hideElement(selector = "ul li:eq(9)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1))
+      hideElement(selector = "ul li:eq(13)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), #change as tabs are included in sidebar
     } else {
       if(status_code(login_status) != 200) {
-        hideElement(selector = "ul li:eq(9)", anim= TRUE)
+        hideElement(selector = "ul li:eq(13)", anim= TRUE)#change as tabs are included in sidebar
       } else {
-        showElement(selector = "ul li:eq(9)", anim= TRUE)
+        showElement(selector = "ul li:eq(13)", anim= TRUE)#change as tabs are included in sidebar
         }
     }
   })
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
         ))
       } else {
         removeModal()
-        showElement(selector = "ul li:eq(9)")
+        showElement(selector = "ul li:eq(13)") #change as tabs are included in sidebar
         output$login_logout <- renderUI({
           actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
                      icon = icon('sign-out-alt'), style = 'color: white;')

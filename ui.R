@@ -27,8 +27,18 @@ sidebar <- dashboardSidebar(
     useShinyjs(), # Activate ShinyJS
     sidebarMenu(
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
-      menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area")),
-      menuItem('Raw Data Access', tabName = 'tab_rawdata', icon = icon('table'))
+      menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
+               menuSubItem('Spawning Ground Surveys'),
+               menuSubItem('Weir Collections'),
+               menuSubItem('In-stream Array Abundance'),
+               menuSubItem('Juvenile Monitoring')
+               ),
+      menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
+               menuSubItem('CDMS Datasets'),
+               menuSubItem('Project Queries'),
+               menuSubItem('Reports')
+               ),
+      menuItem('Contact Us')
     )
   )
 
