@@ -17,14 +17,18 @@ server <- function(input, output, session) {
     # Login
   output$login_logout <- renderUI({
     if(is.null(login_status)) {
-      actionLink('login_link', '[Sign-In]', icon = icon('sign-in-alt'), style = 'color: white;')
+      actionLink('login_link', 'Login',
+                 #icon = icon('sign-in-alt'),
+                 style = 'color: white;')
     } else {
       if(status_code(login_status) == 200) {
-        actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
-                   icon = icon('sign-out-alt'), style = 'color: white;')
-      } else {
-        actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'), style = 'color: white;')
-      }
+        actionLink('logout_link', label = user_info()$Fullname,#paste(user_info()$Fullname, ' [Sign Out]'),
+                   #icon = icon('sign-out-alt'),
+                   style = 'color: white;')
+      } 
+      # else {
+      #   actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'), style = 'color: white;')
+      # }
     }
   })  
     # Logout
@@ -85,8 +89,10 @@ server <- function(input, output, session) {
         removeModal()
         showElement(selector = "ul li:eq(13)") #change as tabs are included in sidebar
         output$login_logout <- renderUI({
-          actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
-                     icon = icon('sign-out-alt'), style = 'color: white;')
+          actionLink('logout_link', label = user_info()$Fullname, #paste(user_info()$Fullname,
+                                                 # ' [Sign Out]'),
+                    # icon = icon('sign-out-alt'),
+                     style = 'color: white;')
         })
       }
     }
