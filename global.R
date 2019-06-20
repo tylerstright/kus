@@ -19,8 +19,10 @@ library(cdmsR)
 #library(cuyem)
 
 # Source
+source('./R/cdms_api_keys.R')
 source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
+
 
 # Javascript for "Enter" button ----
 jscode <- '
@@ -30,12 +32,8 @@ $("#login").click();
 }
 });
 '
+cdmsKeys() # funciton calls API login keys
 
-# Set variables ----
-# Tribal Specific
-cdms_host <- 'https://cdms.nptfisheries.org'
-username <- 'api_user'
-api_key <- "153054453130053281239582410943958241094537726538860542262540750542640375910349488180619663"
 # Login
 login_status <- NULL
 html_code <- NULL
@@ -52,7 +50,7 @@ if(html_code == 200){
 }
 
 # LEAFLET: Load Static Map, Locations and Fish Data and any trasformations ----
-  load('./data/kus_static_map_data.Rdata')
+  #load('./data/kus_static_map_data.Rdata')
   #save.image('./data/kus_static_map_data.Rdata')
 
   # set map icon
