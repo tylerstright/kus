@@ -1,6 +1,6 @@
 # Load Packages ---- 
 library(shiny)
-library(shinyBS) # we don't need this if we aren't doing the click-popup modals.
+# library(shinyBS) # we don't need this if we aren't doing the click-popup modals.
 library(shinydashboard)
 library(shinycssloaders)
 library(tidyverse)
@@ -13,12 +13,15 @@ library(shinyjs)
 library(viridis)
 library(markdown)
 library(sf) 
+library(DT)
 
 # GitHub
 library(cdmsR)
 #library(cuyem)
 
 # Source
+source('./R/inputsKusUI.R')
+source('./R/inputsKus.R')
 source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
 source('./R/cdms_api_keys.R')
@@ -40,15 +43,15 @@ login_status <- NULL
 html_code <- NULL
 user_info <- NULL
   # Initial login without restricted permissions
-# startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
-# html_code <- status_code(startup_status)
-# user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
+startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
+html_code <- status_code(startup_status)
+user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
 # Gather static session data from CDMS----
-# if(html_code == 200){
-#   datasets <- getDatastores(cdms_host = cdms_host) %>%
-#     rename(DatastoreId = Id, DatastoreName = Name)
-# }
+if(html_code == 200){
+  datasets <- getDatastores(cdms_host = cdms_host) %>%
+    rename(DatastoreId = Id, DatastoreName = Name)
+}
 
 # LEAFLET: Load Static Map, Locations and Fish Data and any trasformations ----
   # load('./data/kus_static_map_data.Rdata')
@@ -62,23 +65,23 @@ user_info <- NULL
 
   # Parsing Transect Information (locations_df exists in kus_static_map_data.Rdata (global.R))
   # transect_detail <- locations_df %>%
-    # separate(Description, into = c('Discard', 'Transect Type', 'Transect Length', 'Transect Description'),
-    #          sep = '- ') %>%
-    # mutate(`Transect Type` = gsub('; Transect Length', '', `Transect Type`),
-    #        `Transect Length` = as.numeric(gsub(' km; Transect Description', '', `Transect Length`))) %>%
-    # select(Id, Label, `Transect Type`, `Transect Length`, `Transect Description`)
+  #   separate(Description, into = c('Discard', 'Transect Type', 'Transect Length', 'Transect Description'),
+  #            sep = '- ') %>%
+  #   mutate(`Transect Type` = gsub('; Transect Length', '', `Transect Type`),
+  #          `Transect Length` = as.numeric(gsub(' km; Transect Description', '', `Transect Length`))) %>%
+  #   select(Id, Label, `Transect Type`, `Transect Length`, `Transect Description`)
   
   # Redd data
   #dsv_78 <- getDatasetView(datastoreID = 78)
-  # load(file = './data/dsv_78.rda')
+  load(file = './data/dsv_78.rda')
   
-  # Redd + Transect Detail (For SGS Survey Length calcs.)
+  # Redd + Transect Detail (For SGS Survey Length calculations)
   # rtd_df <- dsv_78 %>%
   #   left_join(transect_detail, by = c('LocationId'= 'Id', 'LocationLabel' = 'Label'))
   
   # Carcass data
   # dsv_79 <- getDatasetView(datastoreID = 79)
-  # load(file = './data/dsv_79.rda')
+  load(file = './data/dsv_79.rda')
   
   # Age data
   # dsv_80 <- getDatasetView(datastoreID = 80)
@@ -86,11 +89,11 @@ user_info <- NULL
   
   # Juvenile Abundance data
   # dsv_85 <- getDatasetView(datastoreID = 85)
-  # load(file = './data/dsv_85.rda')
+  load(file = './data/dsv_85.rda')
   
   # Juvenile Survival data
   # dsv_86 <- getDatasetView(datastoreID = 86)
-  # load(file = './data/dsv_86.rda')
+  load(file = './data/dsv_86.rda')
   
   
   # dataset_count2 <- datasets %>%
