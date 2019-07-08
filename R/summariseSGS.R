@@ -9,15 +9,15 @@
 #'
 #' @examples summariseSGS(redd_data = dsv_78, carcass_data = dsv_79)
 #'
-#' @import lubridate dplyr tidyr
+#' @import lubridate dplyr tidyr cdmsR
 #' @export
 #' @return NULL
 
 
-summariseSGS <- function(redd_data = dsv_78, carcass_data = dsv_79) {
+summariseSGS <- function() {
 
   # Summarise Redd Data ---- 
-tmp_reddsum <- redd_data %>%
+tmp_reddsum <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
   distinct(ActivityId, .keep_all = TRUE) %>%
   mutate(SpeciesRun = paste(Run, SpeciesName),
          SurveyYear = year(SurveyDate)) %>%
@@ -25,7 +25,7 @@ tmp_reddsum <- redd_data %>%
   summarise(TotalRedds = sum(NewRedds, na.rm=TRUE))
 
   # Summarise Carcass Data ----
-tmp_carcsum <- carcass_data %>%
+tmp_carcsum <- getDatasetView(datastoreID = 79, cdms_host = cdms_host) %>%
   mutate(SpeciesRun = case_when(
             CarcassSpecies == 'BT' ~ 'Bull Trout',
             CarcassSpecies == 'F_CHN' ~ 'Fall Chinook salmon',

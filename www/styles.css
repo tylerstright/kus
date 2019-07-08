@@ -16,6 +16,22 @@ Hex	RBG
   width: 100%;
 }
 
+#sgs_spinner {
+  height:30px;
+}
+
+#juv_spinner {
+  height:30px;
+}
+
+#datasets_spinner {
+  height:30px;
+}
+
+#query_spinner {
+  height:30px;
+}
+
 .navlinks {
   color: white;
   /* font-size: 1.1vw; */
