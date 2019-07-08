@@ -4,34 +4,67 @@ p = creates a TAG
 #ID = creates an ID
 */
 
+/* colour palatte is blue-grey
+Hex	RBG
+#6e7f80	(110,127,128) - lighter grey-2
+#536872	(83,104,114) - darker background color
+#708090	(112,128,144) - lightest-1
+#536878	(83,104,120)-3
+#36454f	(54,69,79) - darkest */
+
+#q_inputs {  /* this exists to create an ID for query inputs to be removed when beginning a new query. */
+  width: 100%;
+}
+
+.navlinks {
+  color: white;
+  /* font-size: 1.1vw; */
+  font-family: 'Arial Narrow';
+}
+
+.sidebar {
+  position: fixed;
+  height: 110vh;
+}
+
+.main-header {
+  position: fixed;
+  width:100%;
+}
+
+.content {
+  padding-top:60px;
+}
+
 #kustitle {
   font-family: Impact;
   font-size: 45px;
   font-weight: normal;
   color: #36454f;
-  /*opacity: 0.5;*/
+}
+
+#links a {
+  font-size:1vh;
 }
 
 h2 {
   font-family: "Arial Black";
   font-size: 30px;
   line-height: 32px;
-  font-weight: normal; /* bold */
+  font-weight: normal;
   color: #36454f;
   margin-top: 0;
   padding-top: 0;
- /* text-align: center; */
 }
 
 h3 {
   font-family: "Arial Black";
   font-size: 14px;
   line-height: 16px;
-  font-weight: normal; /* bold */
+  font-weight: normal; 
   color: #36454f;
   margin-top: 0;
   padding-top: 0;
- /* text-align: center; */
 }
 
 p {font-family: "Arial Narrow";
@@ -39,220 +72,29 @@ p {font-family: "Arial Narrow";
   font-size: 2vh;
   text-align: justify;
   /*font-style: italic; */
-  font-weight: bold;
+  /*font-weight: bold; */
   color: #6e7f80;
+  /*color: white;*/
   width: 100%;
   /*border-bottom: 1px solid rgb(0, 0, 0); */
 }
 
-.pic {
-  display: block;
-  /* max-width: 300px;
-  max-height:220px; */
-  height: 250px;
-  width: auto;
-  text-align: center;
+.kusbg {
+  width: 1728px; 
+  height: 100vh;
+  display: block; 
+  background-size: contain; /*cover;  /* this should give 100% screen size */
+  background-position: bottom center;
+
+/*  background-position: top center; */
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  overflow: hidden; /* this seems to be important for not having a scrollbar when image is too large */
+  position: fixed; /* fixed = not affected by scrolling */
+  bottom:0;
+  right:0;
+}
+@media screen and (max-width:900px) {
+  .kusbg{ background-size: 900px auto;} /*900px is the image original width */
 }
 
-hr {
-  color: black;
-}
-
-/* h2 {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-  color: rgba(255, 255, 255, 0.5);
-  font-weight: 100;
-  font-size: 22px;
-  line-height: 24px;
-  padding-bottom: 30px;
-  text-align: left;
-  width: 70%;
-  font-family: Georgia;
-} */
-
-/* colour palatte is blue-grey
-Hex	RBG
-#6e7f80	(110,127,128) - lighter grey-2
-#536872	(83,104,114) - darker background color
-#708090	(112,128,144) - lightest-1
-#536878	(83,104,120)-3
-#36454f	(54,69,79) - darkest
-
-
-body {
-  padding-top: 70px;
-  background-color: #708090;
-  background-image: url("P9040096.JPG");
-  height: 500px;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover; 
-}
-
-.navbar-fixed-top {
-  position: fixed;
-  top: 15px;
-  height: 50px;
-  margin-bottom: 200px;
-  background-color: #36454f !important;
-}
-
-.navbar-brand{color: #ccc;}
-
-.tab-panel{background-color: #36454f;
-	 color: #ccc;
-}
-
-.navbar-nav li a:hover, .navbar-nav > .active > a {
-color: #fff !important;
-background-color:#28597a !important;
-}
-
-
-.tabbable > .nav > li > a {background-color: #36454f;  color:#ccc;}
-.tabbable > .nav > li[class=active]    > a {background-color: #28597a	; color:#fff;}
-    .tabbable > .nav > li > a[data-value='t1'] {background-color: red;   color:white}
-    .tabbable > .nav > li > a[data-value='t2'] {background-color: blue;  color:white}
-    .tabbable > .nav > li > a[data-value='t3'] {background-color: green; color:white}
-
-
-#header-id{
-  font-family: serif;
-  font-size: 40px;
-  font-weight: bold;
-  position: fixed;
-  left: 10px;
-  top: 25px;
-  color: #36454f;
-}
-
-#logo-id{
-  position: fixed;
-  right: 10px;
-  top: 5px;
-}
-
-#user-name{
-  font-family: serif;
-  position: fixed;
-  right: 120pt;
-  top: 23pt;
-  font-size: 13pt;
-  color: white;
-}
-
-#footer-id{
-  font-style: italic;
-  font-weight: 500;
-  line-height: 1.1;
-  color: #b0b0b0;
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
-#home-photo{
-    position: fixed;
-  top: 0;
-  left: 0;
-  min-width: 100%;
-  min-height: 100%;
-  display: block;
-  max-width: 100%; 
-  max-height: 100%;
-  padding: 0;
-  margin:auto;
-  position: relative;
-  background-image: url("P9040096.JPG");
-  height: 800pt;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.homecontainer{
-  position: absolute;
-  top: 50%;
-  width: 50%;was 90%
-  right: 40%; was left 5%
-  background-color: black;
-  
-}
-
-#home-title{
-  text-align: left;
-  color: #536872;
-  font-size: 42pt;
-  font-weight: bold;
-  top: 55%;
-  transform: translate(-50%, -50%); 
-}
-
-.homebuttons{
-  position: relative;
-  left: 30%;
-}
-
-.homebutton{
-  text-align: center;
-  vertical-align: middle;
-  color: white;
-  font-size: 30pt;
-  font-weight: bold;
-  background-color: #36454f;
-  height: 200pt;
-  width: 200pt;
-  margin-right: 25pt;  
-  margin-bottom: 25pt;
-  margin-left: auto;
-  margin-right: auto;
-  top: 80%;
-  left: 20%;
-  right: 20%;
-   
-}
-
-.homebutton:hover {
-   border-top-color: #28597a;
-   background: #28597a;
-   color: #fff;
-   }
-
-.mybutton{
-  background-color: #36454f;
-  color: #ccc;}
-  
-.mybutton:hover {
-   border-top-color: #28597a;
-   background: #28597a;
-   color: #fff;
-}
-
-.modal-body {padding: 10px; box-align: center;}
-.modal-content  {-webkit-border-radius: 6px !important;-moz-border-radius: 6px !important;border-radius: 6px !important;}
-.modal-dialog { width: 400px; display: inline-block; text-align: left; vertical-align: top;}
-.modal-header {font-size 12; color:black; background-color: #708090; border-top-left-radius: 6px; border-top-right-radius: 6px}
-.modal-footer {text-align: left;}
-.modal { text-align: center; vertical-align: middle; padding-top: 125px;}   ; padding-right:10px;   
-
-h1{font-family: serif;
-  font-size: 80px;
-  font-style: italic;
-  font-weight: bold;
-  color: #36454f;
-  background-color: #708090;
-  width: 100%;
-}
-
-h2{color: #536878;}
-
-h3{color: #708090;}
-
-h4{color: #536872;}
-
-h5{color: #6e7f80;}
-
-h6{color: #b0b0b0;}
-
-a{font-weight: 500;
-  color: #fff
-} */

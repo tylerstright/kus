@@ -3,12 +3,12 @@ server <- function(input, output, session) {
   # Hide & show Tabs based on login status ----
   observe({
     if(is.null(login_status)) {
-      hideElement(selector = "ul li:eq(13)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), #change as tabs are included in sidebar
+      hideElement(selector = "ul li:eq(9)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
     } else {
       if(status_code(login_status) != 200) {
-        hideElement(selector = "ul li:eq(13)", anim= TRUE)#change as tabs are included in sidebar
+        hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
       } else {
-        showElement(selector = "ul li:eq(13)", anim= TRUE)#change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
         }
     }
   })
@@ -30,7 +30,7 @@ server <- function(input, output, session) {
     # Logout
   observeEvent(input$logout_link, {
     login_status <<- NULL
-    hideElement(selector = "ul li:eq(8)", anim= TRUE)
+    hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
     output$login_logout <- renderUI({actionLink('login_link', '[Sign In]', icon = icon('sign-in-alt'), style = 'color: white;')}) 
   })
   
@@ -50,7 +50,7 @@ server <- function(input, output, session) {
                  size = "m",
                  easyClose = TRUE,
                  title = "DFRM Fisheries Data Access",
-                 footer = "Please contact Clark Watry (clarkw@nezperce.org) to request login credentials."
+                 footer = HTML("<em> Restricted data access is intended for DFRM Staff only. </em>")
                ))
   )
   observeEvent(input$login, {
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
         ))
       } else {
         removeModal()
-        showElement(selector = "ul li:eq(13)") #change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(9)") # change as tabs are included in sidebar
         output$login_logout <- renderUI({
           actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
                      icon = icon('sign-out-alt'), style = 'color: white;')
@@ -195,101 +195,169 @@ server <- function(input, output, session) {
   #   toggleModal(session, "dataset_count_modal", "open")
   # })
   
-  # Adult Summaries Tab ----
-  
-  # Total Redds per Year
-  # output$p_redds <- renderPlotly({
-  #   yr_df <- dsv_78 %>%
-  #     mutate(Year = year(SurveyDate),
-  #            SpeciesRun = paste(Run, SpeciesName)) %>%
-  #     distinct(ActivityId, .keep_all = TRUE) %>%
-  #     filter(SpeciesRun == input$species) %>% 
-  #     group_by(POP_NAME, SpeciesRun, Year) %>%
-  #     summarise(`TotalRedds` = sum(NewRedds, na.rm=TRUE)) %>%
-  #     arrange(Year)
-  #   
-  #   yr_plotly <- plot_ly(data = yr_df, 
-  #                        x = ~Year, 
-  #                        y = ~TotalRedds,
-  #                        type = 'scatter',
-  #                        mode = 'lines+markers',
-  #                        color = ~POP_NAME,
-  #                        colors = viridis_pal(option="D")(length(unique(yr_df$POP_NAME)))
-  #                        ) #%>%
-  #                          #layout(legend = list(orientation = 'h'))
-  # })
-  
-  # Total Carcasses per Year
-  # output$p_carcass <- renderPlotly({
-  #   yc_df <- dsv_79 %>%
-  #     mutate(Year = year(SurveyDate),
-  #            SpeciesRun = paste(Run, SpeciesName)) %>%
-  #     #filter(SpeciesRun == input$species) %>% 
-  #     group_by(POP_NAME, SpeciesRun, Year) %>%
-  #     summarise(`TotalCarcass` = sum(Count, na.rm=TRUE)) %>%
-  #     arrange(Year)
-  #   
-  #   yc_plotly <- plot_ly(data = yc_df, 
-  #                        x = ~Year, 
-  #                        y = ~TotalCarcass,
-  #                        type = 'scatter',
-  #                        mode = 'lines+markers',
-  #                        color = ~POP_NAME,
-  #                        colors = viridis_pal(option="D")(length(unique(yc_df$POP_NAME)))
-  #   ) #%>%
-  #   #layout(legend = list(orientation = 'h'))
-  # })
-  
-  # Juvenile Summaries Tab ----
-  
-  # Natural Juvenile Abundance
-  # output$j_abundance <- renderPlotly({
-  #   ja_df <- dsv_85 %>%
-  #     mutate(Year = MigratoryYear,
-  #            SpeciesRun = paste(Run, SpeciesName)) %>%
-  #     filter(!is.na(Abundance),
-  #            Lifestage == 'Total',
-  #            SpeciesRun == input$species) %>%
-  #     arrange(Year)
-  #     
-  #   ja_plotly <- plot_ly(data = ja_df, 
-  #                        x = ~Year, 
-  #                        y = ~Abundance,
-  #                        type = 'scatter',
-  #                        mode = 'lines+markers',
-  #                        color = ~POP_NAME,
-  #                        colors = viridis_pal(option="D")(length(unique(ja_df$POP_NAME)))
-  #   ) #%>%
-  #   #layout(legend = list(orientation = 'h'))
-  # })
-  
-  # Natural Juvenile Abundance
-  # output$j_survival <- renderPlotly({
-  #   js_df <- dsv_86 %>%
-  #     mutate(Year = MigratoryYear,
-  #            SpeciesRun = paste(Run, SpeciesName)) %>%
-  #     filter(!is.na(Survival),
-  #            SpeciesRun == input$species) %>%
-  #     arrange(Year)
-  #   
-  #   ja_plotly <- plot_ly(data = js_df, 
-  #                        x = ~Year, 
-  #                        y = ~Survival,
-  #                        type = 'scatter',
-  #                        mode = 'lines+markers',
-  #                        color = ~POP_NAME,
-  #                        colors = viridis_pal(option="D")(length(unique(js_df$POP_NAME))),
-  #                        linetype = ~Lifestage,
-  #                        markers = ~Origin
-  #   ) #%>%
-  #   #layout(legend = list(orientation = 'h'))
-  # })
-  
-  # Data Summaries Tab ----
-  
-  # Raw Data Access Tab ----
+  # Spawning Ground Surveys Summaries Tab ----
 
-    # Dataset Summary selection
+    # Species selection
+  output$sgs_species <- renderUI({
+    selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= species_list, selectize= FALSE, 
+                selected = 'Spring/Summer Chinook Salmon', multiple = FALSE) 
+  })
+  
+  # Population selection
+  output$sgs_pop_name <- renderUI({
+    selectInput(inputId= 'sgs_pop_name', label= 'Choose Populations:', choices= population_list, selectize= FALSE, multiple = FALSE
+                , selected= 'East Fork South Fork Salmon River')
+  })
+  
+    # Submit button
+  output$sgs_btn_summary <- renderUI({
+    actionButton(inputId = 'sgs_submit', label = 'Populate Summaries', icon = icon('table'))
+  })
+  
+observeEvent(input$sgs_submit, {
+  
+  # Get Redd data
+  tmp_redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
+    mutate(Year = year(SurveyDate),
+           SpeciesRun = paste(Run, Species))
+  
+    # Get Carcass data
+    tmp_carcass_df <- getDatasetView(datastoreID = 79, cdms_host = cdms_host) %>%
+      mutate(Year = year(SurveyDate),
+             SpeciesRun = paste(Run, Species))  
+    
+    # Total Redds per Year
+    output$p_redds <- renderPlotly({
+      yr_df <- tmp_redd_df %>%
+        distinct(ActivityId, .keep_all = TRUE) %>%
+        filter(SpeciesRun == isolate(input$sgs_species),
+               POP_NAME %in% isolate(input$sgs_pop_name)) %>%
+        group_by(POP_NAME, SpeciesRun, Year) %>%
+        summarise(`TotalRedds` = sum(NewRedds, na.rm=TRUE)) %>%
+        arrange(Year)
+  
+      yr_plotly <- plot_ly(data = yr_df,
+                           x = ~Year,
+                           y = ~TotalRedds,
+                           type = 'scatter',
+                           mode = 'lines+markers'#,
+                           # color = ~POP_NAME,
+                           # colors = viridis_pal(option="D")(length(unique(yr_df$POP_NAME)))
+                           ) %>%
+        layout(yaxis = list(title= 'Total Redds'))
+    })
+
+    # Total Carcasses per Year
+    output$p_carcass <- renderPlotly({
+      yc_df <- tmp_carcass_df %>%
+        filter(SpeciesRun == isolate(input$sgs_species),
+               POP_NAME %in% isolate(input$sgs_pop_name)) %>%
+        group_by(POP_NAME, SpeciesRun, Year) %>%
+        summarise(`TotalCarcass` = sum(Count, na.rm=TRUE)) %>%
+        arrange(Year)
+  
+      yc_plotly <- plot_ly(data = yc_df,
+                           x = ~Year,
+                           y = ~TotalCarcass,
+                           type = 'scatter',
+                           mode = 'lines+markers',
+                           color = ~POP_NAME,
+                           colors = viridis_pal(option="D")(length(unique(yc_df$POP_NAME)))
+      ) %>%
+        layout(yaxis = list(title= 'Total Carcasses'))
+    })
+  })
+
+  # Weir Collections Summaries Tab ----
+  
+  # In-Stream Array Abundance Summaries Tab ----
+
+  # Juvenile Monitoring Summaries Tab ----
+  
+    # Species selection
+  output$juv_species <- renderUI({
+    selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= species_list, selectize= FALSE, 
+                selected = 'Spring/Summer Chinook Salmon', multiple = FALSE) 
+  })
+  
+    # Population selection
+  output$juv_pop_name <- renderUI({
+    selectInput(inputId= 'juv_pop_name', label= 'Choose Populations:', choices= population_list, selectize= FALSE, 
+                selected = 'East Fork South Fork Salmon River', multiple = FALSE)
+  })
+  
+    # Submit button
+  output$juv_btn_summary <- renderUI({
+    actionButton(inputId = 'juv_submit', label = 'Populate Summaries', icon = icon('table'))
+  })
+  
+  observeEvent(input$juv_submit, {
+    
+    # Get Abundance data
+    tmp_abundance_df <- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
+      mutate(Year = MigratoryYear,
+             SpeciesRun = paste(Run, Species))
+    
+    # # Get Survival data
+    tmp_survival_df <- getDatasetView(datastoreID = 86, cdms_host = cdms_host) %>%
+      mutate(Year = MigratoryYear,
+             SpeciesRun = paste(Run, Species))
+    
+    # Natural Juvenile Abundance
+    output$j_abundance <- renderPlotly({
+      ja_df <- tmp_abundance_df %>%
+        filter(!is.na(Abundance),
+               !Lifestage %in% c('YOY','Total'),
+               Origin == 'Natural',
+               SpeciesRun == isolate(input$juv_species),
+               POP_NAME %in% isolate(input$juv_pop_name)) %>%
+        arrange(Year)
+      
+      ja_plotly <- plot_ly(data = ja_df,
+                           x = ~Year,
+                           y = ~Abundance,
+                           type = 'scatter',
+                           mode = 'lines+markers', 
+                           linetype = ~Lifestage, 
+                           color = ~POP_NAME,
+                           colors = viridis_pal(option="D")(length(unique(ja_df$POP_NAME)))
+      ) %>%
+        layout(separators = ',')
+    })
+    
+    # Natural Juvenile Survival
+    output$j_survival <- renderPlotly({
+      js_df <- tmp_survival_df %>%
+        filter(!is.na(Survival),
+               Origin == 'Natural',
+               SpeciesRun == isolate(input$juv_species),
+               POP_NAME %in% isolate(input$juv_pop_name)) %>%
+        arrange(Year)
+
+      ja_plotly <- plot_ly(data = js_df,
+                           x = ~Year,
+                           y = ~Survival,
+                           type = 'scatter',
+                           mode = 'lines+markers',
+                           color = ~POP_NAME,
+                           colors = viridis_pal(option="D")(length(unique(js_df$POP_NAME))),
+                           linetype = ~Lifestage
+                           # markers = ~Origin
+      ) %>%
+        layout(yaxis= list(tickformat = "%"))
+    })
+  
+  })
+  
+  # Restricted Data Access Tab ----
+
+  # Gather static session data from CDMS
+  if(html_code == 200){
+    datasets <- getDatastores(cdms_host = cdms_host) %>%
+      rename(DatastoreId = Id, DatastoreName = Name)
+  }
+  
+  # CDMS Datasets 
   output$raw_dataset_menu <- renderUI({
     
     dataset <- datasets %>%
@@ -331,13 +399,178 @@ server <- function(input, output, session) {
   
     # Dataset Data Table
   output$raw_table <- DT::renderDataTable({
-    
     tmp_df <- raw_dat()
     DT::datatable(tmp_df, options = list(orderClasses = TRUE), filter = 'top')
-    # , 
-    #               caption = paste0('Dataset generated from the Nez Perce Tribes centralized data base managment system
-    #                                and should be cited accordingly. Query parameters were set as; ', raw_qry_params()))
+  })
+  
+  # Custom Queries ----
+  
+    # Dataset selection ( for both Dat)
+  if(html_code == 200){
+    datastore_df <- getDatastores(cdms_host = cdms_host) %>%
+      select(Id, Name) %>%
+      filter(!Id %in% c(81:84, 88:91))
+  }
+  
+  output$q_datasets <- renderUI({
+    selectInput(inputId = 'q_datasets', label = NULL, choices = c('- Choose Dataset -', sort(unique(datastore_df$Name))),
+                selectize = FALSE, selected = '- Choose Dataset -', multiple = FALSE)
+  })
+  
+  output$btn_q_datasets <- renderUI({
+    actionButton(inputId = 'btn_q_datasets', label = 'Pull Dataset *', icon = icon('hourglass-start'))
   })
 
+  observeEvent(input$btn_q_datasets, {
+    # match selected Dataset to datastore_df$Id
+    ds_Id <- datastore_df$Id[match(input$q_datasets, datastore_df$Name)]
+    
+    # Load the Big Dataset and populate the first selectInput(species)
+    if(input$q_datasets == '- Choose Dataset -') {
+      NULL
+    } else {
+      if(input$q_datasets %in% c("SGS Redd Data", "SGS Carcass Data")) {
+        
+        # Remove any existing query inputs (5x because can't figure out the right selector command)
+        removeUI(selector = '#q_inputs')
+        removeUI(selector = '#q_inputs')
+        removeUI(selector = '#q_inputs')
+        removeUI(selector = '#q_inputs')
+        removeUI(selector = '#q_inputs')
+        
+        # Get Dataset View. (Load Big Data)
+        KQ_df0 <- getDatasetView(datastoreID = ds_Id, cdms_host = cdms_host) %>%
+          mutate(Year = year(SurveyDate),
+                 SpeciesRun = paste(Run, Species))
+        
+        # Species selection
+        output$q_species <- renderUI({
+          selectInput(inputId= 'q_species', label= 'Choose Species', choices= sort(unique(KQ_df0$SpeciesRun)),
+                      selectize= TRUE, selected = NULL, multiple = TRUE) 
+        })
+        
+      } else {
+        
+        # Remove any existing query inputs (5x because can't figure out the right selector command)
+        removeUI(selector = '#q_inputs')
+        removeUI(selector = '#q_inputs')
+        removeUI(selector = '#q_inputs')
+        removeUI(selector = '#q_inputs')
+        removeUI(selector = '#q_inputs')
+        
+        # Get Dataset View. (Load Big Data)
+        KQ_df0 <- getDatasetView(datastoreID = ds_Id, cdms_host = cdms_host) %>%
+          mutate(Year = year(BroodYear),
+                 SpeciesRun = paste(Run, Species))
+        
+        # Species selection
+        output$q_species <- renderUI({
+          selectInput(inputId= 'q_species', label= 'Choose Species', choices= sort(unique(KQ_df0$SpeciesRun)),
+                      selectize= TRUE, selected = NULL, multiple = TRUE) 
+        })
+      } 
+    }
+  })
+  
+  
+    # 1. POP_NAME selection ----
+  observeEvent(input$q_species, {
+    if(is.null(input$q_species)) {
+      NULL
+    } else {
+      KQ_df1 <<- KQ_df0 %>%
+        filter(SpeciesRun %in% input$q_species)
+      
+      output$q_pop_name <- renderUI({
+        div(id = 'q_inputs',  # this div() allows us to remove the input later
+            selectInput(inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(KQ_df1$POP_NAME)),
+                        selectize= TRUE, selected = NULL, multiple = TRUE)
+        )
+      })
+    }
+  })
+  
+    # 2. Stream selection ----
+  observeEvent(input$q_pop_name, {
+    if(is.null(input$q_pop_name)) {
+      NULL
+    } else {
+      KQ_df2 <<- KQ_df1 %>%
+        filter(POP_NAME %in% input$q_pop_name)
+      
+      output$q_stream <- renderUI({
+        div(id = 'q_inputs',  # this div() allows us to remove the input later
+            selectInput(inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(KQ_df2$StreamName)),
+                        selectize= TRUE, selected = NULL, multiple = TRUE)
+        )
+      })
+    }
+  })
+  
+    # 3. LocationLabel selection ----
+  observeEvent(input$q_stream, {
+    if(is.null(input$q_stream)) {
+      NULL
+    } else {
+      KQ_df3 <<- KQ_df2 %>%
+        filter(StreamName %in% input$q_stream)
+      
+      output$q_locationlabel <- renderUI({
+        div(id = 'q_inputs',  # this div() allows us to remove the input later
+            selectInput(inputId= 'q_locationlabel', label= 'Choose Location:', choices= sort(unique(KQ_df3$LocationLabel)),
+                        selectize= TRUE, selected = NULL, multiple = TRUE)
+        )
+      })
+    }
+  })
+  
+    # 4. Year selection and Submit Query button ----
+  observeEvent(input$q_locationlabel, {
+    if(is.null(input$q_locationlabel)) {
+      NULL
+    } else {
+      KQ_df4 <<- KQ_df3 %>%
+        filter(LocationLabel %in% input$q_locationlabel)
+      
+      output$q_year <- renderUI({
+        div(id = 'q_inputs',  # this div() allows us to remove the input later
+            sliderInput(inputId= 'q_year', label= 'Choose Year:', min = min(KQ_df4$Year), max = max(KQ_df4$Year), 
+                        value=  c(min(KQ_df4$Year), max(KQ_df4$Year)), sep= '')
+        )
+      })
+      
+      # 'Submit Query' Button
+      output$btn_q_summary <- renderUI({
+        div(id = 'q_inputs',  # this div() allows us to remove the input later
+            actionButton(inputId = 'btn_q_summary', label = 'Submit Query', icon = icon('bomb'))
+        )
+      })
+    }
+  })
+  
+    # Query Data Table ----
+      # Produce FINAL Query Dataframe for table/export
+    query_df <- eventReactive(input$btn_q_summary, {
+      KQ_df4 %>%
+        filter(Year %in% input$q_year)
+    })    
+  
+    # Query-dataframe EXPORT
+    output$query_export <- downloadHandler(
+      filename = function() {
+        paste0("query_data_", Sys.Date(), ".csv")
+      },
+      content = function(file) {
+        write.csv(query_df(), file, row.names = FALSE)
+      },
+      contentType = "text/csv"
+    )
+
+  output$query_table <- DT::renderDataTable({
+    tmp_qdf <- query_df()
+    DT::datatable(tmp_qdf, options = list(orderClasses = TRUE), filter = 'top')
+  })
+  
+  # Reports
   
 } # close Server
