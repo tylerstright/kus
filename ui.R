@@ -33,8 +33,8 @@ sidebar <- dashboardSidebar(
                menuSubItem('In-stream Array Abundance'),
                menuSubItem('Juvenile Monitoring')
                ),
-      menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
-               menuSubItem('CDMS Datasets'),
+      menuItem('Restricted Data Access', icon = icon('table'), startExpanded = TRUE,
+               menuSubItem('CDMS Datasets', tabName = 'tab_rawdata'),
                menuSubItem('Project Queries'),
                menuSubItem('Reports')
                ),
