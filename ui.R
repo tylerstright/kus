@@ -27,24 +27,20 @@ sidebar <- dashboardSidebar(
                # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
                menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')
                ),
-      menuItem('Restricted Data Access', icon = icon('table'), startExpanded = TRUE,
-               menuSubItem('CDMS Datasets', tabName = 'tab_rawdata'),
-               menuSubItem('Project Queries'),
-               menuSubItem('Reports')),
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuSubItem('CDMS Datasets', tabName = 'tab_cdms'),
                menuSubItem('Custom Queries', tabName = 'tab_queries')#,
                # menuSubItem('Reports', tabName = 'tab_reports')
                ),
-      br(), br(), br(), br(), br(),
-      img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;')
+      br(), br(), br(), br(), br(), # spacers.
+      img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;') # DFRM Logo
     )
   )
 
 # Dashboard Body ----
 body <- dashboardBody(
   includeCSS('./www/styles.css'),
-  img(src='kusbg.jpg', class = 'kusbg', draggable = FALSE), # background image
+  # img(src='kusbg.jpg', class = 'kusbg', draggable = FALSE), # background image
     tabItems(
   # KusHome Tab ----
       tabItem(tabName = 'tab_home',
@@ -79,9 +75,14 @@ body <- dashboardBody(
   tabItem(tabName = 'tab_sgs',
           fluidRow(
             box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
-                uiOutput(outputId = 'sgs_species'),
-                uiOutput(outputId = 'sgs_pop_name'),
-                uiOutput(outputId = 'sgs_btn_summary', style = 'text-align:center;'),
+                selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= species_list, selectize= FALSE, 
+                            selected = 'Spring/Summer Chinook Salmon', multiple = FALSE),
+                selectInput(inputId= 'sgs_pop_name', label= 'Choose Population:', choices= population_list, selectize= FALSE, multiple = FALSE,
+                            selected= 'East Fork South Fork Salmon River'),
+                fluidRow(
+                  column(9, actionButton(inputId = 'sgs_submit', label = 'Populate Summaries', icon = icon('table'), style = 'float:right;')),
+                  column(1, hidden(div(id='sgs_spinner', img(src='spinner.gif', style = 'height:30px;'))))
+                ),
                 helpText(HTML('<em> *Not all Species/Population combinations will return data.</em>')),
                 helpText(HTML('<em> *Data load may take several moments.</em>'))
             ),
@@ -113,9 +114,14 @@ body <- dashboardBody(
   tabItem(tabName = 'tab_juv',
           fluidRow(
             box(title = 'Juvenile Summaries', status='info', width= 5,
-                uiOutput(outputId = 'juv_species'),
-                uiOutput(outputId = 'juv_pop_name'),
-                uiOutput(outputId = 'juv_btn_summary', style = 'text-align:center;'),
+                selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= species_list, selectize= FALSE, 
+                            selected = 'Spring/Summer Chinook Salmon', multiple = FALSE),
+                selectInput(inputId= 'juv_pop_name', label= 'Choose Population:', choices= population_list, selectize= FALSE, 
+                            selected = 'East Fork South Fork Salmon River', multiple = FALSE),
+                fluidRow(
+                  column(9, actionButton(inputId = 'juv_submit', label = 'Populate Summaries', icon = icon('table'), style = 'float:right;')),
+                  column(1, hidden(div(id='juv_spinner', img(src='spinner.gif', style = 'height:30px;'))))
+                ),
                 helpText(HTML('<em> *Not all Species/Population combinations will return data.</em>')),
                 helpText(HTML('<em> *Data load may take several moments.</em>'))
             ),
@@ -141,14 +147,15 @@ body <- dashboardBody(
               box(width = 12, 
               fluidRow(column(3, uiOutput("raw_dataset_menu"))
               ),
-              fluidRow(column(6, helpText("Select the desired dataset then the project, stream and locations of interest and click submit query.")),
+              fluidRow(column(4, helpText("Select the desired dataset then the project, stream and locations of interest and click submit query.")),
                        column(2, offset = 2, align = "center",
-                              actionButton("raw_submit", label = "Submit Query", class = "mybutton")),
+                              actionButton("raw_submit", label = "Submit Query")),
+                       column(1, hidden(div(id='datasets_spinner',img(src='spinner.gif', style = 'height:30px')))),
                        column(2, align = "center",
-                              downloadButton("raw_export", label = "Export .CSV File", class = "mybutton")) # this class isn't included in CSS file.
+                              downloadButton("raw_export", label = "Export .CSV File"))
                        ),
               hr(),
-              div(style = 'overflow-x: scroll;', withSpinner(DT::dataTableOutput('raw_table')))
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
               )
       ),
     # Custom Queries
@@ -158,7 +165,10 @@ body <- dashboardBody(
                     fluidRow(
                       column(4,
                        uiOutput(outputId = 'q_datasets'),
-                       uiOutput(outputId = 'btn_q_datasets', style = 'text-align:center;'),
+                       fluidRow(
+                         column(9, actionButton(inputId = 'btn_q_datasets', label = 'Pull Dataset *', icon = icon('hourglass-start'), style = 'float:right;')),
+                         column(1, hidden(div(id='query_spinner',img(src='spinner.gif', style = 'height:30px'))))
+                         ),
                        helpText(HTML('<em> * Note: This step may take several minutes. </em>'), style = 'text-align:center;'),
                        helpText(HTML('<em> ** Clicking this button will always result in a wait time for data retrieval.</em>'), style = 'text-align:center;'),
                        hr(),
@@ -171,14 +181,14 @@ body <- dashboardBody(
                        column(4,
                        uiOutput(outputId = 'q_locationlabel'),
                        uiOutput(outputId = 'q_year'),
-                       uiOutput(outputId = 'btn_q_summary', style = 'text-align:center;')
+                       uiOutput(outputId = 'btn_query_summary', style = 'text-align:center;')
                        )
                     )
                 )
               ),
               fluidRow(
                 box(width = 12,
-                       downloadButton("query_export", label = "Export .CSV File", style = 'text-align:center;', class = "mybutton"),
+                       downloadButton("query_export", label = "Export .CSV File", style = 'text-align:center;'),
                        hr(),
                        div(style = 'overflow-x: scroll;', DT::dataTableOutput('query_table', width= '50%'))
                 )

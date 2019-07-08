@@ -17,18 +17,14 @@ server <- function(input, output, session) {
     # Login
   output$login_logout <- renderUI({
     if(is.null(login_status)) {
-      actionLink('login_link', 'Login',
-                 #icon = icon('sign-in-alt'),
+      actionLink('login_link', '[Sign-In]', icon = icon('sign-in-alt'),
                  style = 'color: white;')
     } else {
       if(status_code(login_status) == 200) {
-        actionLink('logout_link', label = user_info()$Fullname,#paste(user_info()$Fullname, ' [Sign Out]'),
-                   #icon = icon('sign-out-alt'),
+        actionLink('logout_link', label = paste0(user_info()$Fullname, ' [Sign Out]'),
+                   icon = icon('sign-out-alt'),
                    style = 'color: white;')
       } 
-      # else {
-      #   actionLink('login_link', 'Sign In', icon = icon('sign-in-alt'), style = 'color: white;')
-      # }
     }
   })  
     # Logout
@@ -89,10 +85,8 @@ server <- function(input, output, session) {
         removeModal()
         showElement(selector = "ul li:eq(9)") # change as tabs are included in sidebar
         output$login_logout <- renderUI({
-          actionLink('logout_link', label = user_info()$Fullname, #paste(user_info()$Fullname,
-                                                 # ' [Sign Out]'),
-                    # icon = icon('sign-out-alt'),
-                     style = 'color: white;')
+          actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
+                    icon = icon('sign-out-alt'), style = 'color: white;')
         })
       }
     }
@@ -203,24 +197,9 @@ server <- function(input, output, session) {
   
   # Spawning Ground Surveys Summaries Tab ----
 
-    # Species selection
-  output$sgs_species <- renderUI({
-    selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= species_list, selectize= FALSE, 
-                selected = 'Spring/Summer Chinook Salmon', multiple = FALSE) 
-  })
-  
-  # Population selection
-  output$sgs_pop_name <- renderUI({
-    selectInput(inputId= 'sgs_pop_name', label= 'Choose Populations:', choices= population_list, selectize= FALSE, multiple = FALSE
-                , selected= 'East Fork South Fork Salmon River')
-  })
-  
-    # Submit button
-  output$sgs_btn_summary <- renderUI({
-    actionButton(inputId = 'sgs_submit', label = 'Populate Summaries', icon = icon('table'))
-  })
-  
-observeEvent(input$sgs_submit, {
+  observeEvent(input$sgs_submit, {
+    
+  shinyjs::show(id='sgs_spinner')
   
   # Get Redd data
   tmp_redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
@@ -272,6 +251,9 @@ observeEvent(input$sgs_submit, {
       ) %>%
         layout(yaxis = list(title= 'Total Carcasses'))
     })
+    
+    shinyjs::hide(id='sgs_spinner')
+    
   })
 
   # Weir Collections Summaries Tab ----
@@ -280,24 +262,9 @@ observeEvent(input$sgs_submit, {
 
   # Juvenile Monitoring Summaries Tab ----
   
-    # Species selection
-  output$juv_species <- renderUI({
-    selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= species_list, selectize= FALSE, 
-                selected = 'Spring/Summer Chinook Salmon', multiple = FALSE) 
-  })
-  
-    # Population selection
-  output$juv_pop_name <- renderUI({
-    selectInput(inputId= 'juv_pop_name', label= 'Choose Populations:', choices= population_list, selectize= FALSE, 
-                selected = 'East Fork South Fork Salmon River', multiple = FALSE)
-  })
-  
-    # Submit button
-  output$juv_btn_summary <- renderUI({
-    actionButton(inputId = 'juv_submit', label = 'Populate Summaries', icon = icon('table'))
-  })
-  
   observeEvent(input$juv_submit, {
+    
+    shinyjs::show(id='juv_spinner')
     
     # Get Abundance data
     tmp_abundance_df <- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
@@ -353,6 +320,8 @@ observeEvent(input$sgs_submit, {
         layout(yaxis= list(tickformat = "%"))
     })
   
+    shinyjs::hide(id='juv_spinner')
+    
   })
   
   # Restricted Data Access Tab ----
@@ -381,6 +350,9 @@ observeEvent(input$sgs_submit, {
   
     # get the full dataset view
   raw_dat <- eventReactive(input$raw_submit,{
+    
+    shinyjs::show(id='datasets_spinner')
+    
     if(input$datasets != 999 & input$datasets != 998) {  
       getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
     } else {
@@ -390,6 +362,9 @@ observeEvent(input$sgs_submit, {
         summariseRST()
       }
     }
+    
+    shinyjs::hide(id='datasets_spinner')
+    
   }) 
   
     # Dataset EXPORT
@@ -411,7 +386,7 @@ observeEvent(input$sgs_submit, {
   
   # Custom Queries ----
   
-    # Dataset selection ( for both Dat)
+    # Dataset selection
   if(html_code == 200){
     datastore_df <- getDatastores(cdms_host = cdms_host) %>%
       select(Id, Name) %>%
@@ -422,14 +397,12 @@ observeEvent(input$sgs_submit, {
     selectInput(inputId = 'q_datasets', label = NULL, choices = c('- Choose Dataset -', sort(unique(datastore_df$Name))),
                 selectize = FALSE, selected = '- Choose Dataset -', multiple = FALSE)
   })
-  
-  output$btn_q_datasets <- renderUI({
-    actionButton(inputId = 'btn_q_datasets', label = 'Pull Dataset *', icon = icon('hourglass-start'))
-  })
 
   observeEvent(input$btn_q_datasets, {
     # match selected Dataset to datastore_df$Id
     ds_Id <- datastore_df$Id[match(input$q_datasets, datastore_df$Name)]
+    
+    shinyjs::show(id='query_spinner')
     
     # Load the Big Dataset and populate the first selectInput(species)
     if(input$q_datasets == '- Choose Dataset -') {
@@ -476,6 +449,9 @@ observeEvent(input$sgs_submit, {
         })
       } 
     }
+    
+    shinyjs::hide(id='query_spinner')
+    
   })
   
   
@@ -545,7 +521,7 @@ observeEvent(input$sgs_submit, {
         )
       })
       
-      # 'Submit Query' Button
+    # 5. 'Submit Query' Button
       output$btn_q_summary <- renderUI({
         div(id = 'q_inputs',  # this div() allows us to remove the input later
             actionButton(inputId = 'btn_q_summary', label = 'Submit Query', icon = icon('bomb'))
