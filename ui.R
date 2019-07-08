@@ -23,18 +23,16 @@ sidebar <- dashboardSidebar(
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
-               menuSubItem('Weir Collections', tabName = 'tab_weir'),
-               menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
+               # menuSubItem('Weir Collections', tabName = 'tab_weir'),
+               # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
                menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')
                ),
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuSubItem('CDMS Datasets', tabName = 'tab_cdms'),
-               menuSubItem('Custom Queries', tabName = 'tab_queries'),
-               menuSubItem('Reports', tabName = 'tab_reports')
+               menuSubItem('Custom Queries', tabName = 'tab_queries')#,
+               # menuSubItem('Reports', tabName = 'tab_reports')
                ),
-      menuItem('Contact Us', tabName = 'tab_contact'),
-      # img(src = 'NPT.png', title = NULL, draggable = FALSE, width = '100%'),
-      # br(),
+      br(), br(), br(), br(), br(),
       img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;')
     )
   )
@@ -42,25 +40,10 @@ sidebar <- dashboardSidebar(
 # Dashboard Body ----
 body <- dashboardBody(
   includeCSS('./www/styles.css'),
-  # img(src='kusbg.jpg', class = 'kusbg', draggable = FALSE), # background image
+  img(src='kusbg.jpg', class = 'kusbg', draggable = FALSE), # background image
     tabItems(
   # KusHome Tab ----
       tabItem(tabName = 'tab_home',
-              # fluidRow(
-              #   valueBoxOutput("sgs_totalmiles", width = 4),
-              #   valueBoxOutput("sgs_groundmiles", width = 4),
-              #   valueBoxOutput("sgs_airmiles", width = 4)
-              # ),
-              # fluidRow(
-              #   box(status = 'info', 
-              #       # title = paste('Data Repositories (', dataset_count2, '):'), # working here Monday
-              #       background = 'blue',
-              #       solidHeader = TRUE, 
-              #       collapsible = TRUE, 
-              #       collapsed = TRUE,
-              #       width = 3, 
-              #       tableOutput('dataset_dt2'))
-              # ),
               fluidRow(
                 column(5,
                 box(status = 'info', width=12, background = 'aqua', # ?validStatuses ?validColors
@@ -87,19 +70,17 @@ body <- dashboardBody(
                       )
                 )
             ),
-              # fluidRow(
-              #   column(4,
-              #   infoBoxOutput("project_count", width = 12),
-              #     bsModal(id="project_count_modal", title = "Nez Perce Tribe Research Projects:", tableOutput('project_dt'), trigger=""),
-              #   infoBoxOutput("dataset_count", width = 12),
-              #     bsModal(id="dataset_count_modal", title = "Nez Perce Tribe Datastores:", tableOutput('dataset_dt'), trigger="")
-              #   )
-              # ),
-  
+
   # Spawning Ground Survey Summaries Tab ----
   tabItem(tabName = 'tab_sgs',
           fluidRow(
-            inputsKusUI(id = 'sgs', box_title = 'SGS Summary Inputs:'),
+            box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
+                uiOutput(outputId = 'sgs_species'),
+                uiOutput(outputId = 'sgs_pop_name'),
+                uiOutput(outputId = 'sgs_btn_summary', style = 'text-align:center;'),
+                helpText(HTML('<em> *Not all Species/Population combinations will return data.</em>')),
+                helpText(HTML('<em> *Data load may take several moments.</em>'))
+            ),
             box(width = 7, 
               img(src='lostine_rst.jpg', width = '100%', height='auto') 
                 )
@@ -111,46 +92,38 @@ body <- dashboardBody(
           fluidRow(
             box(title = "Total Carcasses by Year", width = 12,
                 plotlyOutput('p_carcass'))
-          ),
-          fluidRow(
-            box(title = "Escapement by Year", width = 6),
-            box(title = "Adult Age Composition", width = 6)
-          )
+          )#,
+          # fluidRow(
+          #   box(title = "Escapement by Year", width = 6),
+          #   box(title = "Adult Age Composition", width = 6)
+          # )
   ),
   
   # Weir Collections Summaries Tab ----
-  tabItem(tabName = 'tab_weir',
-          fluidRow(
-            inputsKusUI(id = 'weir', box_title = 'Weir Summary Inputs:'),
-            box(width = 7, 
-                img(src='lostine_rst.jpg', width = '100%', height='auto') 
-            )
-          )
-  ),
+  # tabItem(tabName = 'tab_weir),
           
   # In-Stream Array Abundance Summaries Tab ----
-  tabItem(tabName = 'tab_array',
-          fluidRow(
-            inputsKusUI(id = 'array', box_title = 'In-stream Array Summary Inputs:'),
-            box(width = 7, 
-                img(src='lostine_rst.jpg', width = '100%', height='auto') 
-            )
-          )
-          ),
+  # tabItem(tabName = 'tab_array'),
           
   # Juvenile Monitoring Summaries Tab ----
   tabItem(tabName = 'tab_juv',
           fluidRow(
-            inputsKusUI(id = 'juv', box_title = 'Juvenile Summary Inputs:'),
+            box(title = 'Juvenile Summaries', status='info', width= 5,
+                uiOutput(outputId = 'juv_species'),
+                uiOutput(outputId = 'juv_pop_name'),
+                uiOutput(outputId = 'juv_btn_summary', style = 'text-align:center;'),
+                helpText(HTML('<em> *Not all Species/Population combinations will return data.</em>')),
+                helpText(HTML('<em> *Data load may take several moments.</em>'))
+            ),
             box(width = 7, 
                 img(src='lostine_rst.jpg', width = '100%', height='auto') 
             )
           ),
           fluidRow(
-            box(title = "Juvenile Abundance Estimates", width = 12, plotlyOutput('j_abundance'))
+            box(title = "Natural Juvenile Abundace Estimates", width = 12, plotlyOutput('j_abundance'))
                   ),
           fluidRow(
-            box(title = "Survival Estimates to Lower Granite Dam", width = 12, plotlyOutput('j_survival'))
+            box(title = "Natural Juvenile Survival Estimates to Lower Granite Dam", width = 12, plotlyOutput('j_survival'))
                   )#,
           # fluidRow(
           #   box(title = "Smolt Equivalents", width = 6),
@@ -183,7 +156,7 @@ body <- dashboardBody(
                        uiOutput(outputId = 'q_datasets'),
                        uiOutput(outputId = 'btn_q_datasets', style = 'text-align:center;'),
                        helpText(HTML('<em> * Note: This step may take several minutes. </em>'), style = 'text-align:center;'),
-                       helpText(HTML('<em> ** Clicking this button will always result in a wait time for data retrieval.<em>'), style = 'text-align:center;'),
+                       helpText(HTML('<em> ** Clicking this button will always result in a wait time for data retrieval.</em>'), style = 'text-align:center;'),
                        hr(),
                        uiOutput(outputId = 'q_species')
                        ),

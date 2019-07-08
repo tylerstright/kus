@@ -79,11 +79,6 @@ p {font-family: "Arial Narrow";
   /*border-bottom: 1px solid rgb(0, 0, 0); */
 }
 
-
-/* hr {
-  color: black;
-} */
-
 .kusbg {
   width: 1728px; 
   height: 100vh;
@@ -102,5 +97,4 @@ p {font-family: "Arial Narrow";
 @media screen and (max-width:900px) {
   .kusbg{ background-size: 900px auto;} /*900px is the image original width */
 }
-
 
