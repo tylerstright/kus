@@ -22,7 +22,10 @@ source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
 source('./R/cdms_api_keys.R')
 
-cdmsKeys()
+keys <- cdmsKeys()
+cdms_host <- keys[1]
+username <- keys[2]
+api_key <- keys[3]
 
 # Javascript for "Enter" button ----
 jscode <- '
