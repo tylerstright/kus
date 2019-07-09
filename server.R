@@ -198,7 +198,8 @@ server <- function(input, output, session) {
   # Spawning Ground Surveys Summaries Tab ----
 
   observeEvent(input$sgs_submit, {
-    
+   
+  disable(id = 'sgs_submit')
   shinyjs::show(id='sgs_spinner')
   
   # Get Redd data
@@ -253,6 +254,7 @@ server <- function(input, output, session) {
     })
     
     shinyjs::hide(id='sgs_spinner')
+    enable(id = 'sgs_submit')
     
   })
 
@@ -264,6 +266,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$juv_submit, {
     
+    disable(id = 'juv_submit')
     shinyjs::show(id='juv_spinner')
     
     # Get Abundance data
@@ -295,7 +298,7 @@ server <- function(input, output, session) {
                            color = ~POP_NAME,
                            colors = viridis_pal(option="D")(length(unique(ja_df$POP_NAME)))
       ) %>%
-        layout(separators = ',')
+        layout(yaxis= list(hoverformat= ',.'))
     })
     
     # Natural Juvenile Survival
@@ -321,6 +324,7 @@ server <- function(input, output, session) {
     })
   
     shinyjs::hide(id='juv_spinner')
+    enable(id= 'juv_submit')
     
   })
   
@@ -351,6 +355,7 @@ server <- function(input, output, session) {
     # get the full dataset view
   raw_dat <- eventReactive(input$raw_submit,{
     
+    disable(id = 'raw_submit')
     shinyjs::show(id='datasets_spinner')
     
     if(input$datasets != 999 & input$datasets != 998) {  
@@ -364,6 +369,7 @@ server <- function(input, output, session) {
     }
     
     shinyjs::hide(id='datasets_spinner')
+    enable(id = 'raw_submit')
     
   }) 
   
@@ -402,6 +408,7 @@ server <- function(input, output, session) {
     # match selected Dataset to datastore_df$Id
     ds_Id <- datastore_df$Id[match(input$q_datasets, datastore_df$Name)]
     
+    disable(id='btn_q_datasets')
     shinyjs::show(id='query_spinner')
     
     # Load the Big Dataset and populate the first selectInput(species)
@@ -451,6 +458,7 @@ server <- function(input, output, session) {
     }
     
     shinyjs::hide(id='query_spinner')
+    enable(id='btn_q_datasets')
     
   })
   
