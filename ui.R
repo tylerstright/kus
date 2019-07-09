@@ -81,7 +81,7 @@ body <- dashboardBody(
                             selected= 'East Fork South Fork Salmon River'),
                 fluidRow(
                   column(9, actionButton(inputId = 'sgs_submit', label = 'Populate Summaries', icon = icon('table'), style = 'float:right;')),
-                  column(1, hidden(div(id='sgs_spinner', img(src='spinner.gif', style = 'height:30px;'))))
+                  column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px;'))))
                 ),
                 helpText(HTML('<em> *Not all Species/Population combinations will return data.</em>')),
                 helpText(HTML('<em> *Data load may take several moments.</em>'))
@@ -120,7 +120,7 @@ body <- dashboardBody(
                             selected = 'East Fork South Fork Salmon River', multiple = FALSE),
                 fluidRow(
                   column(9, actionButton(inputId = 'juv_submit', label = 'Populate Summaries', icon = icon('table'), style = 'float:right;')),
-                  column(1, hidden(div(id='juv_spinner', img(src='spinner.gif', style = 'height:30px;'))))
+                  column(1, hidden(div(id='juv_spinner', img(src='Fish.gif', style = 'height:30px;'))))
                 ),
                 helpText(HTML('<em> *Not all Species/Population combinations will return data.</em>')),
                 helpText(HTML('<em> *Data load may take several moments.</em>'))
