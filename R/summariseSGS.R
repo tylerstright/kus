@@ -19,7 +19,7 @@ summariseSGS <- function() {
   # Summarise Redd Data ---- 
 tmp_reddsum <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
   distinct(ActivityId, .keep_all = TRUE) %>%
-  mutate(SpeciesRun = paste(Run, SpeciesName),
+  mutate(SpeciesRun = paste(Run, Species),
          SurveyYear = year(SurveyDate)) %>%
   group_by(SurveyYear, POP_NAME, SpeciesRun) %>%
   summarise(TotalRedds = sum(NewRedds, na.rm=TRUE))

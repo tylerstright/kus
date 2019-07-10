@@ -23,14 +23,14 @@ sidebar <- dashboardSidebar(
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
-               # menuSubItem('Weir Collections', tabName = 'tab_weir'),
-               # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
+               menuSubItem('Weir Collections', tabName = 'tab_weir'),
+               menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
                menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')
                ),
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuSubItem('CDMS Datasets', tabName = 'tab_cdms'),
-               menuSubItem('Custom Queries', tabName = 'tab_queries')#,
-               # menuSubItem('Reports', tabName = 'tab_reports')
+               menuSubItem('Custom Queries', tabName = 'tab_queries'),
+               menuSubItem('Reports', tabName = 'tab_reports')
                ),
       br(), br(), br(), br(), br(), # spacers.
       img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;') # DFRM Logo
@@ -62,13 +62,7 @@ body <- dashboardBody(
                 box(status = 'info', width = 12, 
                     img(src='chinook.jpg', width = '100%', height = 'auto'))
                 )
-              ),
-              fluidRow(
-                column(12,
-                       helpText(HTML("<em> Please contact tylers@nezperce.org with any questions, comments, requests, or recommendations for the Nez Perce Tribe's Kus web application. </em>"),  
-                                width = '100%', style='color:black; text-align:center;')
-                      )
-                )
+              )
             ),
 
   # Spawning Ground Survey Summaries Tab ----
@@ -105,10 +99,18 @@ body <- dashboardBody(
   ),
   
   # Weir Collections Summaries Tab ----
-  # tabItem(tabName = 'tab_weir),
+  tabItem(tabName = 'tab_weir',
+          fluidRow(
+            box(title = 'Weir Collection Summaries',
+                helpText('Sorry! This page is currently under contruction. Our Data Nerd is working on it.'))
+          )),
           
   # In-Stream Array Abundance Summaries Tab ----
-  # tabItem(tabName = 'tab_array'),
+  tabItem(tabName = 'tab_array',
+          fluidRow(
+            box(title = 'Weir Collection Summaries',
+                helpText('Sorry! This page is currently under contruction. Our Data Nerd is working on it.'))
+          )),
           
   # Juvenile Monitoring Summaries Tab ----
   tabItem(tabName = 'tab_juv',
@@ -145,47 +147,56 @@ body <- dashboardBody(
     # CDMS Datasets
       tabItem(tabName = 'tab_cdms',
               box(width = 12, 
-              fluidRow(column(3, uiOutput("raw_dataset_menu"))
+              fluidRow(column(4, uiOutput("raw_dataset_menu"),
+                              helpText(HTML("<em> Select the desired dataset and click submit query. </em>"), style = 'text-align:center;'),
+                              fluidRow(
+                                column(8, offset = 2, actionButton("raw_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%')),
+                                column(2, hidden(div(id='datasets_spinner',img(src='Fish.gif', style = 'height:30px'))))
+                                      ),
+                              uiOutput(outputId = 'q_species')
+                              ),
+                       column(4, uiOutput(outputId = 'q_pop_name'),
+                                 uiOutput(outputId = 'q_stream'),
+                                 uiOutput(outputId = 'q_locationlabel'),
+                                 uiOutput(outputId = 'q_year')
+                              ), 
+                       column(4, uiOutput('dataset_fields'),
+                                 uiOutput('datasetfield_submit') 
+                              )
               ),
-              fluidRow(column(4, helpText("Select the desired dataset then the project, stream and locations of interest and click submit query.")),
-                       column(2, offset = 2, align = "center",
-                              actionButton("raw_submit", label = "Submit Query")),
-                       column(1, hidden(div(id='datasets_spinner',img(src='spinner.gif', style = 'height:30px')))),
-                       column(2, align = "center",
-                              downloadButton("raw_export", label = "Export .CSV File"))
-                       ),
               hr(),
+              fluidRow(column(12, align = "center", hidden(downloadButton("raw_export", label = "Export .CSV File")))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
               )
       ),
     # Custom Queries
       tabItem(tabName = 'tab_queries',
-              fluidRow(
-                box(width = 12, height = 'auto',
-                    fluidRow(
-                      column(4,
-                       uiOutput(outputId = 'q_datasets'),
-                       fluidRow(
-                         column(9, actionButton(inputId = 'btn_q_datasets', label = 'Pull Dataset *', icon = icon('hourglass-start'), style = 'float:right;')),
-                         column(1, hidden(div(id='query_spinner',img(src='spinner.gif', style = 'height:30px'))))
-                         ),
-                       helpText(HTML('<em> * Note: This step may take several minutes. </em>'), style = 'text-align:center;'),
-                       helpText(HTML('<em> ** Clicking this button will always result in a wait time for data retrieval.</em>'), style = 'text-align:center;'),
-                       hr(),
-                       uiOutput(outputId = 'q_species')
-                       ),
-                       column(4,
-                       uiOutput(outputId = 'q_pop_name'),
-                       uiOutput(outputId = 'q_stream')
-                       ),
-                       column(4,
-                       uiOutput(outputId = 'q_locationlabel'),
-                       uiOutput(outputId = 'q_year'),
-                       uiOutput(outputId = 'btn_query_summary', style = 'text-align:center;')
-                       )
-                    )
-                )
-              ),
+              # fluidRow(
+              #   box(width = 12, height = 'auto',
+              #       fluidRow(
+              #         column(4,
+              #          uiOutput(outputId = 'q_datasets'),
+              #          fluidRow(
+              #            column(9, actionButton(inputId = 'btn_q_datasets', label = 'Pull Dataset *', icon = icon('hourglass-start'), style = 'float:right;')),
+              #            column(1, hidden(div(id='query_spinner',img(src='Fish.gif', style = 'height:30px'))))
+              #            ),
+              #          helpText(HTML('<em> * Note: This step may take several minutes. </em>'), style = 'text-align:center;'),
+              #          helpText(HTML('<em> ** Clicking this button will always result in a wait time for data retrieval.</em>'), style = 'text-align:center;'),
+              #          hr(),
+              #          uiOutput(outputId = 'q_species')
+              #          ),
+              #          column(4,
+              #          uiOutput(outputId = 'q_pop_name'),
+              #          uiOutput(outputId = 'q_stream')
+              #          ),
+              #          column(4,
+              #          uiOutput(outputId = 'q_locationlabel'),
+              #          uiOutput(outputId = 'q_year'),
+              #          uiOutput(outputId = 'btn_query_summary', style = 'text-align:center;')
+              #          )
+              #       )
+              #   )
+              # ),
               fluidRow(
                 box(width = 12,
                        downloadButton("query_export", label = "Export .CSV File", style = 'text-align:center;'),
@@ -195,7 +206,11 @@ body <- dashboardBody(
               )
         ),
     # Reports
-      tabItem(tabName = 'tab_reports')
+      tabItem(tabName = 'tab_reports',
+              fluidRow(
+                box(title = 'Reports!',
+                    helpText('Sorry! This page is currently under construction. Come back later!'))
+              ))
   
     ) #tabItems
   ) #dashboardBody

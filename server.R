@@ -3,12 +3,12 @@ server <- function(input, output, session) {
   # Hide & show Tabs based on login status ----
   observe({
     if(is.null(login_status)) {
-      hideElement(selector = "ul li:eq(9)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
+      hideElement(selector = "ul li:eq(11)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
     } else {
       if(status_code(login_status) != 200) {
-        hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
+        hideElement(selector = "ul li:eq(11)", anim= TRUE) # change as tabs are included in sidebar
       } else {
-        showElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(11)", anim= TRUE) # change as tabs are included in sidebar
         }
     }
   })
@@ -30,7 +30,7 @@ server <- function(input, output, session) {
     # Logout
   observeEvent(input$logout_link, {
     login_status <<- NULL
-    hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
+    hideElement(selector = "ul li:eq(11)", anim= TRUE) # change as tabs are included in sidebar
     output$login_logout <- renderUI({actionLink('login_link', '[Sign In]', icon = icon('sign-in-alt'), style = 'color: white;')}) 
   })
   
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
         ))
       } else {
         removeModal()
-        showElement(selector = "ul li:eq(9)") # change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(11)") # change as tabs are included in sidebar
         output$login_logout <- renderUI({
           actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
                     icon = icon('sign-out-alt'), style = 'color: white;')
@@ -349,48 +349,112 @@ server <- function(input, output, session) {
     datasets_ls <- as.list(dataset[,1])
   
     names(datasets_ls) <- dataset[,2]
-    selectInput("datasets", h3("Choose Data Type:"), choices = datasets_ls, selectize = TRUE)
+    selectInput("datasets", label = 'Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
   }) 
   
     # get the full dataset view
-  raw_dat <- eventReactive(input$raw_submit,{
-    
-    disable(id = 'raw_submit')
-    shinyjs::show(id='datasets_spinner')
-    
-    if(input$datasets != 999 & input$datasets != 998) {  
-      getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
+  raw_dat_function <- eventReactive(input$raw_submit,{
+    if(input$datasets != 999 & input$datasets != 998) {
+      raw_dat <- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
     } else {
       if(input$datasets != 998) {
-      summariseSGS()
-    } else {
-        summariseRST()
+        raw_dat <- summariseSGS()
+      } else {
+        raw_dat <- summariseRST()
+      }
+    }
+  })
+  
+  observeEvent(input$raw_submit,{
+
+    disable(id = 'raw_submit')
+    shinyjs::show(id='datasets_spinner')
+    # shinyjs::hide(id='q_species')  # ARE THESE CORRECT???
+    # shinyjs::hide(id='q_pop_name')
+    # shinyjs::hide(id='q_stream')
+    # shinyjs::hide(id='q_locationlabel')
+    # shinyjs::hide(id='q_year')
+    shinyjs::hide(id='dataset_field_select')
+    shinyjs::hide(id='dataset_field_submit')
+    shinyjs::hide(id='raw_export')
+    shinyjs::hide(id='raw_table')
+    shinyjs::hide(id=)
+    
+    
+    # Loop! Waiting for data load.  (So elegant!)
+    i <- 1
+    while(i < 1000) {
+
+      delay(ms= 1000, i <- i+1)
+
+      if(exists(x= 'raw_dat_function', mode = 'function') == FALSE) { # if raw_dat_function() DOESN'T exist, then add to 'i' and continue loop
+        NULL
+      } else { # until it DOES exist, then continue on and break the loop.
+        
+        raw_dat <- raw_dat_function() # change function into a dataframe.
+        raw_dat_fields <- names(raw_dat) # get list of fields.
+
+        output$dataset_fields <- renderUI({
+          selectInput(inputId = 'dataset_field_select', label = 'Choose Fields in Desired Order:', choices = raw_dat_fields, selectize = TRUE, multiple = TRUE)
+        })
+
+        output$datasetfield_submit <- renderUI({
+          actionButton(inputId = 'dataset_field_submit', label = 'Populate Table', width = '100%', icon = icon('table'))
+        })
+
+        shinyjs::hide(id='datasets_spinner')
+        shinyjs::show(id='dataset_field_select')
+        shinyjs::show(id='dataset_field_submit')
+        enable(id = 'raw_submit')
+
+        break # (stop the loop)
       }
     }
     
-    shinyjs::hide(id='datasets_spinner')
-    enable(id = 'raw_submit')
-    
-  }) 
+  })
   
+  # Apply Select statement to data and produce datatable on submit
+    observeEvent(input$dataset_field_submit, {
+      
+      shinyjs::show(id='raw_export')
+      shinyjs::show(id='raw_table')
+      
+      # prep data
+      if(is.null(input$dataset_field_select)) {
+        raw_dat <- raw_dat_function() # change function into a dataframe. (again)
+      } else {
+      raw_dat <- raw_dat_function() %>%
+        select(input$dataset_field_select)
+    }
+      # create table
+      output$raw_table <- DT::renderDataTable({
+        DT::datatable(raw_dat, options = list(orderClasses = TRUE), filter = 'top')
+      })
+
+    })
+  
+  final_dataset_df <- eventReactive(input$dataset_field_submit,{
+    # prep data
+    if(is.null(input$dataset_field_select)) {
+      raw_dat <- raw_dat_function() # change function into a dataframe. (again)
+    } else {
+      raw_dat <- raw_dat_function() %>%
+        select(input$dataset_field_select)
+    }
+  })
+
     # Dataset EXPORT
   output$raw_export <- downloadHandler(
     filename = function() {
       paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(raw_dat(), file, row.names = FALSE)
+      write.csv(final_dataset_df(), file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
   
-    # Dataset Data Table
-  output$raw_table <- DT::renderDataTable({
-    tmp_df <- raw_dat()
-    DT::datatable(tmp_df, options = list(orderClasses = TRUE), filter = 'top')
-  })
-  
-  # Custom Queries ----
+   # Custom Queries ----
   
     # Dataset selection
   if(html_code == 200){
