@@ -2,9 +2,6 @@
 #'
 #' @description Combine CDMS RST Abundance and Survival Summaries, calculate Equivalents.
 #'
-#' @param rst_abundance RST Abundance Data : dsv_85
-#' @param rst_survival RST Survival Data : dsv_86
-#'
 #' @author Tyler Stright
 #'
 #' @examples summariseRST() 

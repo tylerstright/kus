@@ -47,49 +47,6 @@ startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
 html_code <- status_code(startup_status)
 user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
-# Startup Data Retrieval from CDMS ----
-  # **** DATA SHOULD NOT BE LOADED ON STARTUP - BAD LOAD TIMES! ****
-
-  # Parsing Transect Information (locations_df exists in kus_static_map_data.Rdata (global.R))
-  # transect_detail <- locations_df %>%
-  #   separate(Description, into = c('Discard', 'Transect Type', 'Transect Length', 'Transect Description'),
-  #            sep = '- ') %>%
-  #   mutate(`Transect Type` = gsub('; Transect Length', '', `Transect Type`),
-  #          `Transect Length` = as.numeric(gsub(' km; Transect Description', '', `Transect Length`))) %>%
-  #   select(Id, Label, `Transect Type`, `Transect Length`, `Transect Description`)
-  
-  # Redd data
-  # dsv_78 <- getDatasetView(datastoreID = 78)
-  # load(file = './data/dsv_78.rda')
-  
-  # Redd + Transect Detail (For SGS Survey Length calculations)
-  # rtd_df <- dsv_78 %>%
-  #   left_join(transect_detail, by = c('LocationId'= 'Id', 'LocationLabel' = 'Label'))
-  
-  # Carcass data
-  # dsv_79 <- getDatasetView(datastoreID = 79)
-  # load(file = './data/dsv_79.rda')
-  
-  # Age data
-  # dsv_80 <- getDatasetView(datastoreID = 80)
-  # load(file = './data/dsv_80.rda')
-  
-  # Juvenile Abundance data
-  # dsv_85 <- getDatasetView(datastoreID = 85)
-  # load(file = './data/dsv_85.rda')
-  
-  # Juvenile Survival data
-  # dsv_86 <- getDatasetView(datastoreID = 86)
-  # load(file = './data/dsv_86.rda')
-  
-  
-  # dataset_count2 <- datasets %>%
-  #   filter(!DatastoreId %in% c(81:84, 88:91)) %>%
-  #   summarise(Total = n()) %>%
-  #   pull()
-  
-  
-
 # Input values for Summary Pages ----
   species_list <- c("Fall Chinook salmon", 
     "Spring/Summer Chinook Salmon",

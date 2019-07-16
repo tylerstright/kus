@@ -47,10 +47,10 @@ body <- dashboardBody(
               fluidRow(
                 column(5,
                 box(status = 'info', width=12, background = 'aqua', # ?validStatuses ?validColors
-                            p(HTML('<em> The Kus web application is intended to provide near real-time data summaries and
+                            p('The Kus web application is intended to provide near real-time data summaries and
                               visualizations to Nez Perce Tribal members and general public. This tool supports Department 
-                              of Fisheries Resources Management staff and Snake Basin fisheries management decisions. </em>')
-                            , style = 'color:black; font-size:1.23vw;')),
+                              of Fisheries Resources Management staff and Snake Basin fisheries management decisions.')
+                            , style = 'color:black; font-size:1.23vw;'),
                        box(status = 'info', width = 12, 
                            img(src='Steelhead.jpg', width = '100%', height='auto')),
                        box(status = 'info', width = 12, 
@@ -144,7 +144,7 @@ body <- dashboardBody(
           ),
           
   # Restricted Data Access Tab ----
-    # CDMS Datasets
+    # CDMS Datasets ----
       tabItem(tabName = 'tab_cdms',
               box(width = 12, 
               fluidRow(column(4, uiOutput("raw_dataset_menu"),
@@ -153,10 +153,10 @@ body <- dashboardBody(
                                 column(8, offset = 2, actionButton("raw_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%')),
                                 column(2, hidden(div(id='datasets_spinner',img(src='Fish.gif', style = 'height:30px'))))
                                       ),
-                              uiOutput(outputId = 'q_species')
+                              uiOutput(outputId = 'q_species'),
+                              uiOutput(outputId = 'q_pop_name')
                               ),
-                       column(4, uiOutput(outputId = 'q_pop_name'),
-                                 uiOutput(outputId = 'q_stream'),
+                       column(4, uiOutput(outputId = 'q_stream'),
                                  uiOutput(outputId = 'q_locationlabel'),
                                  uiOutput(outputId = 'q_year')
                               ), 
@@ -169,43 +169,16 @@ body <- dashboardBody(
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
               )
       ),
-    # Custom Queries
+    # Custom Queries ----
       tabItem(tabName = 'tab_queries',
-              # fluidRow(
-              #   box(width = 12, height = 'auto',
-              #       fluidRow(
-              #         column(4,
-              #          uiOutput(outputId = 'q_datasets'),
-              #          fluidRow(
-              #            column(9, actionButton(inputId = 'btn_q_datasets', label = 'Pull Dataset *', icon = icon('hourglass-start'), style = 'float:right;')),
-              #            column(1, hidden(div(id='query_spinner',img(src='Fish.gif', style = 'height:30px'))))
-              #            ),
-              #          helpText(HTML('<em> * Note: This step may take several minutes. </em>'), style = 'text-align:center;'),
-              #          helpText(HTML('<em> ** Clicking this button will always result in a wait time for data retrieval.</em>'), style = 'text-align:center;'),
-              #          hr(),
-              #          uiOutput(outputId = 'q_species')
-              #          ),
-              #          column(4,
-              #          uiOutput(outputId = 'q_pop_name'),
-              #          uiOutput(outputId = 'q_stream')
-              #          ),
-              #          column(4,
-              #          uiOutput(outputId = 'q_locationlabel'),
-              #          uiOutput(outputId = 'q_year'),
-              #          uiOutput(outputId = 'btn_query_summary', style = 'text-align:center;')
-              #          )
-              #       )
-              #   )
-              # ),
               fluidRow(
                 box(width = 12,
-                       downloadButton("query_export", label = "Export .CSV File", style = 'text-align:center;'),
-                       hr(),
-                       div(style = 'overflow-x: scroll;', DT::dataTableOutput('query_table', width= '50%'))
+                    helpText('This page is a placeholder for custom queries.  Projects and Biologists need to request desired data views or 
+                             summaries and these will be created to meet those needs. Contact the Data Management team with requests or inquiries.')
                 )
               )
         ),
-    # Reports
+    # Reports ----
       tabItem(tabName = 'tab_reports',
               fluidRow(
                 box(title = 'Reports!',
