@@ -29,7 +29,7 @@ sidebar <- dashboardSidebar(
                ),
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuSubItem('CDMS Datasets', tabName = 'tab_cdms'),
-               menuSubItem('Custom Queries', tabName = 'tab_queries'),
+               menuSubItem('Custom Queries', tabName = 'tab_custom'),
                menuSubItem('Reports', tabName = 'tab_reports')
                ),
       br(), br(), br(), br(), br(), # spacers.
@@ -170,12 +170,25 @@ body <- dashboardBody(
               )
       ),
     # Custom Queries ----
-      tabItem(tabName = 'tab_queries',
-              fluidRow(
+      tabItem(tabName = 'tab_custom',
                 box(width = 12,
-                    helpText('This page is a placeholder for custom queries.  Projects and Biologists need to request desired data views or 
-                             summaries and these will be created to meet those needs. Contact the Data Management team with requests or inquiries.')
-                )
+                    helpText(h3('This page is intended to meet the needs of Projects and Biologists to produce desired data views or 
+                             summaries. Please contact the Data Management team with requests or inquiries!'), style = 'text-align:center;'),
+                    hr(),
+                    fluidRow(column(8, selectInput('custom_query_menu', label = NULL,
+                                         choices = query_names, selected = '-Select Custom Query-')),
+                             column(4, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'))
+                    ),
+                    fluidRow(column(12, offset = 1, uiOutput('query_description'))),
+                    fluidRow(column(8, uiOutput('custom_fields')),
+                             column(4, uiOutput('customfield_submit'))
+                             )
+                    # fluidRow(column(12, actionLink('sgs_summary', 'SGS Summary: Combined and summarized Redd and Carcass data by Population.', icon = icon('table')))),
+                    # fluidRow(column(12, actionLink('rst_summary', 'RST Summary: Combined and summarized Abundance and Survival data.', icon = icon('table'))))
+                ),
+              box(width = 12, 
+                  fluidRow(column(12, align = "center", hidden(downloadButton("custom_export", label = "Export .CSV File")))),
+                  div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
               )
         ),
     # Reports ----

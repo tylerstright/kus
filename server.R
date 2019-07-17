@@ -343,7 +343,6 @@ server <- function(input, output, session) {
       select(DatastoreId, DatastoreName) %>%
       distinct(DatastoreId, .keep_all = TRUE) %>%
       filter(!DatastoreId %in% c(81:84, 87:91)) %>%  # removed DM Issues (87) as well
-      add_row(DatastoreId= c(999,998), DatastoreName = c('SGS Summary', 'RST Summary')) %>%
       arrange(DatastoreName)
     
     datasets_ls <- as.list(dataset[,1])
@@ -356,6 +355,7 @@ server <- function(input, output, session) {
   observeEvent(input$raw_submit,{
     # hide/show inputs
     disable(id = 'raw_submit')
+    disable(id = 'datasets')
     shinyjs::show(id='datasets_spinner')
     shinyjs::hide(id='q_species')  
     shinyjs::hide(id='q_pop_name')
@@ -366,21 +366,11 @@ server <- function(input, output, session) {
     shinyjs::hide(id='dataset_field_submit')
     shinyjs::hide(id='raw_export')
     shinyjs::hide(id='raw_table')
-    # remove any existing data.
-    rm(raw_dat, raw_dat1, raw_dat2, raw_dat3, raw_dat4, raw_dat5, raw_dat_final) # not sure this accomplishes anything. 
 
     # Get the full dataset view
-    if(input$datasets != 999 & input$datasets != 998) {
       raw_dat <- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host) %>%
         mutate(SpeciesRun = paste(Run, Species))
-    } else {
-      if(input$datasets != 998) {
-        raw_dat <- summariseSGS()
-      } else {
-        raw_dat <- summariseRST()
-      }
-    }
-    
+
     # Loop! Waiting for data load.  (So elegant!) 
     i <- 1
     while(i < 1000) {
@@ -391,13 +381,13 @@ server <- function(input, output, session) {
         NULL
       } else { # until raw_dat DOES exist
         
-        if(input$datasets %in% c(78, 79, 999)) { # =c("SGS Redd Data", "SGS Carcass Data", "SGS Summary")
+        if(input$datasets %in% c(78, 79)) { # =c("SGS Redd Data", "SGS Carcass Data")
           # Prepare Adult Data (i.e. Survey Date)
           raw_dat1 <<- raw_dat %>%
             mutate(SurveyDate = as_date(SurveyDate),
                    Year = year(SurveyDate))
         } else {
-          if(input$datasets %in% c(85, 86, 998)) { # = c('NPT RST Abundance Estimates', 'NPT Juvenile Survival Estimates', 'RST Summary')
+          if(input$datasets %in% c(85, 86)) { # = c('NPT RST Abundance Estimates', 'NPT Juvenile Survival Estimates')
           # Prepare Juvenile Data (i.e. Brood Year)
           raw_dat1 <<- raw_dat %>%
             mutate(Year = MigratoryYear)
@@ -418,6 +408,7 @@ server <- function(input, output, session) {
         shinyjs::hide(id='datasets_spinner')
         shinyjs::show(id='q_species')
         enable(id = 'raw_submit')
+        enable(id = 'datasets')
 
         break # (stop the loop)
       }
@@ -444,12 +435,10 @@ server <- function(input, output, session) {
   })
   
     # Stream selection ----
-  observeEvent(input$q_pop_name, {   # Summaries don't have stream, locationlabel, so need to go straight to the Year selection after input$pop_name.
+  observeEvent(input$q_pop_name, {
     if(is.null(input$q_pop_name)) {
       NULL
     } else {
-      if(!input$datasets %in% c(998,999)) {# Path for normal datasets (not summaries)
-        
         raw_dat3 <<- raw_dat2 %>%
           filter(POP_NAME %in% input$q_pop_name)
         
@@ -459,36 +448,8 @@ server <- function(input, output, session) {
         })
         
       shinyjs::show(id='q_stream')
-      } else {
-        # Summary Path - Year selection, Field Selection, and Submit Query button ----
-        raw_dat5 <<- raw_dat2 %>%   # raw_dat5 feeds into input$q_year  (no stream or locationlabel)
-          filter(POP_NAME %in% input$q_pop_name)
-        
-        output$q_year <- renderUI({
-          tagList(
-            sliderInput(inputId= 'q_year', label= '4. Choose Year:', min = min(raw_dat5$Year), max = max(raw_dat5$Year), 
-                        value=  c(min(raw_dat5$Year), max(raw_dat5$Year)), sep= '', step = 1),
-            helpText(HTML('<em>*Year is Spawn Year for adult datasets and Migratory Year for juveniles datasets.</em>'), style = 'text-align:center;')
-          )
-        })
-        
-        # Field selectors (Summary Path).
-        raw_dat_fields <- names(raw_dat5) # create field list
-        
-        output$dataset_fields <- renderUI({
-          selectInput(inputId = 'dataset_field_select', label = '5. Choose Fields in Desired Order:', choices = raw_dat_fields, selectize = TRUE, multiple = TRUE)
-        })
-        
-        output$datasetfield_submit <- renderUI({
-          actionButton(inputId = 'dataset_field_submit', label = 'Populate Table', width = '100%', icon = icon('table'))
-        })
-        
-        shinyjs::show(id='q_year')
-        shinyjs::show(id='dataset_field_select')
-        shinyjs::show(id='dataset_field_submit')
-        
+      
       }
-    }
   })
   
     # LocationLabel selection ----
@@ -549,7 +510,7 @@ server <- function(input, output, session) {
       shinyjs::show(id='raw_export')
       shinyjs::show(id='raw_table')
       
-      # prep data
+      # Prep data
       if(is.null(input$dataset_field_select)) {
         raw_dat_final <<- raw_dat5 %>%
           filter(Year %in% input$q_year)
@@ -558,13 +519,14 @@ server <- function(input, output, session) {
         filter(Year %in% input$q_year) %>%
         select(input$dataset_field_select)
     }
-      # create table
+      # Create table
       output$raw_table <- DT::renderDataTable({
         DT::datatable(raw_dat_final, options = list(orderClasses = TRUE), filter = 'top')
       })
 
     })
-  
+    
+    
     # Dataset EXPORT
   output$raw_export <- downloadHandler(
     filename = function() {
@@ -577,6 +539,94 @@ server <- function(input, output, session) {
   )
   
   # Custom Queries ----
+  
+  # Dynamic Description for selected Query
+  output$query_description <- renderText({
+    
+    # match Query with Description and paste value
+    q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
+    
+    paste0("Description: ", q_description)
+    
+  })
+
+
+  # Submit Query Request
+  observeEvent(input$custom_submit, {
+    
+    if(input$custom_query_menu == '-Select Custom Query-') {
+      NULL
+    } else {
+      
+      disable(id='custom_query_menu')
+      disable(id='custom_submit')
+      hide(id='custom_field_select')
+      hide(id='custom_field_submit')
+      hide(id='custom_export')
+      hide(id='custom_table')
+      
+      
+      if(input$custom_query_menu == 'RST Summary') {
+        custom_dat <<- summariseRST()
+      } else {
+        custom_dat <<- summariseSGS() #'SGS Summary'
+      }
+    
+    # Populate Field selector
+      custom_dat_fields <- names(custom_dat) # create field list
+      
+      output$custom_fields <- renderUI({
+        tagList(
+          helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;'),
+          selectInput(inputId = 'custom_field_select', label = NULL, choices = custom_dat_fields, selectize = TRUE, multiple = TRUE)
+        )
+      })
+      
+      output$customfield_submit <- renderUI({
+        tagList(
+          helpText(HTML('<em>Click to apply field selections.</em>'), style='text-align:center;'),
+          actionButton(inputId = 'custom_field_submit', label = 'Populate Table', width = '100%', icon = icon('table'))
+        )
+      })
+      
+
+    enable(id='custom_query_menu')
+    enable(id='custom_submit')
+    show(id='custom_field_select')
+    show(id='custom_field_submit')
+    
+    }
+  })
+  
+  # Apply Field Selection and create Custom Table
+  observeEvent(input$custom_field_submit, {
+    
+    show(id='custom_export')
+    show(id='custom_table')
+    
+    # Prep data
+    if(!is.null(input$custom_field_select)) {
+      custom_dat <<- custom_dat %>%
+        select(input$custom_field_select)
+    } 
+    
+    # Create table
+    output$custom_table <- DT::renderDataTable({
+      DT::datatable(custom_dat, options = list(orderClasses = TRUE), filter = 'top')
+    })
+    
+  })
+  
+  # Dataset EXPORT
+  output$custom_export <- downloadHandler(
+    filename = function() {
+      paste0(input$custom_query_menu,"_custom_query_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(custom_dat, file, row.names = FALSE)
+    },
+    contentType = "text/csv"
+  )
   
   # Reports ----
   

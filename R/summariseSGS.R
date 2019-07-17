@@ -87,8 +87,7 @@ all_carc <- tmp_carcsum %>%
 summary_df <- left_join(tmp_reddsum, phos_tmp, by = c('POP_NAME', 'SurveyYear', 'SpeciesRun')) %>%
     left_join(psm_tmp, by = c('POP_NAME', 'SurveyYear', 'SpeciesRun')) %>%
     left_join(all_carc, by = c('POP_NAME', 'SurveyYear', 'SpeciesRun')) %>%
-    mutate(SurveyDate = paste0(SurveyYear, '-01-01')) %>% # this is needed to jive with Kus.
-    select(SurveyYear, SurveyDate, POP_NAME, SpeciesRun,  TotalRedds, TotalCarcass, `%Females`, pHOS, PrespawnMortality)
+    select(SurveyYear, POP_NAME, SpeciesRun,  TotalRedds, TotalCarcass, `%Females`, pHOS, PrespawnMortality)
   
 
 # Graph Data -

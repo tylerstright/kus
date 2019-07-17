@@ -67,3 +67,10 @@ user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
              "Tucannon River", "Upper North Fork Clearwater", "Upper Selway River", "Upper South Fork Clearwater", 
              "Valley Creek", "Wallowa River", "Wenaha River", "Yankee Fork")
   
+# Custom Query df
+  query_names <- c('-Select Custom Query-', 'RST Summary', 'SGS Summary')
+  
+  query_descriptions <- c('Choose a dataset to see description.', 'Combined Abundance and Survival data summaries.', 'Combined Red and Carcass data summarized by Population.')
+  
+  custom_query_df <- tibble(query_names, query_descriptions)
+  
