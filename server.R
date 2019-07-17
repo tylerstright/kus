@@ -544,6 +544,7 @@ server <- function(input, output, session) {
       NULL
     } else {
       
+      show(id='query_spinner')
       disable(id='custom_query_menu')
       disable(id='custom_submit')
       hide(id='custom_field_select')
@@ -563,16 +564,13 @@ server <- function(input, output, session) {
       
       output$custom_fields <- renderUI({
         tagList(
-          helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;'),
-          selectInput(inputId = 'custom_field_select', label = NULL, choices = custom_dat_fields, selectize = TRUE, multiple = TRUE)
+          selectInput(inputId = 'custom_field_select', label = NULL, choices = custom_dat_fields, selectize = TRUE, multiple = TRUE),
+          helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
         )
       })
       
       output$customfield_submit <- renderUI({
-        tagList(
-          helpText(HTML('<em>Click to apply field selections.</em>'), style='text-align:center;'),
           actionButton(inputId = 'custom_field_submit', label = 'Populate Table', width = '100%', icon = icon('table'))
-        )
       })
       
 
@@ -580,6 +578,7 @@ server <- function(input, output, session) {
     enable(id='custom_submit')
     show(id='custom_field_select')
     show(id='custom_field_submit')
+    hide(id='query_spinner')
     
     }
   })

@@ -175,16 +175,20 @@ body <- dashboardBody(
                     helpText(h3('This page is intended to meet the needs of Projects and Biologists to produce desired data views or 
                              summaries. Please contact the Data Management team with requests or inquiries!'), style = 'text-align:center;'),
                     hr(),
-                    fluidRow(column(8, selectInput('custom_query_menu', label = NULL,
-                                         choices = query_names, selected = '-Select Custom Query-')),
-                             column(4, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'))
-                    ),
-                    fluidRow(column(12, offset = 1, uiOutput('query_description'))),
-                    fluidRow(column(8, uiOutput('custom_fields')),
-                             column(4, uiOutput('customfield_submit'))
+                    fluidRow(column(6, 
+                                    selectInput('custom_query_menu', label = NULL, choices = query_names, selected = '-Select Custom Query-'),
+                                    uiOutput('query_description', style = 'text-align:center;'),
+                                    br(),
+                                    fluidRow(
+                                      column(8, offset=2, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%')),
+                                      column(2, hidden(div(id='query_spinner',img(src='Fish.gif', style = 'height:30px'))))
+                                            )
+                                    ),
+                             column(6, 
+                                    uiOutput('custom_fields'),
+                                    uiOutput('customfield_submit')
+                                    )
                              )
-                    # fluidRow(column(12, actionLink('sgs_summary', 'SGS Summary: Combined and summarized Redd and Carcass data by Population.', icon = icon('table')))),
-                    # fluidRow(column(12, actionLink('rst_summary', 'RST Summary: Combined and summarized Abundance and Survival data.', icon = icon('table'))))
                 ),
               box(width = 12, 
                   fluidRow(column(12, align = "center", hidden(downloadButton("custom_export", label = "Export .CSV File")))),
