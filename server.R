@@ -371,16 +371,6 @@ server <- function(input, output, session) {
       raw_dat <- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host) %>%
         mutate(SpeciesRun = paste(Run, Species))
 
-    # Loop! Waiting for data load.  (So elegant!) 
-    i <- 1
-    while(i < 1000) {
-
-      delay(ms= 1000, i <- i+1)
-
-      if(exists(x= 'raw_dat') == FALSE) { # if raw_dat DOESN'T exist -> loop continues.
-        NULL
-      } else { # until raw_dat DOES exist
-        
         if(input$datasets %in% c(78, 79)) { # =c("SGS Redd Data", "SGS Carcass Data")
           # Prepare Adult Data (i.e. Survey Date)
           raw_dat1 <<- raw_dat %>%
@@ -410,10 +400,6 @@ server <- function(input, output, session) {
         enable(id = 'raw_submit')
         enable(id = 'datasets')
 
-        break # (stop the loop)
-      }
-    }
-    
   })
   
     # POP_NAME Selection
