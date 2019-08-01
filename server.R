@@ -3,12 +3,12 @@ server <- function(input, output, session) {
   # Hide & show Tabs based on login status ----
   observe({
     if(is.null(login_status)) {
-      hideElement(selector = "ul li:eq(11)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
+      hideElement(selector = "ul li:eq(12)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
     } else {
       if(status_code(login_status) != 200) {
-        hideElement(selector = "ul li:eq(11)", anim= TRUE) # change as tabs are included in sidebar
+        hideElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
       } else {
-        showElement(selector = "ul li:eq(11)", anim= TRUE) # change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
         }
     }
   })
@@ -30,7 +30,7 @@ server <- function(input, output, session) {
     # Logout
   observeEvent(input$logout_link, {
     login_status <<- NULL
-    hideElement(selector = "ul li:eq(11)", anim= TRUE) # change as tabs are included in sidebar
+    hideElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
     output$login_logout <- renderUI({actionLink('login_link', '[Sign In]', icon = icon('sign-in-alt'), style = 'color: white;')}) 
   })
   
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
         ))
       } else {
         removeModal()
-        showElement(selector = "ul li:eq(11)") # change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(12)") # change as tabs are included in sidebar
         output$login_logout <- renderUI({
           actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
                     icon = icon('sign-out-alt'), style = 'color: white;')
@@ -95,106 +95,7 @@ server <- function(input, output, session) {
 
   
   # HOME Tab ----
-  
-  # SGS Miles Surveyed
-  # output$sgs_totalmiles <- renderValueBox({
-  #   
-  #   total_mi <- rtd_df %>%
-  #     distinct(ActivityId, .keep_all = TRUE) %>%
-  #     summarise(Total = round(sum(`Transect Length`, na.rm=TRUE), 0)) %>%
-  #     pull()
-  #   
-  #   valueBox(
-  #     value = prettyNum(total_mi, big.mark = ","), 
-  #     subtitle ='Total Stream Kilometers Surveyed', 
-  #     icon = icon('binoculars', lib = 'font-awesome'), 
-  #     color ='aqua')
-  # })
-  # output$sgs_groundmiles <- renderValueBox({
-  #   
-  #   ground_mi <- rtd_df %>%
-  #     distinct(ActivityId, .keep_all = TRUE) %>%
-  #     filter(SurveyMethod == 'Ground') %>%
-  #     summarise(Total = round(sum(`Transect Length`, na.rm=TRUE), 0)) %>%
-  #     pull()
-  #   
-  #   valueBox(
-  #     value = prettyNum(ground_mi, big.mark = ","), 
-  #     subtitle ='Stream Kilometers Surveyed on Foot', 
-  #     icon = icon('walking', lib = 'font-awesome'), 
-  #     color ='light-blue')
-  # })
-  # output$sgs_airmiles <- renderValueBox({
-  #   air_mi <- rtd_df %>%
-  #     distinct(ActivityId, .keep_all = TRUE) %>%
-  #     filter(SurveyMethod == 'Helicopter') %>%
-  #     summarise(Total = round(sum(`Transect Length`, na.rm=TRUE), 0)) %>%
-  #     pull()
-  #   
-  #   valueBox(
-  #     value = prettyNum(air_mi, big.mark = ","),
-  #     subtitle ='Stream Kilometers Surveyed by Helicopter', 
-  #     icon = icon('helicopter', lib = 'font-awesome'), # helicopter or plane
-  #     color ='teal')
-  # })
-  
-  # Project Count
-    # Get Projects
-      # projects <- getProjects(cdms_host = "https://cdms.nptfisheries.org")
-    # Create datatable for Project Count Modal
-  # output$project_dt <- renderTable({
-  #   project_list <- projects %>%
-  #     pull(Name)
-  # })
-    # Project Count valueBox
-  # output$project_count <- renderInfoBox({
-  #   project_count <- projects %>%
-  #     summarise(Total = n()) %>%
-  #     pull()
-  #   
-  #   infoBox(value = project_count,
-  #           color = 'aqua',
-  #           title = HTML("<b>Number of NPT Projects</b><a id=\"project_count_btn\" href=\"#\" class=\"action-button\">
-  #    <i class=\"fa fa-question-circle\"></i>
-  #                           
-  #                           </a>")
-  #   )
-  # })
-    # Show Project Count Modal on click
-  # observeEvent(input$project_count_btn, {
-  #   toggleModal(session, "project_count_modal", "open")
-  # })
-  # 
-  # NPT Datastores Count
 
-    # Create datatable for Datastore Count Modal
-  # output$dataset_dt <- renderTable({
-  #   datasets %>%
-  #     filter(!DatastoreId %in% c(81:84, 88:91)) %>%
-  #     pull(DatastoreName)
-  # })
-    # Datastore Count infoBox
-  # output$dataset_count <- renderInfoBox({
-  #   
-  #   dataset_count <- datasets %>%
-  #     filter(!DatastoreId %in% c(81:84, 88:91)) %>%
-  #     summarise(Total = n()) %>%
-  #     pull()
-  #   
-  #   infoBox(title = HTML("<b>Number of NPT Datastores</b><a id=\"dataset_count_btn\" href=\"#\" class=\"action-button\">
-  #    <i class=\"fa fa-question-circle\"></i>
-  #                        
-  #                        </a>"), 
-  #           value = dataset_count,
-  #           color = 'aqua'
-  #   )
-  # })
-
-    # Show Datastore Count Modal on click
-  # observeEvent(input$dataset_count_btn, {
-  #   toggleModal(session, "dataset_count_modal", "open")
-  # })
-  
   # Spawning Ground Surveys Summaries Tab ----
 
   observeEvent(input$sgs_submit, {
@@ -326,6 +227,28 @@ server <- function(input, output, session) {
     shinyjs::hide(id='juv_spinner')
     enable(id= 'juv_submit')
     
+  })
+  
+  # Age Samples Tab ----
+  observeEvent(input$age_summary_btn, {
+    shinyjs::disable(id='age_summary_btn')
+    shinyjs::show(id='age_spinner')
+  
+  age_graphs <- summariseAGE() 
+  
+  output$age_total <- renderPlotly({
+    age_graphs[[1]]
+  }) 
+  
+  output$age_ocean <- renderPlotly({
+    age_graphs[[2]]
+  })  
+  
+  output$age_stream <- renderPlotly({
+    age_graphs[[3]]
+  })
+  
+    shinyjs::hide(id='age_spinner')
   })
   
   # Restricted Data Access Tab ----

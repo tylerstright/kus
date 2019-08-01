@@ -20,6 +20,7 @@ library(cdmsR)
 # Source
 source('./R/summariseSGS.R')
 source('./R/summariseRST.R')
+source('./R/summariseAGE.R')
 source('./R/cdms_api_keys.R')
 
 keys <- cdmsKeys()

@@ -25,7 +25,8 @@ sidebar <- dashboardSidebar(
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
                menuSubItem('Weir Collections', tabName = 'tab_weir'),
                menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
-               menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')
+               menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
+               menuSubItem('Age Sampling', tabName = 'tab_age')
                ),
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuSubItem('CDMS Datasets', tabName = 'tab_cdms'),
@@ -143,6 +144,27 @@ body <- dashboardBody(
           # )
           ),
           
+  # Age Sampling Tab ----
+      tabItem(tabName = 'tab_age',
+              box(width = 12, 
+                  fluidRow(
+                    column(2, offset = 5, actionButton('age_summary_btn', label = 'Populate Age Summaries', icon = icon('table'))),
+                    column(1, hidden(div(id='age_spinner',img(src='Fish.gif', style = 'height:30px'))))
+                          ),
+                  br(), hr(), 
+                  fluidRow(column(12, plotlyOutput('age_total')))
+                  ),
+              fluidRow(
+              box(width = 6,
+                  title = 'Ocean Age',
+                  fluidRow(column(12, plotlyOutput('age_stream')))
+                  ),
+              box(width = 6, 
+                  title = 'Stream Age',
+                  fluidRow(column(12, plotlyOutput('age_ocean')))
+                  ) 
+                )
+              ), # tab
   # Restricted Data Access Tab ----
     # CDMS Datasets ----
       tabItem(tabName = 'tab_cdms',
