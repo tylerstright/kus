@@ -97,23 +97,56 @@ server <- function(input, output, session) {
   # HOME Tab ----
 
   # Spawning Ground Surveys Summaries Tab ----
+  
+  # Load SGS (Redd & Carcass) data
+  observeEvent(input$sgs_dataload, {
+    disable(id = 'sgs_dataload')
+    shinyjs::show(id='sgs_spinner')
 
-  observeEvent(input$sgs_submit, {
+   # Get Redd data
+   tmp_redd_df <<- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
+     mutate(Year = year(SurveyDate),
+            SpeciesRun = paste(Run, Species))
+
+   # Get Carcass data
+   tmp_carcass_df <<- getDatasetView(datastoreID = 79, cdms_host = cdms_host) %>%
+     mutate(Year = year(SurveyDate),
+            SpeciesRun = paste(Run, Species))
+
+   sgs_pop_list_full <<- tmp_redd_df %>%
+     select(SpeciesRun, POP_NAME) %>%
+     bind_rows(tmp_carcass_df %>% select(SpeciesRun, POP_NAME)) %>%
+     group_by(SpeciesRun, POP_NAME) %>%
+     filter(POP_NAME != 'NA') %>%
+     dplyr::distinct(POP_NAME) %>%
+     arrange(POP_NAME)
    
-  disable(id = 'sgs_submit')
-  shinyjs::show(id='sgs_spinner')
+   sgs_species_list <- as.list(unique(sgs_pop_list_full$SpeciesRun))
+
+   output$sgs_species <- renderUI({
+   selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= sgs_species_list, selectize= FALSE,
+                      selected = 'Fall Chinook Salmon', multiple = FALSE)
+   })
+
+  hide(id= 'sgs_spinner')
+  })
   
-  # Get Redd data
-  tmp_redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
-    mutate(Year = year(SurveyDate),
-           SpeciesRun = paste(Run, Species))
-  
-    # Get Carcass data
-    tmp_carcass_df <- getDatasetView(datastoreID = 79, cdms_host = cdms_host) %>%
-      mutate(Year = year(SurveyDate),
-             SpeciesRun = paste(Run, Species))  
+  observeEvent(input$sgs_species, {
     
-    # Total Redds per Year
+  sgs_population_list <- sgs_pop_list_full %>%
+    filter(SpeciesRun == input$sgs_species) %>%
+    pull(POP_NAME)
+
+  output$sgs_pop_name <- renderUI({
+    selectInput(inputId= 'sgs_pop_name', label= 'Choose Population:', choices= sgs_population_list, selectize= FALSE, multiple = FALSE,
+                selected= NULL)
+  })
+
+  })
+
+  observeEvent(input$sgs_pop_name, {
+   
+      # Total Redds per Year
     output$p_redds <- renderPlotly({
       yr_df <- tmp_redd_df %>%
         distinct(ActivityId, .keep_all = TRUE) %>%
@@ -127,9 +160,7 @@ server <- function(input, output, session) {
                            x = ~Year,
                            y = ~TotalRedds,
                            type = 'scatter',
-                           mode = 'lines+markers'#,
-                           # color = ~POP_NAME,
-                           # colors = viridis_pal(option="D")(length(unique(yr_df$POP_NAME)))
+                           mode = 'lines+markers'
                            ) %>%
         layout(yaxis = list(title= 'Total Redds'))
     })
@@ -154,9 +185,6 @@ server <- function(input, output, session) {
         layout(yaxis = list(title= 'Total Carcasses'))
     })
     
-    shinyjs::hide(id='sgs_spinner')
-    enable(id = 'sgs_submit')
-    
   })
 
   # Weir Collections Summaries Tab ----
@@ -165,20 +193,57 @@ server <- function(input, output, session) {
 
   # Juvenile Monitoring Summaries Tab ----
   
-  observeEvent(input$juv_submit, {
-    
-    disable(id = 'juv_submit')
+  # Load Juvenile Summary data (Abundance & Survival) data
+  observeEvent(input$juv_dataload, {
+    disable(id = 'juv_dataload')
     shinyjs::show(id='juv_spinner')
     
     # Get Abundance data
-    tmp_abundance_df <- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
+    tmp_abundance_df <<- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
+      mutate(Year = MigratoryYear,
+             SpeciesRun = paste(Run, Species))
+
+    # # Get Survival data
+    tmp_survival_df <<- getDatasetView(datastoreID = 86, cdms_host = cdms_host) %>%
       mutate(Year = MigratoryYear,
              SpeciesRun = paste(Run, Species))
     
-    # # Get Survival data
-    tmp_survival_df <- getDatasetView(datastoreID = 86, cdms_host = cdms_host) %>%
-      mutate(Year = MigratoryYear,
-             SpeciesRun = paste(Run, Species))
+    tmp_equivalents_df <<- left_join(tmp_abundance_df, tmp_survival_df, by = c('POP_NAME','Lifestage', 'Year', 'SpeciesRun', 'Origin')) %>%
+      group_by(POP_NAME, Origin, SpeciesRun, Year, Lifestage) %>%
+      mutate(Equivalents = round(Abundance*Survival, digits = 0))
+    
+    juv_pop_list_full <<- tmp_abundance_df %>%
+      select(SpeciesRun, POP_NAME) %>%
+      bind_rows(tmp_survival_df %>% select(SpeciesRun, POP_NAME)) %>%
+      group_by(SpeciesRun, POP_NAME) %>%
+      filter(POP_NAME != 'NA') %>%
+      dplyr::distinct(POP_NAME) %>%
+      arrange(POP_NAME)
+    
+    juv_species_list <- as.list(unique(juv_pop_list_full$SpeciesRun))
+    
+    output$juv_species <- renderUI({
+      selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= juv_species_list, selectize= FALSE, 
+                  selected = 'Fall Chinook Salmon', multiple = FALSE)
+    })
+    
+    hide(id= 'juv_spinner')
+  })
+  
+  observeEvent(input$juv_species, {
+    
+    juv_population_list <- juv_pop_list_full %>%
+      filter(SpeciesRun == input$juv_species) %>%
+      pull(POP_NAME)
+    
+    output$juv_pop_name <- renderUI({
+      selectInput(inputId= 'juv_pop_name', label= 'Choose Population:', choices= juv_population_list, selectize= FALSE, 
+                  selected = 'Snake River Lower Mainstem', multiple = FALSE)
+    })
+    
+  })
+  
+  observeEvent(input$juv_pop_name, {
     
     # Natural Juvenile Abundance
     output$j_abundance <- renderPlotly({
@@ -211,7 +276,7 @@ server <- function(input, output, session) {
                POP_NAME %in% isolate(input$juv_pop_name)) %>%
         arrange(Year)
 
-      ja_plotly <- plot_ly(data = js_df,
+      js_plotly <- plot_ly(data = js_df,
                            x = ~Year,
                            y = ~Survival,
                            type = 'scatter',
@@ -223,10 +288,30 @@ server <- function(input, output, session) {
       ) %>%
         layout(yaxis= list(tickformat = "%"))
     })
-  
-    shinyjs::hide(id='juv_spinner')
-    enable(id= 'juv_submit')
     
+    # Natural Juvenile Equivalents
+    output$j_equivalents <- renderPlotly({
+      je_df <- tmp_equivalents_df %>%
+        filter(!is.na(Equivalents),
+               Origin == 'Natural',
+               SpeciesRun == isolate(input$juv_species),
+               POP_NAME %in% isolate(input$juv_pop_name)) %>%
+        arrange(Year) %>%
+        ungroup()
+      
+      je_plotly <- plot_ly(data = je_df,
+                           x = ~Year,
+                           y = ~Equivalents,
+                           type = 'scatter',
+                           mode = 'lines+markers',
+                           color = ~POP_NAME,
+                           colors = viridis_pal(option="D")(length(unique(je_df$POP_NAME))),
+                           linetype = ~Lifestage
+                           # markers = ~Origin
+      ) %>%
+        layout(yaxis= list(hoverformat= ',.'))
+    })
+  
   })
   
   # Age Samples Tab ----

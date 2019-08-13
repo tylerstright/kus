@@ -70,16 +70,13 @@ body <- dashboardBody(
   tabItem(tabName = 'tab_sgs',
           fluidRow(
             box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
-                selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= species_list, selectize= FALSE, 
-                            selected = 'Spring/Summer Chinook Salmon', multiple = FALSE),
-                selectInput(inputId= 'sgs_pop_name', label= 'Choose Population:', choices= population_list, selectize= FALSE, multiple = FALSE,
-                            selected= 'East Fork South Fork Salmon River'),
                 fluidRow(
-                  column(9, actionButton(inputId = 'sgs_submit', label = 'Populate Summaries', icon = icon('table'), style = 'float:right;')),
-                  column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px;'))))
-                ),
-                helpText(HTML('<em> *Not all Species/Population combinations will return data.</em>')),
-                helpText(HTML('<em> *Data load may take several moments.</em>'))
+                  column(9, actionButton(inputId= 'sgs_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
+                  column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; '))))
+                         ),
+                helpText(HTML('<em> *Initial data load may take several minutes.</em>')),
+                uiOutput(outputId = 'sgs_species'),
+                uiOutput(outputId = 'sgs_pop_name')
             ),
             box(width = 7, 
               img(src='lostine_rst.jpg', width = '100%', height='auto') 
@@ -92,75 +89,68 @@ body <- dashboardBody(
           fluidRow(
             box(title = "Total Carcasses by Year", width = 12,
                 plotlyOutput('p_carcass'))
-          )#,
-          # fluidRow(
-          #   box(title = "Escapement by Year", width = 6),
-          #   box(title = "Adult Age Composition", width = 6)
-          # )
+          )
   ),
   
   # Weir Collections Summaries Tab ----
   tabItem(tabName = 'tab_weir',
           fluidRow(
             box(title = 'Weir Collection Summaries',
-                helpText('Sorry! This page is currently under contruction. Our Data Nerd is working on it.'))
+                helpText('Sorry! This page is currently under contruction.'))
           )),
           
   # In-Stream Array Abundance Summaries Tab ----
   tabItem(tabName = 'tab_array',
           fluidRow(
-            box(title = 'Weir Collection Summaries',
-                helpText('Sorry! This page is currently under contruction. Our Data Nerd is working on it.'))
+            box(title = 'In-Stream Array Summaries',
+                helpText('Sorry! This page is currently under contruction.'))
           )),
           
   # Juvenile Monitoring Summaries Tab ----
   tabItem(tabName = 'tab_juv',
           fluidRow(
             box(title = 'Juvenile Summaries', status='info', width= 5,
-                selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= species_list, selectize= FALSE, 
-                            selected = 'Spring/Summer Chinook Salmon', multiple = FALSE),
-                selectInput(inputId= 'juv_pop_name', label= 'Choose Population:', choices= population_list, selectize= FALSE, 
-                            selected = 'East Fork South Fork Salmon River', multiple = FALSE),
+                
                 fluidRow(
-                  column(9, actionButton(inputId = 'juv_submit', label = 'Populate Summaries', icon = icon('table'), style = 'float:right;')),
-                  column(1, hidden(div(id='juv_spinner', img(src='Fish.gif', style = 'height:30px;'))))
+                  column(9, actionButton(inputId= 'juv_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
+                  column(1, hidden(div(id='juv_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
                 ),
-                helpText(HTML('<em> *Not all Species/Population combinations will return data.</em>')),
-                helpText(HTML('<em> *Data load may take several moments.</em>'))
+                helpText(HTML('<em> *Initial data load may take several minutes.</em>')),
+                uiOutput(outputId = 'juv_species'),
+                uiOutput(outputId = 'juv_pop_name')
             ),
             box(width = 7, 
                 img(src='lostine_rst.jpg', width = '100%', height='auto') 
             )
           ),
           fluidRow(
-            box(title = "Natural Juvenile Abundace Estimates", width = 12, plotlyOutput('j_abundance'))
+            box(title = "Natural Juvenile Abundance Estimates", width = 12, plotlyOutput('j_abundance'))
                   ),
           fluidRow(
             box(title = "Natural Juvenile Survival Estimates to Lower Granite Dam", width = 12, plotlyOutput('j_survival'))
-                  )#,
-          # fluidRow(
-          #   box(title = "Smolt Equivalents", width = 6),
-          #   box(title = "Hatchery Releases", width = 6)
-          # )
+                  ),
+          fluidRow(
+            box(title = "Natural Juvenile Equivalents at Lower Granite Dam", width = 12, plotlyOutput('j_equivalents'))
+                  )
           ),
           
   # Age Sampling Tab ----
       tabItem(tabName = 'tab_age',
               box(width = 12, 
                   fluidRow(
-                    column(2, offset = 5, actionButton('age_summary_btn', label = 'Populate Age Summaries', icon = icon('table'))),
-                    column(1, hidden(div(id='age_spinner',img(src='Fish.gif', style = 'height:30px'))))
+                    column(2, offset = 5, actionButton('age_summary_btn', label = 'Populate Age Summaries', icon = icon('table'))
+                           ),
+                    column(5, hidden(div(id='age_spinner',img(src='Fish.gif', style = 'height:30px'))))
                           ),
-                  br(), hr(), 
+                  helpText(HTML('<em> *Data load may take several minutes.</em>'), style = 'text-align:center;'),
+                  hr(), 
                   fluidRow(column(12, plotlyOutput('age_total')))
                   ),
               fluidRow(
               box(width = 6,
-                  title = 'Ocean Age',
                   fluidRow(column(12, plotlyOutput('age_stream')))
                   ),
               box(width = 6, 
-                  title = 'Stream Age',
                   fluidRow(column(12, plotlyOutput('age_ocean')))
                   ) 
                 )
