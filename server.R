@@ -3,12 +3,12 @@ server <- function(input, output, session) {
   # Hide & show Tabs based on login status ----
   observe({
     if(is.null(login_status)) {
-      hideElement(selector = "ul li:eq(9)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
+      hideElement(selector = "ul li:eq(12)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
     } else {
       if(status_code(login_status) != 200) {
-        hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
+        hideElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
       } else {
-        showElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
         }
     }
   })
@@ -30,7 +30,7 @@ server <- function(input, output, session) {
     # Logout
   observeEvent(input$logout_link, {
     login_status <<- NULL
-    hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
+    hideElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
     output$login_logout <- renderUI({actionLink('login_link', '[Sign In]', icon = icon('sign-in-alt'), style = 'color: white;')}) 
   })
   
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
         ))
       } else {
         removeModal()
-        showElement(selector = "ul li:eq(9)") # change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(12)") # change as tabs are included in sidebar
         output$login_logout <- renderUI({
           actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
                     icon = icon('sign-out-alt'), style = 'color: white;')
@@ -95,123 +95,58 @@ server <- function(input, output, session) {
 
   
   # HOME Tab ----
-  
-  # SGS Miles Surveyed
-  # output$sgs_totalmiles <- renderValueBox({
-  #   
-  #   total_mi <- rtd_df %>%
-  #     distinct(ActivityId, .keep_all = TRUE) %>%
-  #     summarise(Total = round(sum(`Transect Length`, na.rm=TRUE), 0)) %>%
-  #     pull()
-  #   
-  #   valueBox(
-  #     value = prettyNum(total_mi, big.mark = ","), 
-  #     subtitle ='Total Stream Kilometers Surveyed', 
-  #     icon = icon('binoculars', lib = 'font-awesome'), 
-  #     color ='aqua')
-  # })
-  # output$sgs_groundmiles <- renderValueBox({
-  #   
-  #   ground_mi <- rtd_df %>%
-  #     distinct(ActivityId, .keep_all = TRUE) %>%
-  #     filter(SurveyMethod == 'Ground') %>%
-  #     summarise(Total = round(sum(`Transect Length`, na.rm=TRUE), 0)) %>%
-  #     pull()
-  #   
-  #   valueBox(
-  #     value = prettyNum(ground_mi, big.mark = ","), 
-  #     subtitle ='Stream Kilometers Surveyed on Foot', 
-  #     icon = icon('walking', lib = 'font-awesome'), 
-  #     color ='light-blue')
-  # })
-  # output$sgs_airmiles <- renderValueBox({
-  #   air_mi <- rtd_df %>%
-  #     distinct(ActivityId, .keep_all = TRUE) %>%
-  #     filter(SurveyMethod == 'Helicopter') %>%
-  #     summarise(Total = round(sum(`Transect Length`, na.rm=TRUE), 0)) %>%
-  #     pull()
-  #   
-  #   valueBox(
-  #     value = prettyNum(air_mi, big.mark = ","),
-  #     subtitle ='Stream Kilometers Surveyed by Helicopter', 
-  #     icon = icon('helicopter', lib = 'font-awesome'), # helicopter or plane
-  #     color ='teal')
-  # })
-  
-  # Project Count
-    # Get Projects
-      # projects <- getProjects(cdms_host = "https://cdms.nptfisheries.org")
-    # Create datatable for Project Count Modal
-  # output$project_dt <- renderTable({
-  #   project_list <- projects %>%
-  #     pull(Name)
-  # })
-    # Project Count valueBox
-  # output$project_count <- renderInfoBox({
-  #   project_count <- projects %>%
-  #     summarise(Total = n()) %>%
-  #     pull()
-  #   
-  #   infoBox(value = project_count,
-  #           color = 'aqua',
-  #           title = HTML("<b>Number of NPT Projects</b><a id=\"project_count_btn\" href=\"#\" class=\"action-button\">
-  #    <i class=\"fa fa-question-circle\"></i>
-  #                           
-  #                           </a>")
-  #   )
-  # })
-    # Show Project Count Modal on click
-  # observeEvent(input$project_count_btn, {
-  #   toggleModal(session, "project_count_modal", "open")
-  # })
-  # 
-  # NPT Datastores Count
 
-    # Create datatable for Datastore Count Modal
-  # output$dataset_dt <- renderTable({
-  #   datasets %>%
-  #     filter(!DatastoreId %in% c(81:84, 88:91)) %>%
-  #     pull(DatastoreName)
-  # })
-    # Datastore Count infoBox
-  # output$dataset_count <- renderInfoBox({
-  #   
-  #   dataset_count <- datasets %>%
-  #     filter(!DatastoreId %in% c(81:84, 88:91)) %>%
-  #     summarise(Total = n()) %>%
-  #     pull()
-  #   
-  #   infoBox(title = HTML("<b>Number of NPT Datastores</b><a id=\"dataset_count_btn\" href=\"#\" class=\"action-button\">
-  #    <i class=\"fa fa-question-circle\"></i>
-  #                        
-  #                        </a>"), 
-  #           value = dataset_count,
-  #           color = 'aqua'
-  #   )
-  # })
-
-    # Show Datastore Count Modal on click
-  # observeEvent(input$dataset_count_btn, {
-  #   toggleModal(session, "dataset_count_modal", "open")
-  # })
-  
   # Spawning Ground Surveys Summaries Tab ----
+  
+  # Load SGS (Redd & Carcass) data
+  observeEvent(input$sgs_dataload, {
+    disable(id = 'sgs_dataload')
+    shinyjs::show(id='sgs_spinner')
 
-  observeEvent(input$sgs_submit, {
-    
-  shinyjs::show(id='sgs_spinner')
+   # Get Redd data
+   tmp_redd_df <<- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
+     mutate(Year = year(SurveyDate),
+            SpeciesRun = paste(Run, Species))
+
+   # Get Carcass data
+   tmp_carcass_df <<- getDatasetView(datastoreID = 79, cdms_host = cdms_host) %>%
+     mutate(Year = year(SurveyDate),
+            SpeciesRun = paste(Run, Species))
+
+   sgs_pop_list_full <<- tmp_redd_df %>%
+     select(SpeciesRun, POP_NAME) %>%
+     bind_rows(tmp_carcass_df %>% select(SpeciesRun, POP_NAME)) %>%
+     group_by(SpeciesRun, POP_NAME) %>%
+     filter(POP_NAME != 'NA') %>%
+     dplyr::distinct(POP_NAME) %>%
+     arrange(POP_NAME)
+   
+   sgs_species_list <- as.list(unique(sgs_pop_list_full$SpeciesRun))
+
+   output$sgs_species <- renderUI({
+   selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= sgs_species_list, selectize= FALSE,
+                      selected = 'Fall Chinook Salmon', multiple = FALSE)
+   })
+
+  hide(id= 'sgs_spinner')
+  })
   
-  # Get Redd data
-  tmp_redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
-    mutate(Year = year(SurveyDate),
-           SpeciesRun = paste(Run, Species))
-  
-    # Get Carcass data
-    tmp_carcass_df <- getDatasetView(datastoreID = 79, cdms_host = cdms_host) %>%
-      mutate(Year = year(SurveyDate),
-             SpeciesRun = paste(Run, Species))  
+  observeEvent(input$sgs_species, {
     
-    # Total Redds per Year
+  sgs_population_list <- sgs_pop_list_full %>%
+    filter(SpeciesRun == input$sgs_species) %>%
+    pull(POP_NAME)
+
+  output$sgs_pop_name <- renderUI({
+    selectInput(inputId= 'sgs_pop_name', label= 'Choose Population:', choices= sgs_population_list, selectize= FALSE, multiple = FALSE,
+                selected= NULL)
+  })
+
+  })
+
+  observeEvent(input$sgs_pop_name, {
+   
+      # Total Redds per Year
     output$p_redds <- renderPlotly({
       yr_df <- tmp_redd_df %>%
         distinct(ActivityId, .keep_all = TRUE) %>%
@@ -225,9 +160,7 @@ server <- function(input, output, session) {
                            x = ~Year,
                            y = ~TotalRedds,
                            type = 'scatter',
-                           mode = 'lines+markers'#,
-                           # color = ~POP_NAME,
-                           # colors = viridis_pal(option="D")(length(unique(yr_df$POP_NAME)))
+                           mode = 'lines+markers'
                            ) %>%
         layout(yaxis = list(title= 'Total Redds'))
     })
@@ -252,8 +185,6 @@ server <- function(input, output, session) {
         layout(yaxis = list(title= 'Total Carcasses'))
     })
     
-    shinyjs::hide(id='sgs_spinner')
-    
   })
 
   # Weir Collections Summaries Tab ----
@@ -262,19 +193,57 @@ server <- function(input, output, session) {
 
   # Juvenile Monitoring Summaries Tab ----
   
-  observeEvent(input$juv_submit, {
-    
+  # Load Juvenile Summary data (Abundance & Survival) data
+  observeEvent(input$juv_dataload, {
+    disable(id = 'juv_dataload')
     shinyjs::show(id='juv_spinner')
     
     # Get Abundance data
-    tmp_abundance_df <- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
+    tmp_abundance_df <<- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
+      mutate(Year = MigratoryYear,
+             SpeciesRun = paste(Run, Species))
+
+    # # Get Survival data
+    tmp_survival_df <<- getDatasetView(datastoreID = 86, cdms_host = cdms_host) %>%
       mutate(Year = MigratoryYear,
              SpeciesRun = paste(Run, Species))
     
-    # # Get Survival data
-    tmp_survival_df <- getDatasetView(datastoreID = 86, cdms_host = cdms_host) %>%
-      mutate(Year = MigratoryYear,
-             SpeciesRun = paste(Run, Species))
+    tmp_equivalents_df <<- left_join(tmp_abundance_df, tmp_survival_df, by = c('POP_NAME','Lifestage', 'Year', 'SpeciesRun', 'Origin')) %>%
+      group_by(POP_NAME, Origin, SpeciesRun, Year, Lifestage) %>%
+      mutate(Equivalents = round(Abundance*Survival, digits = 0))
+    
+    juv_pop_list_full <<- tmp_abundance_df %>%
+      select(SpeciesRun, POP_NAME) %>%
+      bind_rows(tmp_survival_df %>% select(SpeciesRun, POP_NAME)) %>%
+      group_by(SpeciesRun, POP_NAME) %>%
+      filter(POP_NAME != 'NA') %>%
+      dplyr::distinct(POP_NAME) %>%
+      arrange(POP_NAME)
+    
+    juv_species_list <- as.list(unique(juv_pop_list_full$SpeciesRun))
+    
+    output$juv_species <- renderUI({
+      selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= juv_species_list, selectize= FALSE, 
+                  selected = 'Fall Chinook Salmon', multiple = FALSE)
+    })
+    
+    hide(id= 'juv_spinner')
+  })
+  
+  observeEvent(input$juv_species, {
+    
+    juv_population_list <- juv_pop_list_full %>%
+      filter(SpeciesRun == input$juv_species) %>%
+      pull(POP_NAME)
+    
+    output$juv_pop_name <- renderUI({
+      selectInput(inputId= 'juv_pop_name', label= 'Choose Population:', choices= juv_population_list, selectize= FALSE, 
+                  selected = 'Snake River Lower Mainstem', multiple = FALSE)
+    })
+    
+  })
+  
+  observeEvent(input$juv_pop_name, {
     
     # Natural Juvenile Abundance
     output$j_abundance <- renderPlotly({
@@ -295,7 +264,7 @@ server <- function(input, output, session) {
                            color = ~POP_NAME,
                            colors = viridis_pal(option="D")(length(unique(ja_df$POP_NAME)))
       ) %>%
-        layout(separators = ',')
+        layout(yaxis= list(hoverformat= ',.'))
     })
     
     # Natural Juvenile Survival
@@ -307,7 +276,7 @@ server <- function(input, output, session) {
                POP_NAME %in% isolate(input$juv_pop_name)) %>%
         arrange(Year)
 
-      ja_plotly <- plot_ly(data = js_df,
+      js_plotly <- plot_ly(data = js_df,
                            x = ~Year,
                            y = ~Survival,
                            type = 'scatter',
@@ -319,9 +288,52 @@ server <- function(input, output, session) {
       ) %>%
         layout(yaxis= list(tickformat = "%"))
     })
-  
-    shinyjs::hide(id='juv_spinner')
     
+    # Natural Juvenile Equivalents
+    output$j_equivalents <- renderPlotly({
+      je_df <- tmp_equivalents_df %>%
+        filter(!is.na(Equivalents),
+               Origin == 'Natural',
+               SpeciesRun == isolate(input$juv_species),
+               POP_NAME %in% isolate(input$juv_pop_name)) %>%
+        arrange(Year) %>%
+        ungroup()
+      
+      je_plotly <- plot_ly(data = je_df,
+                           x = ~Year,
+                           y = ~Equivalents,
+                           type = 'scatter',
+                           mode = 'lines+markers',
+                           color = ~POP_NAME,
+                           colors = viridis_pal(option="D")(length(unique(je_df$POP_NAME))),
+                           linetype = ~Lifestage
+                           # markers = ~Origin
+      ) %>%
+        layout(yaxis= list(hoverformat= ',.'))
+    })
+  
+  })
+  
+  # Age Samples Tab ----
+  observeEvent(input$age_summary_btn, {
+    shinyjs::disable(id='age_summary_btn')
+    shinyjs::show(id='age_spinner')
+  
+  age_graphs <- summariseAGE() 
+  
+  output$age_total <- renderPlotly({
+    age_graphs[[1]]
+  }) 
+  
+  output$age_ocean <- renderPlotly({
+    age_graphs[[2]]
+  })  
+  
+  output$age_stream <- renderPlotly({
+    age_graphs[[3]]
+  })
+  
+    shinyjs::hide(id='age_spinner')
   })
   
   # Restricted Data Access Tab ----
@@ -338,221 +350,277 @@ server <- function(input, output, session) {
     dataset <- datasets %>%
       select(DatastoreId, DatastoreName) %>%
       distinct(DatastoreId, .keep_all = TRUE) %>%
-      filter(!DatastoreId %in% c(81:84, 88:91)) %>%
-      add_row(DatastoreId= c(999,998), DatastoreName = c('SGS Summary', 'RST Summary')) %>%
+      filter(!DatastoreId %in% c(81:84, 87:91)) %>%  # removed DM Issues (87) as well
       arrange(DatastoreName)
     
     datasets_ls <- as.list(dataset[,1])
   
     names(datasets_ls) <- dataset[,2]
-    selectInput("datasets", h3("Choose Data Type:"), choices = datasets_ls, selectize = TRUE)
+    selectInput("datasets", label = '1. Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
   }) 
   
-    # get the full dataset view
-  raw_dat <- eventReactive(input$raw_submit,{
-    
+
+  observeEvent(input$raw_submit,{
+    # hide/show inputs
+    disable(id = 'raw_submit')
+    disable(id = 'datasets')
     shinyjs::show(id='datasets_spinner')
-    
-    if(input$datasets != 999 & input$datasets != 998) {  
-      getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
-    } else {
-      if(input$datasets != 998) {
-      summariseSGS()
-    } else {
-        summariseRST()
-      }
-    }
-    
-    shinyjs::hide(id='datasets_spinner')
-    
-  }) 
+    shinyjs::hide(id='q_species')  
+    shinyjs::hide(id='q_pop_name')
+    shinyjs::hide(id='q_stream')
+    shinyjs::hide(id='q_locationlabel')
+    shinyjs::hide(id='q_year')
+    shinyjs::hide(id='dataset_field_select')
+    shinyjs::hide(id='dataset_field_submit')
+    shinyjs::hide(id='raw_export')
+    shinyjs::hide(id='raw_table')
+
+    # Get the full dataset view
+      raw_dat <- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host) %>%
+        mutate(SpeciesRun = paste(Run, Species))
+
+        if(input$datasets %in% c(78, 79)) { # =c("SGS Redd Data", "SGS Carcass Data")
+          # Prepare Adult Data (i.e. Survey Date)
+          raw_dat1 <<- raw_dat %>%
+            mutate(SurveyDate = as_date(SurveyDate),
+                   Year = year(SurveyDate))
+        } else {
+          if(input$datasets %in% c(85, 86)) { # = c('NPT RST Abundance Estimates', 'NPT Juvenile Survival Estimates')
+          # Prepare Juvenile Data (i.e. Brood Year)
+          raw_dat1 <<- raw_dat %>%
+            mutate(Year = MigratoryYear)
+          } else {
+            # Prepare Age Data (i.e. Collection Date)
+            raw_dat1 <<- raw_dat %>%
+              mutate(CollectionDate = as_date(CollectionDate),
+                     Year = year(CollectionDate))
+          }
+        }
+
+        # Species selection
+        output$q_species <- renderUI({
+          selectInput(inputId= 'q_species', label= '2. Choose Species', choices= sort(unique(raw_dat1$SpeciesRun)),
+                      selectize= TRUE, selected = NULL, multiple = TRUE) 
+        })
+        
+        shinyjs::hide(id='datasets_spinner')
+        shinyjs::show(id='q_species')
+        enable(id = 'raw_submit')
+        enable(id = 'datasets')
+
+  })
   
+    # POP_NAME Selection
+  observeEvent(input$q_species, {
+    if(is.null(input$q_species)) {
+      NULL
+    } else {
+      raw_dat2 <<- raw_dat1 %>%
+        filter(SpeciesRun %in% input$q_species)
+      
+      output$q_pop_name <- renderUI({
+            selectInput(inputId= 'q_pop_name', label= '3. Choose Population:', choices= sort(unique(raw_dat2$POP_NAME)),
+                        selectize= TRUE, selected = NULL, multiple = TRUE)
+      })
+      
+      shinyjs::show(id='q_pop_name')
+      
+    }
+  })
+  
+    # Stream selection ----
+  observeEvent(input$q_pop_name, {
+    if(is.null(input$q_pop_name)) {
+      NULL
+    } else {
+        raw_dat3 <<- raw_dat2 %>%
+          filter(POP_NAME %in% input$q_pop_name)
+        
+        output$q_stream <- renderUI({
+              selectInput(inputId= 'q_stream', label= '4. Choose Stream:', choices= sort(unique(raw_dat3$StreamName)),
+                          selectize= TRUE, selected = NULL, multiple = TRUE)
+        })
+        
+      shinyjs::show(id='q_stream')
+      
+      }
+  })
+  
+    # LocationLabel selection ----
+  observeEvent(input$q_stream, {
+    if(is.null(input$q_stream)) {
+      NULL
+    } else {
+      raw_dat4 <<- raw_dat3 %>%
+        filter(StreamName %in% input$q_stream)
+      
+      output$q_locationlabel <- renderUI({
+            selectInput(inputId= 'q_locationlabel', label= '5. Choose Location:', choices= sort(unique(raw_dat4$LocationLabel)),
+                        selectize= TRUE, selected = NULL, multiple = TRUE)
+      })
+      
+      shinyjs::show(id='q_locationlabel')
+      
+    }
+  })
+  
+    # Year selection, Field Selection, and Submit Query button ----
+  observeEvent(input$q_locationlabel, {
+    if(is.null(input$q_locationlabel)) {
+      NULL
+    } else {
+      raw_dat5 <<- raw_dat4 %>%
+        filter(LocationLabel %in% input$q_locationlabel)
+      
+      output$q_year <- renderUI({
+        tagList(
+            sliderInput(inputId= 'q_year', label= '6. Choose Year:', min = min(raw_dat5$Year), max = max(raw_dat5$Year), 
+                        value=  c(min(raw_dat5$Year), max(raw_dat5$Year)), sep= '', step = 1),
+            helpText(HTML('<em>*Year is Spawn Year for adult datasets and Migratory Year for juveniles datasets.</em>'), style = 'text-align:center;')
+        )
+      })
+      
+      # Field selectors.
+        raw_dat_fields <- names(raw_dat5) # create field list
+            
+      output$dataset_fields <- renderUI({
+        selectInput(inputId = 'dataset_field_select', label = '7. Choose Fields in Desired Order:', choices = raw_dat_fields, selectize = TRUE, multiple = TRUE)
+      })
+
+      output$datasetfield_submit <- renderUI({
+        actionButton(inputId = 'dataset_field_submit', label = 'Populate Table', width = '100%', icon = icon('table'))
+      })
+      
+      shinyjs::show(id='q_year')
+      shinyjs::show(id='dataset_field_select')
+      shinyjs::show(id='dataset_field_submit')
+      
+    }
+  })
+
+    # Apply Select statement to data and produce datatable on submit
+    observeEvent(input$dataset_field_submit, {
+      
+      shinyjs::show(id='raw_export')
+      shinyjs::show(id='raw_table')
+      
+      # Prep data
+      if(is.null(input$dataset_field_select)) {
+        raw_dat_final <<- raw_dat5 %>%
+          filter(Year %in% input$q_year)
+      } else {
+      raw_dat_final <<- raw_dat5 %>%
+        filter(Year %in% input$q_year) %>%
+        select(input$dataset_field_select)
+    }
+      # Create table
+      output$raw_table <- DT::renderDataTable({
+        DT::datatable(raw_dat_final, options = list(orderClasses = TRUE), filter = 'top')
+      })
+
+    })
+    
+    
     # Dataset EXPORT
   output$raw_export <- downloadHandler(
     filename = function() {
       paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(raw_dat(), file, row.names = FALSE)
+      write.csv(raw_dat_final, file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
   
-    # Dataset Data Table
-  output$raw_table <- DT::renderDataTable({
-    tmp_df <- raw_dat()
-    DT::datatable(tmp_df, options = list(orderClasses = TRUE), filter = 'top')
-  })
-  
   # Custom Queries ----
   
-    # Dataset selection
-  if(html_code == 200){
-    datastore_df <- getDatastores(cdms_host = cdms_host) %>%
-      select(Id, Name) %>%
-      filter(!Id %in% c(81:84, 88:91))
-  }
-  
-  output$q_datasets <- renderUI({
-    selectInput(inputId = 'q_datasets', label = NULL, choices = c('- Choose Dataset -', sort(unique(datastore_df$Name))),
-                selectize = FALSE, selected = '- Choose Dataset -', multiple = FALSE)
+  # Dynamic Description for selected Query
+  output$query_description <- renderText({
+    
+    # match Query with Description and paste value
+    q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
+    
+    paste0("Description: ", q_description)
+    
   })
 
-  observeEvent(input$btn_q_datasets, {
-    # match selected Dataset to datastore_df$Id
-    ds_Id <- datastore_df$Id[match(input$q_datasets, datastore_df$Name)]
+
+  # Submit Query Request
+  observeEvent(input$custom_submit, {
     
-    shinyjs::show(id='query_spinner')
-    
-    # Load the Big Dataset and populate the first selectInput(species)
-    if(input$q_datasets == '- Choose Dataset -') {
+    if(input$custom_query_menu == '-Select Custom Query-') {
       NULL
     } else {
-      if(input$q_datasets %in% c("SGS Redd Data", "SGS Carcass Data")) {
-        
-        # Remove any existing query inputs (5x because can't figure out the right selector command)
-        removeUI(selector = '#q_inputs')
-        removeUI(selector = '#q_inputs')
-        removeUI(selector = '#q_inputs')
-        removeUI(selector = '#q_inputs')
-        removeUI(selector = '#q_inputs')
-        
-        # Get Dataset View. (Load Big Data)
-        KQ_df0 <- getDatasetView(datastoreID = ds_Id, cdms_host = cdms_host) %>%
-          mutate(Year = year(SurveyDate),
-                 SpeciesRun = paste(Run, Species))
-        
-        # Species selection
-        output$q_species <- renderUI({
-          selectInput(inputId= 'q_species', label= 'Choose Species', choices= sort(unique(KQ_df0$SpeciesRun)),
-                      selectize= TRUE, selected = NULL, multiple = TRUE) 
-        })
-        
+      
+      show(id='query_spinner')
+      disable(id='custom_query_menu')
+      disable(id='custom_submit')
+      hide(id='custom_field_select')
+      hide(id='custom_field_submit')
+      hide(id='custom_export')
+      hide(id='custom_table')
+      
+      
+      if(input$custom_query_menu == 'RST Summary') {
+        custom_dat <<- summariseRST()
       } else {
-        
-        # Remove any existing query inputs (5x because can't figure out the right selector command)
-        removeUI(selector = '#q_inputs')
-        removeUI(selector = '#q_inputs')
-        removeUI(selector = '#q_inputs')
-        removeUI(selector = '#q_inputs')
-        removeUI(selector = '#q_inputs')
-        
-        # Get Dataset View. (Load Big Data)
-        KQ_df0 <- getDatasetView(datastoreID = ds_Id, cdms_host = cdms_host) %>%
-          mutate(Year = year(BroodYear),
-                 SpeciesRun = paste(Run, Species))
-        
-        # Species selection
-        output$q_species <- renderUI({
-          selectInput(inputId= 'q_species', label= 'Choose Species', choices= sort(unique(KQ_df0$SpeciesRun)),
-                      selectize= TRUE, selected = NULL, multiple = TRUE) 
-        })
-      } 
-    }
+        custom_dat <<- summariseSGS() #'SGS Summary'
+      }
     
-    shinyjs::hide(id='query_spinner')
-    
-  })
-  
-  
-    # 1. POP_NAME selection ----
-  observeEvent(input$q_species, {
-    if(is.null(input$q_species)) {
-      NULL
-    } else {
-      KQ_df1 <<- KQ_df0 %>%
-        filter(SpeciesRun %in% input$q_species)
+    # Populate Field selector
+      custom_dat_fields <- names(custom_dat) # create field list
       
-      output$q_pop_name <- renderUI({
-        div(id = 'q_inputs',  # this div() allows us to remove the input later
-            selectInput(inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(KQ_df1$POP_NAME)),
-                        selectize= TRUE, selected = NULL, multiple = TRUE)
-        )
-      })
-    }
-  })
-  
-    # 2. Stream selection ----
-  observeEvent(input$q_pop_name, {
-    if(is.null(input$q_pop_name)) {
-      NULL
-    } else {
-      KQ_df2 <<- KQ_df1 %>%
-        filter(POP_NAME %in% input$q_pop_name)
-      
-      output$q_stream <- renderUI({
-        div(id = 'q_inputs',  # this div() allows us to remove the input later
-            selectInput(inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(KQ_df2$StreamName)),
-                        selectize= TRUE, selected = NULL, multiple = TRUE)
-        )
-      })
-    }
-  })
-  
-    # 3. LocationLabel selection ----
-  observeEvent(input$q_stream, {
-    if(is.null(input$q_stream)) {
-      NULL
-    } else {
-      KQ_df3 <<- KQ_df2 %>%
-        filter(StreamName %in% input$q_stream)
-      
-      output$q_locationlabel <- renderUI({
-        div(id = 'q_inputs',  # this div() allows us to remove the input later
-            selectInput(inputId= 'q_locationlabel', label= 'Choose Location:', choices= sort(unique(KQ_df3$LocationLabel)),
-                        selectize= TRUE, selected = NULL, multiple = TRUE)
-        )
-      })
-    }
-  })
-  
-    # 4. Year selection and Submit Query button ----
-  observeEvent(input$q_locationlabel, {
-    if(is.null(input$q_locationlabel)) {
-      NULL
-    } else {
-      KQ_df4 <<- KQ_df3 %>%
-        filter(LocationLabel %in% input$q_locationlabel)
-      
-      output$q_year <- renderUI({
-        div(id = 'q_inputs',  # this div() allows us to remove the input later
-            sliderInput(inputId= 'q_year', label= 'Choose Year:', min = min(KQ_df4$Year), max = max(KQ_df4$Year), 
-                        value=  c(min(KQ_df4$Year), max(KQ_df4$Year)), sep= '')
+      output$custom_fields <- renderUI({
+        tagList(
+          selectInput(inputId = 'custom_field_select', label = NULL, choices = custom_dat_fields, selectize = TRUE, multiple = TRUE),
+          helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
         )
       })
       
-    # 5. 'Submit Query' Button
-      output$btn_q_summary <- renderUI({
-        div(id = 'q_inputs',  # this div() allows us to remove the input later
-            actionButton(inputId = 'btn_q_summary', label = 'Submit Query', icon = icon('bomb'))
-        )
+      output$customfield_submit <- renderUI({
+          actionButton(inputId = 'custom_field_submit', label = 'Populate Table', width = '100%', icon = icon('table'))
       })
-    }
-  })
-  
-    # Query Data Table ----
-      # Produce FINAL Query Dataframe for table/export
-    query_df <- eventReactive(input$btn_q_summary, {
-      KQ_df4 %>%
-        filter(Year %in% input$q_year)
-    })    
-  
-    # Query-dataframe EXPORT
-    output$query_export <- downloadHandler(
-      filename = function() {
-        paste0("query_data_", Sys.Date(), ".csv")
-      },
-      content = function(file) {
-        write.csv(query_df(), file, row.names = FALSE)
-      },
-      contentType = "text/csv"
-    )
+      
 
-  output$query_table <- DT::renderDataTable({
-    tmp_qdf <- query_df()
-    DT::datatable(tmp_qdf, options = list(orderClasses = TRUE), filter = 'top')
+    enable(id='custom_query_menu')
+    enable(id='custom_submit')
+    show(id='custom_field_select')
+    show(id='custom_field_submit')
+    hide(id='query_spinner')
+    
+    }
   })
   
-  # Reports
+  # Apply Field Selection and create Custom Table
+  observeEvent(input$custom_field_submit, {
+    
+    show(id='custom_export')
+    show(id='custom_table')
+    
+    # Prep data
+    if(!is.null(input$custom_field_select)) {
+      custom_dat <<- custom_dat %>%
+        select(input$custom_field_select)
+    } 
+    
+    # Create table
+    output$custom_table <- DT::renderDataTable({
+      DT::datatable(custom_dat, options = list(orderClasses = TRUE), filter = 'top')
+    })
+    
+  })
+  
+  # Dataset EXPORT
+  output$custom_export <- downloadHandler(
+    filename = function() {
+      paste0(input$custom_query_menu,"_custom_query_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(custom_dat, file, row.names = FALSE)
+    },
+    contentType = "text/csv"
+  )
+  
+  # Reports ----
   
 } # close Server

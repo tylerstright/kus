@@ -2,9 +2,6 @@
 #'
 #' @description Combine CDMS RST Abundance and Survival Summaries, calculate Equivalents.
 #'
-#' @param rst_abundance RST Abundance Data : dsv_85
-#' @param rst_survival RST Survival Data : dsv_86
-#'
 #' @author Tyler Stright
 #'
 #' @examples summariseRST() 
@@ -17,13 +14,13 @@
 summariseRST <- function() {
   
   tmp_abundance <- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
-    mutate(SpeciesRun = paste(Run, SpeciesName)) %>%
+    mutate(SpeciesRun = paste(Run, Species)) %>%
     rename(Ab_SE = StdError, Ab_L95 = Lower95, Ab_U95 = Upper95) %>%
     select(POP_NAME, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage, 
            Abundance, Ab_SE, Ab_L95, Ab_U95)
   
   tmp_survival <- getDatasetView(datastoreID = 86, cdms_host = cdms_host) %>%
-    mutate(SpeciesRun = paste(Run, SpeciesName)) %>%
+    mutate(SpeciesRun = paste(Run, Species)) %>%
     rename(Surv_SE = StdError, Surv_L95 = Lower95, Surv_U95 = Upper95) %>%
     select(POP_NAME, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage, 
            ReleaseType, SurvivalTo, Survival, Surv_SE) # Surv_L95, Surv_U95

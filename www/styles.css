@@ -12,10 +12,6 @@ Hex	RBG
 #536878	(83,104,120)-3
 #36454f	(54,69,79) - darkest */
 
-#q_inputs {  /* this exists to create an ID for query inputs to be removed when beginning a new query. */
-  width: 100%;
-}
-
 #sgs_spinner {
   height:30px;
 }
@@ -89,8 +85,8 @@ p {font-family: "Arial Narrow";
   text-align: justify;
   /*font-style: italic; */
   /*font-weight: bold; */
-  color: #6e7f80;
-  /*color: white;*/
+  /*color: #6e7f80;*/
+  color: black;
   width: 100%;
   /*border-bottom: 1px solid rgb(0, 0, 0); */
 }

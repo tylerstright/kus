@@ -2,12 +2,9 @@
 #'
 #' @description Summarise & Graph Redd/Carcass data by POP_NAME/SurveyYear
 #'
-#' @param redd_data = dsv_78 (getDatasetView(datastoreId=78))
-#' @param carcass_data = dsv_79 (getDatasetView(datastoreId=79))
-#'
 #' @author Tyler Stright
 #'
-#' @examples summariseSGS(redd_data = dsv_78, carcass_data = dsv_79)
+#' @examples summariseSGS()
 #'
 #' @import lubridate dplyr tidyr cdmsR
 #' @export
@@ -19,18 +16,14 @@ summariseSGS <- function() {
   # Summarise Redd Data ---- 
 tmp_reddsum <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
   distinct(ActivityId, .keep_all = TRUE) %>%
-  mutate(SpeciesRun = paste(Run, SpeciesName),
+  mutate(SpeciesRun = paste(Run, Species),
          SurveyYear = year(SurveyDate)) %>%
   group_by(SurveyYear, POP_NAME, SpeciesRun) %>%
   summarise(TotalRedds = sum(NewRedds, na.rm=TRUE))
 
   # Summarise Carcass Data ----
 tmp_carcsum <- getDatasetView(datastoreID = 79, cdms_host = cdms_host) %>%
-  mutate(SpeciesRun = case_when(
-            CarcassSpecies == 'BT' ~ 'Bull Trout',
-            CarcassSpecies == 'F_CHN' ~ 'Fall Chinook salmon',
-            CarcassSpecies == 'S_CHN' ~ 'Spring/summer Chinook salmon',
-            CarcassSpecies == 'S_STH' ~ 'Summer Steelhead'),
+  mutate(SpeciesRun = paste(Run, Species),
          SurveyYear = year(SurveyDate),
          Origin = case_when(
             AdiposeFinClipped == 'No' & is.na(CWTCode) ~ "Natural",
@@ -58,7 +51,7 @@ phos_tmp <- tmp_carcsum %>%
   summarise(Count = sum(Count, na.rm = TRUE)) %>%
   spread(key = Origin, value = Count, fill = 0) %>%
   mutate(pHOS = round(100*(`Hatchery`/(`Hatchery` + `Natural`)), 2)) %>%
-  select(-Hatchery, -Natural)
+  select(-Hatchery, -Natural) 
 
 # % Female
 PF_tmp <- tmp_carcsum %>%
