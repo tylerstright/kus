@@ -155,6 +155,10 @@ server <- function(input, output, session) {
         group_by(POP_NAME, SpeciesRun, Year) %>%
         summarise(`TotalRedds` = sum(NewRedds, na.rm=TRUE)) %>%
         arrange(Year)
+      
+      shiny::validate(
+        need(nrow(yr_df) > 0, message = '*No Redd data for the current selection.')
+      )
   
       yr_plotly <- plot_ly(data = yr_df,
                            x = ~Year,
@@ -173,6 +177,10 @@ server <- function(input, output, session) {
         group_by(POP_NAME, SpeciesRun, Year) %>%
         summarise(`TotalCarcass` = sum(Count, na.rm=TRUE)) %>%
         arrange(Year)
+      
+      shiny::validate(
+        need(nrow(yc_df) > 0, message = '*No Carcass data for the current selection.')
+      )
   
       yc_plotly <- plot_ly(data = yc_df,
                            x = ~Year,
@@ -255,6 +263,10 @@ server <- function(input, output, session) {
                POP_NAME %in% isolate(input$juv_pop_name)) %>%
         arrange(Year)
       
+      shiny::validate(
+        need(nrow(ja_df) > 0, message = '*No Abundance data for the current selection.')
+      )
+      
       ja_plotly <- plot_ly(data = ja_df,
                            x = ~Year,
                            y = ~Abundance,
@@ -275,6 +287,10 @@ server <- function(input, output, session) {
                SpeciesRun == isolate(input$juv_species),
                POP_NAME %in% isolate(input$juv_pop_name)) %>%
         arrange(Year)
+      
+      shiny::validate(
+        need(nrow(js_df) > 0, message = '*No Survival data for the current selection.')
+      )
 
       js_plotly <- plot_ly(data = js_df,
                            x = ~Year,
@@ -298,6 +314,10 @@ server <- function(input, output, session) {
                POP_NAME %in% isolate(input$juv_pop_name)) %>%
         arrange(Year) %>%
         ungroup()
+      
+      shiny::validate(
+        need(nrow(je_df) > 0, message = '*No Equivalents data for the current selection.')
+      )
       
       je_plotly <- plot_ly(data = je_df,
                            x = ~Year,
