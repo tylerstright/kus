@@ -11,8 +11,7 @@ header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right
                           tags$li(tags$a("PITtrackR Web App", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank', class='navlinks'),
                                   class = 'dropdown'),
                           # Login/Logout Link
-                          tags$li(tags$a(uiOutput('login_logout')), class = 'dropdown', 
-                                  style= 'position:absolute; left:42px')
+                          tags$li(tags$a(uiOutput('login_logout')), class = 'dropdown', style= 'position:absolute; left:42px')
                           )
 
 
@@ -159,25 +158,30 @@ body <- dashboardBody(
     # CDMS Datasets ----
       tabItem(tabName = 'tab_cdms',
               box(width = 12, 
-              fluidRow(column(4, uiOutput("raw_dataset_menu"),
-                              helpText(HTML("<em> Select the desired dataset and click submit query. </em>"), style = 'text-align:center;'),
+              fluidRow(column(6, uiOutput("raw_dataset_menu"),
+                              # helpText(HTML("<em> Select the desired dataset and click 'Load Data'. </em>"), style = 'text-align:center;'),
                               fluidRow(
-                                column(8, offset = 2, actionButton("raw_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%')),
+                                column(8, offset = 2, actionButton("raw_submit", label = "Load Data", icon = icon('hourglass-start'), width = '100%')),
                                 column(2, hidden(div(id='datasets_spinner',img(src='Fish.gif', style = 'height:30px'))))
                                       ),
-                              uiOutput(outputId = 'q_species'),
-                              uiOutput(outputId = 'q_pop_name')
+                              br(),
+                              selectInput(inputId = 'q_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
+                              sliderInput(inputId= 'q_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1),
+                              helpText(HTML('<em>* Year is "Spawn Year" for adult datasets and "Migratory Year" for juvenile datasets.</em>'), style = 'text-align:center;')
                               ),
-                       column(4, uiOutput(outputId = 'q_stream'),
-                                 uiOutput(outputId = 'q_locationlabel'),
-                                 uiOutput(outputId = 'q_year')
-                              ), 
-                       column(4, uiOutput('dataset_fields'),
-                                 uiOutput('datasetfield_submit') 
+                       column(6, 
+                              selectInput(inputId= 'q_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
+                              selectInput(inputId= 'q_pop_name', label= 'Choose Population:', choices= NULL, selected = NULL, multiple = TRUE),
+                              selectInput(inputId= 'q_stream', label= 'Choose Stream:', choices= NULL, selected = NULL, multiple = TRUE),
+                              # selectInput(inputId= 'q_transect', label= 'Choose Transect:', choices= NULL, selected = NULL, multiple = TRUE),
+                              br(),
+                              fluidRow(
+                                column(8, offset = 2, actionButton('clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
+                                )
                               )
               ),
               hr(),
-              fluidRow(column(12, align = "center", hidden(downloadButton("raw_export", label = "Export .CSV File")))),
+              fluidRow(column(12, align = "center", downloadButton("raw_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
               )
       ),
@@ -197,13 +201,13 @@ body <- dashboardBody(
                                             )
                                     ),
                              column(6, 
-                                    uiOutput('custom_fields'),
-                                    uiOutput('customfield_submit')
+                                    selectInput(inputId = 'cq_fields', label = NULL, choices = NULL, selectize = TRUE, multiple = TRUE),
+                                    helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
                                     )
                              )
                 ),
               box(width = 12, 
-                  fluidRow(column(12, align = "center", hidden(downloadButton("custom_export", label = "Export .CSV File")))),
+                  fluidRow(column(12, align = "center", downloadButton("custom_export", label = "Export .CSV File"))),
                   div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
               )
         ),

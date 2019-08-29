@@ -3,12 +3,12 @@ server <- function(input, output, session) {
   # Hide & show Tabs based on login status ----
   observe({
     if(is.null(login_status)) {
-      hideElement(selector = "ul li:eq(12)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
+      # hideElement(selector = "ul li:eq(12)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
     } else {
       if(status_code(login_status) != 200) {
-        hideElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
+        # hideElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
       } else {
-        showElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
+        # showElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
         }
     }
   })
@@ -30,7 +30,7 @@ server <- function(input, output, session) {
     # Logout
   observeEvent(input$logout_link, {
     login_status <<- NULL
-    hideElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
+    # hideElement(selector = "ul li:eq(12)", anim= TRUE) # change as tabs are included in sidebar
     output$login_logout <- renderUI({actionLink('login_link', '[Sign In]', icon = icon('sign-in-alt'), style = 'color: white;')}) 
   })
   
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
         ))
       } else {
         removeModal()
-        showElement(selector = "ul li:eq(12)") # change as tabs are included in sidebar
+        # showElement(selector = "ul li:eq(12)") # change as tabs are included in sidebar
         output$login_logout <- renderUI({
           actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
                     icon = icon('sign-out-alt'), style = 'color: white;')
@@ -337,191 +337,314 @@ server <- function(input, output, session) {
   })
   
   # Restricted Data Access Tab ----
-
-  # Gather static session data from CDMS
+  # Create ***REACTIVE VALUES*** for dynamic data and Inputs ----
+  RV <- reactiveValues(query_data = NULL)
+  # Clear Field Values Button ----
+  observeEvent(input$clear_fields, {
+    if(exists('raw_dat') != TRUE) {
+      NULL
+    } else {
+    RV$query_data <<- raw_dat   # will this reset all?
+    
+      updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'q_transect', label= 'Choose Transect:', choices= sort(unique(RV$query_data$LocationLabel)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'q_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$query_data), selected = NULL) 
+      # q-year?
+      updateSelectInput(session, inputId= 'test', label= 'CLEAR!!!!!! WORKED!', choices= sort(unique(RV$query_data$LocationLabel)),
+                        selected = NULL) 
+    }
+  })
+  
+  #TESTING OUTPUT
+  output$testing <- renderText({
+    paste('InputYear = ', input$q_year, 'min is ;', min(input$q_year))
+  })
+  
+  # Gather/Create dataset list from CDMS ----
   if(html_code == 200){
     datasets <- getDatastores(cdms_host = cdms_host) %>%
       rename(DatastoreId = Id, DatastoreName = Name)
   }
   
-  # CDMS Datasets 
   output$raw_dataset_menu <- renderUI({
     
     dataset <- datasets %>%
       select(DatastoreId, DatastoreName) %>%
       distinct(DatastoreId, .keep_all = TRUE) %>%
-      filter(!DatastoreId %in% c(81:84, 87:91)) %>%  # removed DM Issues (87) as well
+      filter(!DatastoreId %in% c(81:84, 87:91)) %>% 
       arrange(DatastoreName)
     
     datasets_ls <- as.list(dataset[,1])
   
     names(datasets_ls) <- dataset[,2]
-    selectInput("datasets", label = '1. Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
+    selectInput("datasets", label = 'Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
   }) 
   
-
+  # Load Data ----
   observeEvent(input$raw_submit,{
     # hide/show inputs
     disable(id = 'raw_submit')
     disable(id = 'datasets')
     shinyjs::show(id='datasets_spinner')
-    shinyjs::hide(id='q_species')  
-    shinyjs::hide(id='q_pop_name')
-    shinyjs::hide(id='q_stream')
-    shinyjs::hide(id='q_locationlabel')
-    shinyjs::hide(id='q_year')
-    shinyjs::hide(id='dataset_field_select')
-    shinyjs::hide(id='dataset_field_submit')
-    shinyjs::hide(id='raw_export')
-    shinyjs::hide(id='raw_table')
 
-    # Get the full dataset view
-      raw_dat <- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host) %>%
-        mutate(SpeciesRun = paste(Run, Species))
+    if(input$datasets %in% c(78, 79)) { # =c("SGS Redd Data", "SGS Carcass Data")
+      raw_dat <<- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host) 
+      # Prepare Adult Data (i.e. Survey Date)
+      raw_dat <<- raw_dat %>%
+        mutate(SpeciesRun = paste(Run, Species),
+               SurveyDate = as_date(SurveyDate),
+               Year = year(SurveyDate))
+    } else {
+      if(input$datasets %in% c(85, 86)) { # = c('NPT RST Abundance Estimates', 'NPT Juvenile Survival Estimates')
+        raw_dat <<- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
+      # Prepare Juvenile Data (i.e. Migratory Year)
+      raw_dat <<- raw_dat %>%
+        mutate(SpeciesRun = paste(Run, Species),
+               Year = MigratoryYear)
+      } else {
+        raw_dat <<- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
+        # Prepare Age Data (i.e. Collection Date)
+        raw_dat <<- raw_dat %>%
+          mutate(SpeciesRun = paste(Run, Species),
+                 CollectionDate = as_date(CollectionDate),
+                 Year = year(CollectionDate))
+      }
+      
+      raw_dat <<- raw_dat %>% select(-contains('Id'))
+      
+    }
+  
+      RV$query_data <<- raw_dat  # Populate our dynamic dataframe.
+      
+      # Update our Inputs
+      updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'q_transect', label= 'Choose Transect:', choices= sort(unique(RV$query_data$LocationLabel)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'q_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$query_data), selected = NULL) 
+      
+      updateSliderInput(session, inputId = 'q_year', label = '*Choose Years:', min = min(RV$query_data$Year), max = max(RV$query_data$Year), 
+                        value = c(min(RV$query_data$Year), max(RV$query_data$Year)), step = 1)
+      
+      updateSelectInput(session, inputId= 'test', label= 'DATA LOAD WORKED!', choices= sort(unique(RV$query_data$LocationLabel)),
+                        selected = NULL) 
 
-        if(input$datasets %in% c(78, 79)) { # =c("SGS Redd Data", "SGS Carcass Data")
-          # Prepare Adult Data (i.e. Survey Date)
-          raw_dat1 <<- raw_dat %>%
-            mutate(SurveyDate = as_date(SurveyDate),
-                   Year = year(SurveyDate))
-        } else {
-          if(input$datasets %in% c(85, 86)) { # = c('NPT RST Abundance Estimates', 'NPT Juvenile Survival Estimates')
-          # Prepare Juvenile Data (i.e. Brood Year)
-          raw_dat1 <<- raw_dat %>%
-            mutate(Year = MigratoryYear)
-          } else {
-            # Prepare Age Data (i.e. Collection Date)
-            raw_dat1 <<- raw_dat %>%
-              mutate(CollectionDate = as_date(CollectionDate),
-                     Year = year(CollectionDate))
-          }
-        }
-
-        # Species selection
-        output$q_species <- renderUI({
-          selectInput(inputId= 'q_species', label= '2. Choose Species', choices= sort(unique(raw_dat1$SpeciesRun)),
-                      selectize= TRUE, selected = NULL, multiple = TRUE) 
-        })
-        
         shinyjs::hide(id='datasets_spinner')
-        shinyjs::show(id='q_species')
         enable(id = 'raw_submit')
         enable(id = 'datasets')
-
   })
   
-    # POP_NAME Selection
+  # Input Reactivity ----
   observeEvent(input$q_species, {
-    if(is.null(input$q_species)) {
-      NULL
-    } else {
-      raw_dat2 <<- raw_dat1 %>%
-        filter(SpeciesRun %in% input$q_species)
-      
-      output$q_pop_name <- renderUI({
-            selectInput(inputId= 'q_pop_name', label= '3. Choose Population:', choices= sort(unique(raw_dat2$POP_NAME)),
-                        selectize= TRUE, selected = NULL, multiple = TRUE)
-      })
-      
-      shinyjs::show(id='q_pop_name')
-      
-    }
-  })
-  
-    # Stream selection ----
+                   
+                   # save existing input values
+                   selected_pop <- input$q_pop_name
+                   selected_stream <- input$q_stream
+                   # selected_transect <- input$q_transect
+                   
+                   RV$query_data <<- raw_dat  # re-Populate our dynamic dataframe.
+                   
+                   # Apply filters
+                   if(!is.null(input$q_species)) {
+                     RV$query_data <<- RV$query_data %>% filter(SpeciesRun %in% input$q_species)
+                   }
+                   
+                   if(!is.null(input$q_pop_name)) {
+                     RV$query_data <<- RV$query_data %>% filter(POP_NAME %in% input$q_pop_name)
+                   }
+                   
+                   if(!is.null(input$q_stream)) {
+                     RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
+                   }
+                   
+                   if(!is.null(input$q_transect)) {
+                     RV$query_data <<- RV$query_data %>% filter(LocationLabel %in% input$q_transect)
+                   }
+                   
+                   updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
+                                     selected = selected_pop)
+                   updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
+                                     selected = selected_stream)
+                   # updateSelectInput(session, inputId= 'q_transect', label= 'Choose Transect:', choices= sort(unique(RV$query_data$LocationLabel)),
+                   #                   selected = selected_transect)
+                 })
+  # POP
   observeEvent(input$q_pop_name, {
-    if(is.null(input$q_pop_name)) {
-      NULL
-    } else {
-        raw_dat3 <<- raw_dat2 %>%
-          filter(POP_NAME %in% input$q_pop_name)
-        
-        output$q_stream <- renderUI({
-              selectInput(inputId= 'q_stream', label= '4. Choose Stream:', choices= sort(unique(raw_dat3$StreamName)),
-                          selectize= TRUE, selected = NULL, multiple = TRUE)
-        })
-        
-      shinyjs::show(id='q_stream')
-      
-      }
-  })
-  
-    # LocationLabel selection ----
+                   
+                   # save existing input values
+                   selected_species <- input$q_species
+                   selected_stream <- input$q_stream
+                   # selected_transect <- input$q_transect
+                   
+                   RV$query_data <<- raw_dat  # re-Populate our dynamic dataframe.
+                   
+                   # Apply filters
+                   if(!is.null(input$q_species)) {
+                     RV$query_data <<- RV$query_data %>% filter(SpeciesRun %in% input$q_species)
+                   }
+                   
+                   if(!is.null(input$q_pop_name)) {
+                     RV$query_data <<- RV$query_data %>% filter(POP_NAME %in% input$q_pop_name)
+                   }
+                   
+                   if(!is.null(input$q_stream)) {
+                     RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
+                   }
+                   
+                   if(!is.null(input$q_transect)) {
+                     RV$query_data <<- RV$query_data %>% filter(LocationLabel %in% input$q_transect)
+                   }
+                   
+                   updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
+                                     selected = selected_species)
+                   updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
+                                     selected = selected_stream)
+                   # updateSelectInput(session, inputId= 'q_transect', label= 'Choose Transect:', choices= sort(unique(RV$query_data$LocationLabel)),
+                   #                   selected = selected_transect)
+                 })
+  # Stream
   observeEvent(input$q_stream, {
-    if(is.null(input$q_stream)) {
-      NULL
+                   
+                   # save existing input values
+                   selected_species <- input$q_species
+                   selected_pop <- input$q_pop_name
+                   # selected_transect <- input$q_transect
+                   
+                   RV$query_data <<- raw_dat  # re-Populate our dynamic dataframe.
+                   
+                   # Apply filters
+                   if(!is.null(input$q_species)) {
+                     RV$query_data <<- RV$query_data %>% filter(SpeciesRun %in% input$q_species)
+                   }
+                   
+                   if(!is.null(input$q_pop_name)) {
+                     RV$query_data <<- RV$query_data %>% filter(POP_NAME %in% input$q_pop_name)
+                   }
+                   
+                   if(!is.null(input$q_stream)) {
+                     RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
+                   }
+                   
+                   if(!is.null(input$q_transect)) {
+                     RV$query_data <<- RV$query_data %>% filter(LocationLabel %in% input$q_transect)
+                   }
+                   
+                   updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
+                                     selected = selected_species)
+                   updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
+                                     selected = selected_pop)
+                   # updateSelectInput(session, inputId= 'q_transect', label= 'Choose Transect:', choices= sort(unique(RV$query_data$LocationLabel)),
+                   #                   selected = selected_transect)
+                 })
+  # Transect
+  # observeEvent(input$q_transect, {
+  #                  
+  #                  # save existing input values
+  #                  selected_species <- input$q_species
+  #                  selected_pop <- input$q_pop_name
+  #                  selected_stream <- input$q_stream
+  #                  
+  #                  RV$query_data <<- raw_dat  # re-Populate our dynamic dataframe.
+  #                  
+  #                  # Apply filters
+  #                  if(!is.null(input$q_species)) {
+  #                    RV$query_data <<- RV$query_data %>% filter(SpeciesRun %in% input$q_species)
+  #                  }
+  #                  
+  #                  if(!is.null(input$q_pop_name)) {
+  #                    RV$query_data <<- RV$query_data %>% filter(POP_NAME %in% input$q_pop_name)
+  #                  }
+  #                  
+  #                  if(!is.null(input$q_stream)) {
+  #                    RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
+  #                  }
+  #                  
+  #                  if(!is.null(input$q_transect)) {
+  #                    RV$query_data <<- RV$query_data %>% filter(LocationLabel %in% input$q_transect)
+  #                  }
+  #                  
+  #                  updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
+  #                                    selected = selected_species)
+  #                  updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
+  #                                    selected = selected_pop)
+  #                  updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
+  #                                    selected = selected_stream)
+  #                })
+  
+  
+  
+  # THIS IS THE GOOD ONE!!! ----
+  # observeEvent(c(input$q_species,
+  #                input$q_pop_name,
+  #                input$q_stream,
+  #                input$q_transect), {
+  #     
+  #     # save existing input values
+  #     selected_species <- input$q_species
+  #     selected_pop <- input$q_pop_name
+  #     selected_stream <- input$q_stream
+  #     selected_transect <- input$q_transect
+  #     
+  #     RV$query_data <<- raw_dat  # re-Populate our dynamic dataframe.
+  #     
+  #     # Apply filters
+  #     if(!is.null(input$q_species)) {
+  #       RV$query_data <<- RV$query_data %>% filter(SpeciesRun %in% input$q_species)
+  #     }
+  #     
+  #     if(!is.null(input$q_pop_name)) {
+  #       RV$query_data <<- RV$query_data %>% filter(POP_NAME %in% input$q_pop_name)
+  #     }
+  #     
+  #     if(!is.null(input$q_stream)) {
+  #       RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
+  #     }
+  #     
+  #     if(!is.null(input$q_transect)) {
+  #       RV$query_data <<- RV$query_data %>% filter(LocationLabel %in% input$q_transect)
+  #     }
+  # 
+  #     updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
+  #                       selected = selected_species)
+  #     updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
+  #                       selected = selected_pop)
+  #     updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
+  #                       selected = selected_stream)
+  #     updateSelectInput(session, inputId= 'q_transect', label= 'Choose Transect:', choices= sort(unique(RV$query_data$LocationLabel)),
+  #                       selected = selected_transect)
+  #   })
+  
+
+  # Create CDMS Dataset table (reactive/self-updating) ----
+  output$raw_table <- DT::renderDataTable({
+    
+    shiny::validate(
+      need(RV$query_data, message = '    Table will populate after data load.')
+    )
+
+    if(is.null(input$q_fields)) {
+      table_data <- RV$query_data %>%
+        filter(Year %in% input$q_year)
     } else {
-      raw_dat4 <<- raw_dat3 %>%
-        filter(StreamName %in% input$q_stream)
-      
-      output$q_locationlabel <- renderUI({
-            selectInput(inputId= 'q_locationlabel', label= '5. Choose Location:', choices= sort(unique(raw_dat4$LocationLabel)),
-                        selectize= TRUE, selected = NULL, multiple = TRUE)
-      })
-      
-      shinyjs::show(id='q_locationlabel')
-      
-    }
+      table_data <- RV$query_data %>% 
+        filter(Year %in% input$q_year) %>%
+        select(input$q_fields)
+      }
+
+    DT::datatable(table_data, options = list(orderClasses = TRUE), filter = 'top')
   })
   
-    # Year selection, Field Selection, and Submit Query button ----
-  observeEvent(input$q_locationlabel, {
-    if(is.null(input$q_locationlabel)) {
-      NULL
-    } else {
-      raw_dat5 <<- raw_dat4 %>%
-        filter(LocationLabel %in% input$q_locationlabel)
-      
-      output$q_year <- renderUI({
-        tagList(
-            sliderInput(inputId= 'q_year', label= '6. Choose Year:', min = min(raw_dat5$Year), max = max(raw_dat5$Year), 
-                        value=  c(min(raw_dat5$Year), max(raw_dat5$Year)), sep= '', step = 1),
-            helpText(HTML('<em>*Year is Spawn Year for adult datasets and Migratory Year for juveniles datasets.</em>'), style = 'text-align:center;')
-        )
-      })
-      
-      # Field selectors.
-        raw_dat_fields <- names(raw_dat5) # create field list
-            
-      output$dataset_fields <- renderUI({
-        selectInput(inputId = 'dataset_field_select', label = '7. Choose Fields in Desired Order:', choices = raw_dat_fields, selectize = TRUE, multiple = TRUE)
-      })
-
-      output$datasetfield_submit <- renderUI({
-        actionButton(inputId = 'dataset_field_submit', label = 'Populate Table', width = '100%', icon = icon('table'))
-      })
-      
-      shinyjs::show(id='q_year')
-      shinyjs::show(id='dataset_field_select')
-      shinyjs::show(id='dataset_field_submit')
-      
-    }
-  })
-
-    # Apply Select statement to data and produce datatable on submit
-    observeEvent(input$dataset_field_submit, {
-      
-      shinyjs::show(id='raw_export')
-      shinyjs::show(id='raw_table')
-      
-      # Prep data
-      if(is.null(input$dataset_field_select)) {
-        raw_dat_final <<- raw_dat5 %>%
-          filter(Year %in% input$q_year)
-      } else {
-      raw_dat_final <<- raw_dat5 %>%
-        filter(Year %in% input$q_year) %>%
-        select(input$dataset_field_select)
-    }
-      # Create table
-      output$raw_table <- DT::renderDataTable({
-        DT::datatable(raw_dat_final, options = list(orderClasses = TRUE), filter = 'top')
-      })
-
-    })
-    
-    
-    # Dataset EXPORT
+    # CDMS Dataset EXPORT ----
   output$raw_export <- downloadHandler(
     filename = function() {
       paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
@@ -532,18 +655,14 @@ server <- function(input, output, session) {
     contentType = "text/csv"
   )
   
-  # Custom Queries ----
+  # Custom Queries (CUSTOM!) --------------------------------------------------
   
   # Dynamic Description for selected Query
   output$query_description <- renderText({
-    
     # match Query with Description and paste value
     q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
-    
     paste0("Description: ", q_description)
-    
   })
-
 
   # Submit Query Request
   observeEvent(input$custom_submit, {
@@ -555,59 +674,33 @@ server <- function(input, output, session) {
       show(id='query_spinner')
       disable(id='custom_query_menu')
       disable(id='custom_submit')
-      hide(id='custom_field_select')
-      hide(id='custom_field_submit')
-      hide(id='custom_export')
-      hide(id='custom_table')
-      
-      
+
       if(input$custom_query_menu == 'RST Summary') {
-        custom_dat <<- summariseRST()
+        RV$cq_data <<- summariseRST()
       } else {
-        custom_dat <<- summariseSGS() #'SGS Summary'
+        RV$cq_data <<- summariseSGS() #'SGS Summary'
       }
     
-    # Populate Field selector
-      custom_dat_fields <- names(custom_dat) # create field list
-      
-      output$custom_fields <- renderUI({
-        tagList(
-          selectInput(inputId = 'custom_field_select', label = NULL, choices = custom_dat_fields, selectize = TRUE, multiple = TRUE),
-          helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
-        )
-      })
-      
-      output$customfield_submit <- renderUI({
-          actionButton(inputId = 'custom_field_submit', label = 'Populate Table', width = '100%', icon = icon('table'))
-      })
-      
+      updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$cq_data), selected = NULL) 
 
     enable(id='custom_query_menu')
     enable(id='custom_submit')
-    show(id='custom_field_select')
-    show(id='custom_field_submit')
     hide(id='query_spinner')
     
     }
   })
   
-  # Apply Field Selection and create Custom Table
-  observeEvent(input$custom_field_submit, {
+  # Apply Field Selection and create Custom Table ----
+  output$custom_table <- DT::renderDataTable({
     
-    show(id='custom_export')
-    show(id='custom_table')
+    if(is.null(input$cq_fields)) {
+      table_data <- RV$cq_data 
+    } else {
+      table_data <- RV$cq_data %>% 
+        select(input$cq_fields)
+    }
     
-    # Prep data
-    if(!is.null(input$custom_field_select)) {
-      custom_dat <<- custom_dat %>%
-        select(input$custom_field_select)
-    } 
-    
-    # Create table
-    output$custom_table <- DT::renderDataTable({
-      DT::datatable(custom_dat, options = list(orderClasses = TRUE), filter = 'top')
-    })
-    
+    DT::datatable(table_data, options = list(orderClasses = TRUE), filter = 'top')  
   })
   
   # Dataset EXPORT
