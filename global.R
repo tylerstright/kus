@@ -42,6 +42,7 @@ $("#login").click();
 login_status <- NULL
 html_code <- NULL
 user_info <- NULL
+raw_dat <- NULL
 
   # Initial login without restricted permissions
 startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
@@ -55,4 +56,3 @@ user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
   query_descriptions <- c('Choose a dataset to see description.', 'Combined Abundance and Survival data summaries.', 'Combined Red and Carcass data summarized by Population.')
   
   custom_query_df <- tibble(query_names, query_descriptions)
-  
