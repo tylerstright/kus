@@ -1,7 +1,7 @@
 # Load Packages ---- 
 library(shiny)
 library(shinydashboard)
-library(shinycssloaders)
+# library(shinycssloaders)
 library(tidyverse)
 library(httr)
 library(jsonlite)
@@ -9,8 +9,8 @@ library(lubridate)
 library(plotly)
 library(shinyjs)
 library(viridis)
-library(markdown)
-library(sf) 
+# library(markdown)
+# library(sf) 
 library(DT)
 
 # GitHub
