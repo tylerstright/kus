@@ -249,7 +249,7 @@ server <- function(input, output, session) {
     disable(id = 'juv_dataload')
     shinyjs::show(id='juv_spinner')
     
-    juv_summary_df <<- summariseRST()
+    juv_summary_df <<- summariseRST()[[1]]  # ??
     
     juv_pop_list_full <<- juv_summary_df %>%
       group_by(SpeciesRun, POP_NAME) %>%
@@ -286,9 +286,7 @@ server <- function(input, output, session) {
     
     RV$juv_data <<- juv_summary_df %>%
       filter(SpeciesRun == isolate(input$juv_species),
-             POP_NAME %in% isolate(input$juv_pop_name),
-             Lifestage == 'Smolt') %>%
-      select(-Year)
+             POP_NAME %in% isolate(input$juv_pop_name))
     
     # Natural Juvenile Abundance - Smolts
     output$j_abundance <- renderPlotly({

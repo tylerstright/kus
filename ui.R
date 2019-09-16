@@ -78,12 +78,17 @@ body <- dashboardBody(
                 )
           ),
           fluidRow(
-            box(title = "Yearly Total Redd Counts by Population", width = 12,
+            box(title = "Yearly Total Redd Counts", width = 12,
                 plotlyOutput('p_redds'))
           ),
           fluidRow(
-            box(title = "Yearly Total Carcass Counts by Population", width = 12,
+            box(title = "Yearly Total Carcass Counts", width = 12,
                 plotlyOutput('p_carcass'))
+          ),
+          fluidRow(
+            box(title = 'Percent Females', width = 4),
+            box(title = 'Percent Hatchery Spawners', width = 4),
+            box(title = 'Prespawn Mortalities', width = 4)
           ),
           box(width = 12, 
               title = 'Tabular Summary Data',
@@ -109,7 +114,7 @@ body <- dashboardBody(
   # Juvenile Monitoring Summaries Tab ----
   tabItem(tabName = 'tab_juv',
           fluidRow(
-            box(title = 'Juvenile Summaries - Smolt Lifestage', status='info', width= 5,
+            box(title = 'Juvenile Outmigrant Summary', status='info', width= 5,
                 uiOutput(outputId = 'juv_data_button'),
                 uiOutput(outputId = 'juv_species'),
                 uiOutput(outputId = 'juv_pop_name')
@@ -119,18 +124,18 @@ body <- dashboardBody(
             )
           ),
           fluidRow(
-            box(title = "Natural Smolt Abundance Estimates by Population", width = 12, plotlyOutput('j_abundance'))
+            box(title = "Natural Origin Smolt Abundance", width = 12, plotlyOutput('j_abundance'))
                   ),
           fluidRow(
-            box(title = "Natural Smolt Survival Estimates to Lower Granite Dam by Population", width = 12, plotlyOutput('j_survival'))
+            box(title = "Natural Origin Smolt Survival to Lower Granite Dam", width = 12, plotlyOutput('j_survival'))
                   ),
           fluidRow(
-            box(title = "Natural Smolt Equivalents at Lower Granite Dam by Population", width = 12, plotlyOutput('j_equivalents'))
+            box(title = "Natural Origin Smolt Equivalents at Lower Granite Dam", width = 12, plotlyOutput('j_equivalents'))
                   ),
           box(width = 12,
               fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('juv_table'))
-          )
+              )
           ),
           
   # Age Sampling Tab ----
