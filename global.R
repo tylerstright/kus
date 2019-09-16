@@ -53,6 +53,6 @@ user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 # Custom Query df
   query_names <- c('-Select Custom Query-', 'RST Summary', 'SGS Summary')
   
-  query_descriptions <- c('Choose a dataset to see description.', 'Combined Abundance and Survival data summaries.', 'Combined Red and Carcass data summarized by Population.')
+  query_descriptions <- c('Choose a dataset to see description.', 'Combined abundance and survival data summaries.', 'Combined redd and carcass data summarized by population.')
   
   custom_query_df <- tibble(query_names, query_descriptions)
