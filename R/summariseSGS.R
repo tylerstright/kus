@@ -61,7 +61,7 @@ PF_tmp <- tmp_carcsum %>%
   group_by(POP_NAME, Year, SpeciesRun, Sex) %>%
   summarise(Count = sum(Count, na.rm = TRUE)) %>%
   spread(key = Sex, value = Count, fill = 0) %>%
-  mutate(`%Females` = round((`Female`/(`Female` + `Male`)), 2)) %>%
+  mutate(PercentFemales = round((`Female`/(`Female` + `Male`)), 2)) %>%
   select(-Male)%>%
   ungroup()
 
@@ -92,7 +92,7 @@ all_carc <- tmp_carcsum %>%
 summary_df <- left_join(tmp_reddsum, phos_tmp, by = c('POP_NAME', 'Year', 'SpeciesRun')) %>%
     left_join(psm_tmp, by = c('POP_NAME', 'Year', 'SpeciesRun')) %>%
     left_join(all_carc, by = c('POP_NAME', 'Year', 'SpeciesRun')) %>%
-    select(Year, POP_NAME, SpeciesRun,  TotalRedds, TotalCarcass, `%Females`, pHOS, PrespawnMortality)
+    select(Year, POP_NAME, SpeciesRun,  TotalRedds, TotalCarcass, `PercentFemales`, pHOS, PrespawnMortality)
   
 
 # Graph Data ----
@@ -112,7 +112,7 @@ summary_df <- left_join(tmp_reddsum, phos_tmp, by = c('POP_NAME', 'Year', 'Speci
 # print(sgs_sum1)
 # 
 # # phos/%f/year
-# sgs_sum2 <- plot_ly(data = summary_df, x= ~Year, y = ~`%Females`, type = 'scatter',
+# sgs_sum2 <- plot_ly(data = summary_df, x= ~Year, y = ~`PercentFemales`, type = 'scatter',
 #                 mode = 'lines+markers', 
 #                 name = ~POP_NAME,
 #                 color = ~POP_NAME,
@@ -147,7 +147,7 @@ summary_df <- left_join(tmp_reddsum, phos_tmp, by = c('POP_NAME', 'Year', 'Speci
 #   layout(legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.2))
 # 
 # 
-# sgs_fem <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `%Females`, colour = `Stream Name`)) +
+# sgs_fem <- ggplotly(ggplot(data = summary_df, aes(x= Year, y= `PercentFemales`, colour = `Stream Name`)) +
 #                    geom_point(size = 0.8, position = position_dodge(0.05)) +
 #                    geom_line(size = 0.5, position = position_dodge(0.05)) +
 #                    theme_bw() +

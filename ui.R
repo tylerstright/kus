@@ -82,13 +82,9 @@ body <- dashboardBody(
                 plotlyOutput('p_redds'))
           ),
           fluidRow(
-            box(title = "Yearly Total Carcass Counts", width = 12,
-                plotlyOutput('p_carcass'))
-          ),
-          fluidRow(
-            box(title = 'Percent Females', width = 4),
-            box(title = 'Percent Hatchery Spawners', width = 4),
-            box(title = 'Prespawn Mortalities', width = 4)
+            box(title = 'Percent Females', width = 4, plotlyOutput('p_females')),
+            box(title = 'Percent Hatchery Spawners', width = 4, plotlyOutput('p_phos')),
+            box(title = 'Prespawn Mortalities', width = 4, plotlyOutput('p_psm'))
           ),
           box(width = 12, 
               title = 'Tabular Summary Data',
@@ -127,12 +123,16 @@ body <- dashboardBody(
             box(title = "Natural Origin Smolt Abundance", width = 12, plotlyOutput('j_abundance'))
                   ),
           fluidRow(
-            box(title = "Natural Origin Smolt Survival to Lower Granite Dam", width = 12, plotlyOutput('j_survival'))
-                  ),
-          fluidRow(
-            box(title = "Natural Origin Smolt Equivalents at Lower Granite Dam", width = 12, plotlyOutput('j_equivalents'))
-                  ),
-          box(width = 12,
+            box(title = "Natural Origin Smolt Survival to Lower Granite Dam", width = 6, plotlyOutput('j_survival')),
+            box(title = "Natural Origin Smolt Equivalents at Lower Granite Dam", width = 6, plotlyOutput('j_equivalents'))
+          ),
+          # fluidRow(
+          #   box(title = "Natural Origin Smolt Survival to Lower Granite Dam", width = 12, plotlyOutput('j_survival'))
+          #         ),
+          # fluidRow(
+          #   box(title = "Natural Origin Smolt Equivalents at Lower Granite Dam", width = 12, plotlyOutput('j_equivalents'))
+          #         ),
+          box(width = 12, title = 'Tabular Summary Data',
               fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('juv_table'))
               )

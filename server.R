@@ -95,10 +95,10 @@ server <- function(input, output, session) {
 
   
   # HOME Tab ----
-
+    # NOTHING ON SERVER SIDE.
+  
   # Spawning Ground Surveys Summaries Tab ----
 
-  
     # UI
   output$sgs_data_button <- renderUI({
     tagList(
@@ -152,8 +152,8 @@ server <- function(input, output, session) {
   observeEvent(input$sgs_pop_name, {
     
     RV$sgs_data <- sgs_summary_df %>%
-      filter(SpeciesRun == isolate(input$sgs_species),
-             POP_NAME %in% isolate(input$sgs_pop_name))
+      filter(SpeciesRun == input$sgs_species,
+             POP_NAME %in% input$sgs_pop_name)
     
     # Total Redds per Year
     output$p_redds <- renderPlotly({
@@ -177,26 +177,76 @@ server <- function(input, output, session) {
         layout(yaxis = list(title= 'Total Redds'))
     })
 
-    # Total Carcasses per Year
-    output$p_carcass <- renderPlotly({
-
-      carcass_tmp <- RV$sgs_data %>%
-        filter(!is.na(TotalCarcass))
+    # SGS Carcass - Percent Females
+    output$p_females <- renderPlotly({
+      
+      pf_tmp <- RV$sgs_data %>%
+        filter(!is.na(PercentFemales))
       
       shiny::validate(
-        need(nrow(carcass_tmp) > 0, message = '*No Carcass data for the current selection.')
+        need(nrow(pf_tmp) > 0, message = '*No Carcass data for the current selection.')
       )
-  
-      yc_plotly <- plot_ly(data = carcass_tmp,
+      
+      pfem_plotly <- plot_ly(data = pf_tmp,
                            x = ~Year,
-                           y = ~TotalCarcass,
+                           y = ~PercentFemales,
                            name = ~POP_NAME,
                            type = 'scatter',
                            mode = 'lines+markers',
                            color = ~POP_NAME,
-                           colors = viridis_pal(option="D")(length(unique(carcass_tmp$POP_NAME)))
+                           colors = viridis_pal(option="D")(length(unique(pf_tmp$POP_NAME)))
       ) %>%
-        layout(yaxis = list(title= 'Total Carcasses'))
+        layout(yaxis = list(title= 'Percent Females',
+                            yaxis= list(tickformat = "%")),
+               legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
+    })
+    
+    # SGS Carcass - Percent Hatchery Origin Spawners
+    output$p_phos <- renderPlotly({
+      
+      phos_tmp <- RV$sgs_data %>%
+        filter(!is.na(pHOS))
+      
+      shiny::validate(
+        need(nrow(phos_tmp) > 0, message = '*No Carcass data for the current selection.')
+      )
+
+      phos_plotly <- plot_ly(data = phos_tmp,
+                           x = ~Year,
+                           y = ~pHOS,
+                           name = ~POP_NAME,
+                           type = 'scatter',
+                           mode = 'lines+markers',
+                           color = ~POP_NAME,
+                           colors = viridis_pal(option="D")(length(unique(phos_tmp$POP_NAME)))
+      ) %>%
+        layout(yaxis = list(title= 'Percent Hatchery Origin Spawners',
+                            yaxis= list(tickformat = "%")),
+               legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
+    })
+    
+    # SGS Carcass - Prespawn Mortalities
+    output$p_psm <- renderPlotly({
+      
+      psm_tmp <- RV$sgs_data %>%
+        filter(!is.na(PrespawnMortality))
+      
+      shiny::validate(
+        need(nrow(psm_tmp) > 0, message = '*No Carcass data for the current selection.')
+      )
+      
+      psm_plotly <- plot_ly(data = psm_tmp,
+                           x = ~Year,
+                           y = ~PrespawnMortality,
+                           name = ~POP_NAME,
+                           type = 'scatter',
+                           mode = 'lines+markers',
+                           color = ~POP_NAME,
+                           colors = viridis_pal(option="D")(length(unique(psm_tmp$POP_NAME)))
+      ) %>%
+        layout(yaxis = list(title= 'Prespawn Mortalities',
+                            yaxis= list(tickformat = "%")),
+               legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
     })
     
   })
@@ -285,8 +335,8 @@ server <- function(input, output, session) {
   observeEvent(input$juv_pop_name, {
     
     RV$juv_data <<- juv_summary_df %>%
-      filter(SpeciesRun == isolate(input$juv_species),
-             POP_NAME %in% isolate(input$juv_pop_name))
+      filter(SpeciesRun == input$juv_species,
+             POP_NAME %in% input$juv_pop_name)
     
     # Natural Juvenile Abundance - Smolts
     output$j_abundance <- renderPlotly({
