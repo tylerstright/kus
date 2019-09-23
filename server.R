@@ -169,91 +169,167 @@ server <- function(input, output, session) {
                            x = ~Year,
                            y = ~TotalRedds,
                            name = ~POP_NAME,
+                           text = ~POP_NAME,
+                           hovertemplate = paste(
+                             '%{text}<br>',
+                             '%{x} %{yaxis.title.text}: %{y}'),
                            type = 'scatter',
                            mode = 'lines+markers',
                            color = ~POP_NAME,
                            colors = viridis_pal(option="D")(length(unique(redd_tmp$POP_NAME)))
                            ) %>%
-        layout(yaxis = list(title= 'Total Redds'))
+        layout(title = list(text = '<b>Yearly Total Redd Counts</b>',
+                            font = plotly_font),
+               yaxis = list(title= 'Total Redds',
+                            titlefont = plotly_font),
+               xaxis = list(title= 'Spawn Year',
+                            titlefont = plotly_font))
     })
 
     # SGS Carcass - Percent Females
     output$p_females <- renderPlotly({
       
       pf_tmp <- RV$sgs_data %>%
-        filter(!is.na(PercentFemales))
+        filter(!is.na(PercentFemales)) %>%
+        group_by(POP_NAME)
       
       shiny::validate(
-        need(nrow(pf_tmp) > 0, message = '*No Carcass data for the current selection.')
+        need(nrow(pf_tmp) > 0, message = '*No data for the current selection.')
       )
-      
+      # LINES
+      # pfem_plotly <- plot_ly(data = pf_tmp,
+      #                      x = ~Year,
+      #                      y = ~PercentFemales,
+      #                      name = ~POP_NAME,
+      #                      type = 'scatter',
+      #                      mode = 'lines+markers',
+      #                      color = ~POP_NAME,
+      #                      colors = viridis_pal(option="D")(length(unique(pf_tmp$POP_NAME)))
+      #                      ) %>%
+      #   layout(title = list(text = '<b>Percent Females</b>',
+      #                       font = plotly_font),
+      #          xaxis= list(title = 'Year'),
+      #          yaxis= list(title= 'Percent Females',
+      #                      tickformat = "%",
+      #          range = c(0,1.05)),
+      #          legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
+      # BOXPLOT
       pfem_plotly <- plot_ly(data = pf_tmp,
-                           x = ~Year,
-                           y = ~PercentFemales,
-                           name = ~POP_NAME,
-                           type = 'scatter',
-                           mode = 'lines+markers',
-                           color = ~POP_NAME,
-                           colors = viridis_pal(option="D")(length(unique(pf_tmp$POP_NAME)))
+                             x = ~POP_NAME,
+                             y = ~PercentFemales,
+                             name = ~POP_NAME,
+                             type = 'box',
+                             hoverinfo = 'y',
+                             color = ~POP_NAME,
+                             colors = viridis_pal(option="D")(length(unique(pf_tmp$POP_NAME))),
+                             showlegend = FALSE
       ) %>%
-        layout(yaxis = list(title= 'Percent Females',
-                            yaxis= list(tickformat = "%")),
-               legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
+        layout(title = list(text = '<b>Percent Females</b>',
+                            font = plotly_font),
+               xaxis= list(title = ''),
+               yaxis= list(title= 'Percent Females',
+                           titlefont = plotly_font,
+                           tickformat = "%",
+                           range = c(0,1.05),
+                           zeroline = FALSE))
     })
     
     # SGS Carcass - Percent Hatchery Origin Spawners
     output$p_phos <- renderPlotly({
       
       phos_tmp <- RV$sgs_data %>%
-        filter(!is.na(pHOS))
+        filter(!is.na(pHOS)) %>%
+        group_by(POP_NAME)
       
       shiny::validate(
-        need(nrow(phos_tmp) > 0, message = '*No Carcass data for the current selection.')
+        need(nrow(phos_tmp) > 0, message = '*No data for the current selection.')
       )
-
+      # LINES
+      # phos_plotly <- plot_ly(data = phos_tmp,
+      #                      x = ~Year,
+      #                      y = ~pHOS,
+      #                      name = ~POP_NAME,
+      #                      type = 'scatter',
+      #                      mode = 'lines+markers',
+      #                      color = ~POP_NAME,
+      #                      colors = viridis_pal(option="D")(length(unique(phos_tmp$POP_NAME)))
+      #                      ) %>%
+      #   layout(title = list(text= '<b>Percent Hatchery Origin Spawners</b>',
+      #                       font = plotly_font),
+      #          yaxis= list(tickformat = "%",
+      #                      range = c(0,1.05)),
+      #          legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
+      # BOXPLOT
       phos_plotly <- plot_ly(data = phos_tmp,
-                           x = ~Year,
-                           y = ~pHOS,
-                           name = ~POP_NAME,
-                           type = 'scatter',
-                           mode = 'lines+markers',
-                           color = ~POP_NAME,
-                           colors = viridis_pal(option="D")(length(unique(phos_tmp$POP_NAME)))
+                             x = ~POP_NAME,
+                             y = ~pHOS,
+                             name = ~POP_NAME,
+                             type = 'box',
+                             hoverinfo = 'y',
+                             color = ~POP_NAME,
+                             colors = viridis_pal(option="D")(length(unique(phos_tmp$POP_NAME))),
+                             showlegend = FALSE
       ) %>%
-        layout(yaxis = list(title= 'Percent Hatchery Origin Spawners',
-                            yaxis= list(tickformat = "%")),
-               legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
+        layout(title = list(text = '<b>Percent Hatchery Origin Spawners</b>',
+                            font = plotly_font),
+               xaxis= list(title = ''),
+               yaxis= list(title= 'pHOS',
+                           titlefont = plotly_font,
+                           tickformat = "%",
+                           range = c(0,1.05)))
     })
     
     # SGS Carcass - Prespawn Mortalities
     output$p_psm <- renderPlotly({
       
       psm_tmp <- RV$sgs_data %>%
-        filter(!is.na(PrespawnMortality))
+        filter(!is.na(PrespawnMortality)) %>%
+        group_by(POP_NAME)
       
       shiny::validate(
-        need(nrow(psm_tmp) > 0, message = '*No Carcass data for the current selection.')
+        need(nrow(psm_tmp) > 0, message = '*No data for the current selection.')
       )
-      
+      # LINES
+      # psm_plotly <- plot_ly(data = psm_tmp,
+      #                      x = ~Year,
+      #                      y = ~PrespawnMortality,
+      #                      name = ~POP_NAME,
+      #                      type = 'scatter',
+      #                      mode = 'lines+markers',
+      #                      color = ~POP_NAME,
+      #                      colors = viridis_pal(option="D")(length(unique(psm_tmp$POP_NAME)))
+      #                      ) %>%
+      #   layout(title = list(text= '<b>Percent Prespawn Mortality</b>',
+      #                       font = plotly_font),
+      #          yaxis = list(title= 'Prespawn Mortalities',
+      #                       tickformat = "%",
+      #                       range = c(0,1.05)),
+      #          legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
+      # BOXPLOT
       psm_plotly <- plot_ly(data = psm_tmp,
-                           x = ~Year,
-                           y = ~PrespawnMortality,
-                           name = ~POP_NAME,
-                           type = 'scatter',
-                           mode = 'lines+markers',
-                           color = ~POP_NAME,
-                           colors = viridis_pal(option="D")(length(unique(psm_tmp$POP_NAME)))
+                             x = ~POP_NAME,
+                             y = ~PrespawnMortality,
+                             name = ~POP_NAME,
+                             type = 'box',
+                             hoverinfo = 'y',
+                             color = ~POP_NAME,
+                             colors = viridis_pal(option="D")(length(unique(psm_tmp$POP_NAME))),
+                             showlegend = FALSE
       ) %>%
-        layout(yaxis = list(title= 'Prespawn Mortalities',
-                            yaxis= list(tickformat = "%")),
-               legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
+        layout(title = list(text = '<b>Percent Prespawn Mortality</b>',
+                            font = plotly_font),
+               xaxis= list(title = ''),
+               yaxis= list(title= 'Prespawn Mortality',
+                           titlefont = plotly_font,
+                           tickformat = "%",
+                           range = c(0,1.05)))
     })
     
   })
   
-  # SGS Summary Data Table ----
+  # SGS Summary Data Table
   
-  # Create SGS_Summary Dataset table (reactive/self-updating) ----
+    # Create SGS_Summary Dataset table (reactive/self-updating)
   output$sgs_table <- DT::renderDataTable({
     
     shiny::validate(
@@ -265,7 +341,7 @@ server <- function(input, output, session) {
     DT::datatable(sgs_table_data, options = list(orderClasses = TRUE), filter = 'top')
   })
   
-  # SGS_Summary Dataset EXPORT ----
+    # SGS_Summary Dataset EXPORT
   output$sgs_export <- downloadHandler(
     filename = function() {
       paste0("NPT_SGS_summary_data_", Sys.Date(), ".csv")
@@ -294,12 +370,12 @@ server <- function(input, output, session) {
     )
   })
   
-  # Load Juvenile Summary data (Abundance & Survival) data
+  # Load Juvenile Summary data (Abundance & Survival)
   observeEvent(input$juv_dataload, {
     disable(id = 'juv_dataload')
     shinyjs::show(id='juv_spinner')
     
-    juv_summary_df <<- summariseRST()[[1]]  # ??
+    juv_summary_df <<- summariseRST()[[1]]  # snag summary dataframe
     
     juv_pop_list_full <<- juv_summary_df %>%
       group_by(SpeciesRun, POP_NAME) %>%
@@ -342,83 +418,135 @@ server <- function(input, output, session) {
     output$j_abundance <- renderPlotly({
       
       ja_df <- RV$juv_data %>%
-        filter(!is.na(Abundance)) 
+        filter(Origin == 'Natural',
+               !is.na(Abundance)) %>%
+        group_by(SpeciesRun, Origin, POP_NAME, LocationLabel) %>%
+        arrange(POP_NAME, MigratoryYear, Origin)
       
       shiny::validate(
-        need(nrow(ja_df) > 0, message = '*No Abundance data for the current selection.')
+        need(nrow(ja_df) > 0, message = '*No data for the current selection.')
       )
       
       ja_plotly <- plot_ly(data = ja_df,
                            x = ~MigratoryYear,
                            y = ~Abundance,
-                           name = ~POP_NAME,
+                           error_y= list(type = 'data',
+                                         symmetric = FALSE,
+                                         array = ~Ab_U95_errorbar,
+                                         arrayminus = ~Ab_L95_errorbar),
                            type = 'scatter',
                            mode = 'lines+markers', 
+                           hovertemplate = paste(
+                             '%{text}<br>',
+                             '%{x} %{yaxis.title.text}: %{y}'),
+                           text = ~LocationLabel,
                            color = ~POP_NAME,
                            colors = viridis_pal(option="D")(length(unique(ja_df$POP_NAME)))
-      ) %>%
-        layout(yaxis= list(hoverformat= ',.'))
+                           ) %>%
+        layout(title = list(text = '<b>Natural Origin Smolt Abundance</b>',
+                            font = plotly_font),
+               yaxis= list(hoverformat= ',.',
+                           title = 'Abundance',
+                           titlefont = plotly_font),
+               xaxis= list(title = 'Migratory Year',
+                           titlefont = plotly_font)
+               )
     })
     
     # Natural Juvenile Survival - Smolts
     output$j_survival <- renderPlotly({
       js_df <- RV$juv_data %>%
-        filter(!is.na(Survival))
+        filter(!is.na(Survival)) %>%
+        group_by(SpeciesRun, Origin, POP_NAME, LocationLabel, ReleaseGroup) %>%
+        arrange(POP_NAME, MigratoryYear, Origin)
       
       shiny::validate(
-        need(nrow(js_df) > 0, message = '*No Survival data for the current selection.')
+        need(nrow(js_df) > 0, message = '*No data for the current selection.')
       )
 
-      js_plotly <- plot_ly(data = js_df,
+      js_plotly <- plot_ly(data = js_df %>% filter(Origin == 'Natural'),
                            x = ~MigratoryYear,
                            y = ~Survival,
-                           name = ~POP_NAME,
+                           error_y= list(type = 'data',
+                                         symmetric = FALSE,
+                                         array = ~Surv_U95_errorbar,
+                                         arrayminus = ~Surv_L95_errorbar),
                            type = 'scatter',
                            mode = 'lines+markers',
-                           color = ~POP_NAME,
+                           legendgroup = ~LocationLabel,
+                           hovertemplate = paste(
+                             '%{text}<br>',
+                             'Natural Origin: %{y}'),
+                           text = ~LocationLabel,
+                           color = ~LocationLabel,
                            colors = viridis_pal(option="D")(length(unique(js_df$POP_NAME)))
-      ) %>%
-        layout(yaxis= list(tickformat = "%"))
+                           ) %>%
+        add_trace(data = js_df %>% filter(Origin == 'Hatchery'),
+                  line = list(dash = 'dot'),
+                  hovertemplate = paste(
+                    '%{text}<br>', 
+                    'Hatchery Origin: %{y}')) %>%
+        layout(title = list(text = '<b>Natural and Hatchery Origin Smolt Survival to Lower Granite Dam</b>',
+                            font = plotly_font),
+               yaxis= list(tickformat = "%",
+                           range = c(0, 1.05),
+                           title = 'Survival',
+                           titlefont = plotly_font),
+               xaxis= list(title = 'Migratory Year',
+                           titlefont = plotly_font))
     })
     
-    # Natural Juvenile Equivalents
+    # Natural Juvenile Equivalents - Smolts
     output$j_equivalents <- renderPlotly({
       je_df <- RV$juv_data %>%
-        filter(!is.na(Equivalents))
+        filter(Origin == 'Natural',
+               !is.na(Equivalents)) %>%
+        group_by(SpeciesRun, Origin, POP_NAME, LocationLabel)
       
       shiny::validate(
-        need(nrow(je_df) > 0, message = '*No Equivalents data for the current selection.')
+        need(nrow(je_df) > 0, message = '*No data for the current selection.')
       )
       
       je_plotly <- plot_ly(data = je_df,
                            x = ~MigratoryYear,
                            y = ~Equivalents,
-                           name = ~POP_NAME,
+                           text = ~LocationLabel,
+                           hovertemplate = paste(
+                             '%{text}<br>',
+                             '%{x} %{yaxis.title.text}: %{y}'),
                            type = 'scatter',
                            mode = 'lines+markers',
                            color = ~POP_NAME,
                            colors = viridis_pal(option="D")(length(unique(je_df$POP_NAME)))
-      ) %>%
-        layout(yaxis= list(hoverformat= ',.'))
+                           ) %>%
+        layout(title = list(text = '<b>Natural Origin Smolt Equivalents at Lower Granite Dam</b>',
+                            font = plotly_font),
+               yaxis= list(hoverformat= ',.',
+                           title = 'Smolt Equivalents',
+                           titlefont = plotly_font),
+               xaxis= list(title = 'Migratory Year',
+                           titlefont = plotly_font))
     })
   
   })
   
-  # Juvenile Summary Data Table ----
+    # Juvenile Summary Data Table 
   
-  # Juvenile Summary Dataset table (reactive/self-updating) ----
+    # Juvenile Summary Dataset table (reactive/self-updating)
   output$juv_table <- DT::renderDataTable({
     
     shiny::validate(
       need(RV$juv_data, message = '    Table will populate after data load.')
     )
     
-    juv_table_data <<- RV$juv_data
+    juv_table_data <<- RV$juv_data %>%
+      select(POP_NAME, LocationLabel, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage, Abundance, Ab_SE, 
+             Ab_L95, Ab_U95, ReleaseGroup, SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95)
     
     DT::datatable(juv_table_data, options = list(orderClasses = TRUE), filter = 'top')
   })
   
-  #Juvenile Summary Dataset EXPORT ----
+    # Juvenile Summary Dataset EXPORT
   output$juv_export <- downloadHandler(
     filename = function() {
       paste0("NPT_Juvenile_summary_data_", Sys.Date(), ".csv")
@@ -430,25 +558,266 @@ server <- function(input, output, session) {
   )
   
   # Age Samples Tab ----
-  observeEvent(input$age_summary_btn, {
+  
+  # UI
+  output$age_data_button <- renderUI({
+    tagList(
+      fluidRow(
+        column(9, actionButton(inputId= 'age_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
+        column(1, hidden(div(id='age_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
+      ),
+      helpText(HTML('<em> *Initial data load may take several minutes.</em>'))
+    )
+  })
+  
+  # Load Summarized Age data
+  observeEvent(input$age_dataload, {
     shinyjs::disable(id='age_summary_btn')
     shinyjs::show(id='age_spinner')
   
-  age_graphs <- summariseAGE() 
+  age_summary_df <<- summariseAGE()[[4]]
   
-  output$age_total <- renderPlotly({
-    age_graphs[[1]]
-  }) 
+  age_pop_list_full <<- age_summary_df %>%
+    group_by(SpeciesRun, POP_NAME) %>%
+    filter(POP_NAME != 'NA') %>%
+    dplyr::distinct(POP_NAME) %>%
+    arrange(POP_NAME)
   
-  output$age_ocean <- renderPlotly({
-    age_graphs[[2]]
-  })  
-  
-  output$age_stream <- renderPlotly({
-    age_graphs[[3]]
+  output$age_species <- renderUI({
+    selectInput(inputId= 'age_species', label= 'Choose Species:', choices= as.list(unique(age_pop_list_full$SpeciesRun)), selectize= FALSE, 
+                selected = 'Fall Chinook Salmon', multiple = FALSE)
   })
   
-    shinyjs::hide(id='age_spinner')
+  
+  shinyjs::hide(id='age_spinner')
+  shinyjs::hide(id= 'age_data_button')
+  
+  })
+  
+  # create our Age Sumamry Reactive Data
+  RV <- reactiveValues(age_data = NULL)
+  
+  observeEvent(input$age_species, {
+    
+    age_population_list <- age_pop_list_full %>%
+      filter(SpeciesRun == input$age_species) %>%
+      pull(POP_NAME)
+    
+    output$age_pop_name <- renderUI({
+      selectInput(inputId= 'age_pop_name', label= 'Choose Population:', choices= age_population_list, selectize= FALSE, 
+                  selected = 'Snake River Lower Mainstem', multiple = TRUE)
+    })
+    
+  })
+  
+  observeEvent(input$age_pop_name, {
+    # Reactive data! This feeds to each graph
+    RV$age_data <<- age_summary_df %>%
+      filter(SpeciesRun == input$age_species,
+             POP_NAME %in% input$age_pop_name,
+             POP_NAME != 'NA',
+             Origin != 'Unknown')  
+    
+    # Best Age Graphs
+    output$n_age_total <- renderPlotly({
+      # NATURAL
+      best_tmp <- RV$age_data %>%
+        mutate(BestAge = as.character(BestAge)) %>%
+        filter(Origin == 'Natural') %>%
+        group_by(SpeciesRun, POP_NAME, BestAge, best_weighted_mean, t_colors) %>%
+        distinct(BestAge) %>%
+        arrange(BestAge)
+      
+      shiny::validate(
+        need(nrow(best_tmp) > 0, message = '*No data for the current selection.')
+      )
+      
+        p_bestage <- plot_ly(data = best_tmp,
+                           type = 'bar',
+                           orientation = 'h',
+                           x = ~best_weighted_mean,
+                           y = ~POP_NAME,
+                           name = ~BestAge,
+                           hovertemplate = paste('%{x}'),
+                           # hovertemplate = paste(
+                           #   'Age %{name}, %{x}'),
+                           marker = list(color = ~t_colors),
+                           color = ~BestAge
+                           ) %>%
+        layout(title = list(text = '<b>Natural Origin Total Ages</b>',
+                            font = plotly_font),
+               barmode = 'stack',
+               xaxis = list(title = 'Percent of Total',
+                            titlefont = plotly_font,
+                            tickformat = "%",
+                            range = c(0,1.05)),
+               yaxis = list(title = ''))  
+
+    }) 
+    
+    output$h_age_total <- renderPlotly({
+      # HATCHERY
+      best_tmp <- RV$age_data %>%
+        mutate(BestAge = as.character(BestAge)) %>%
+        filter(Origin == 'Hatchery') %>%
+        group_by(SpeciesRun, POP_NAME, BestAge, best_weighted_mean, t_colors) %>%
+        distinct(BestAge) %>%
+        arrange(BestAge)
+      
+      shiny::validate(
+        need(nrow(best_tmp) > 0, message = '*No data for the current selection.')
+      )
+      
+      p_bestage <- plot_ly(data = best_tmp,
+                           type = 'bar',
+                           orientation = 'h',
+                           x = ~best_weighted_mean,
+                           y = ~POP_NAME,
+                           name = ~BestAge,
+                           hovertemplate = paste('%{x}'),
+                           marker = list(color = ~t_colors)
+                           ) %>%
+        layout(title = list(text = '<b>Hatchery Origin Total Ages</b>',
+                            font = plotly_font),
+               barmode = 'stack',
+               xaxis = list(title = 'Percent of Total',
+                            titlefont = plotly_font,
+                            tickformat = "%",
+                            range = c(0,1.05)),
+               yaxis = list(title = ''))  
+
+    })
+    
+    # Ocean Age Graphs
+    output$n_age_ocean <- renderPlotly({
+      # NATURAL
+      ocean_tmp <- RV$age_data %>% 
+        mutate(OceanAge = as.factor(OceanAge)) %>%
+        filter(Origin == 'Natural') %>%
+        group_by(SpeciesRun, POP_NAME, OceanAge, ocean_weighted_mean, o_colors) %>%
+        distinct(OceanAge) %>%
+        arrange(OceanAge)
+      
+      shiny::validate(
+        need(nrow(ocean_tmp) > 0, message = '*No data for the current selection.')
+      )
+
+        p_oceanage <- plot_ly(data = ocean_tmp,
+                             type = 'bar',
+                             orientation = 'h',
+                             x = ~ocean_weighted_mean,
+                             y = ~POP_NAME,
+                             name = ~OceanAge,
+                             hovertemplate = paste('%{x}'),
+                             marker = list(color = ~o_colors)
+                             ) %>%
+          layout(title = list(text = '<b>Natural Origin Ocean Ages</b>',
+                              font = plotly_font),
+                 barmode = 'stack',
+                 xaxis = list(title = 'Percent of Total',
+                              titlefont = plotly_font,
+                              tickformat = "%",
+                              range = c(0,1.05)),
+                 yaxis = list(title = '')) 
+    })  
+    
+    output$h_age_ocean <- renderPlotly({
+      # HATCHERY
+      ocean_tmp <- RV$age_data %>% 
+        mutate(OceanAge = as.factor(OceanAge)) %>%
+        filter(Origin == 'Hatchery') %>%
+        group_by(SpeciesRun, POP_NAME, OceanAge, ocean_weighted_mean, o_colors) %>%
+        distinct(OceanAge) %>%
+        arrange(OceanAge)
+      
+      shiny::validate(
+        need(nrow(ocean_tmp) > 0, message = '*No data for the current selection.')
+      )
+      
+      p_oceanage <- plot_ly(data = ocean_tmp,
+                            type = 'bar',
+                            orientation = 'h',
+                            x = ~ocean_weighted_mean,
+                            y = ~POP_NAME,
+                            name = ~OceanAge,
+                            hovertemplate = paste('%{x}'),
+                            marker = list(color = ~o_colors)
+                            ) %>%
+        layout(title = list(text = '<b>Hatchery Origin Ocean Ages</b>',
+                            font = plotly_font),
+               barmode = 'stack',
+               xaxis = list(title = 'Percent of Total',
+                            titlefont = plotly_font,
+                            tickformat = "%",
+                            range = c(0,1.05)),
+               yaxis = list(title = '')) 
+    }) 
+    
+    # Stream Age Graphs
+    output$n_age_stream <- renderPlotly({
+      # NATURAL
+      stream_tmp <- RV$age_data %>% 
+        mutate(StreamAge = as.factor(StreamAge)) %>%
+        filter(Origin == 'Natural') %>%
+        group_by(SpeciesRun, POP_NAME, StreamAge, stream_weighted_mean, s_colors) %>%
+        distinct(StreamAge) %>%
+        arrange(StreamAge)
+      
+      shiny::validate(
+        need(nrow(stream_tmp) > 0, message = '*No data for the current selection.')
+      )
+
+      p_streamage <- plot_ly(data = stream_tmp,
+                           type = 'bar',
+                           orientation = 'h',
+                           x = ~stream_weighted_mean,
+                           y = ~POP_NAME,
+                           name = ~StreamAge,
+                           hovertemplate = paste('%{x}'),
+                           marker = list(color = ~s_colors)
+                           ) %>%
+        layout(title = list(text = '<b>Natural Origin Stream Ages</b>',
+                            font = plotly_font),
+               barmode = 'stack',
+               xaxis = list(title = 'Percent of Total',
+                            titlefont = plotly_font,
+                            tickformat = "%",
+                            range = c(0,1.05)),
+               yaxis = list(title = '')) 
+    })
+    
+    output$h_age_stream <- renderPlotly({
+      # HATCHERY
+      stream_tmp <- RV$age_data %>% 
+        mutate(StreamAge = as.factor(StreamAge)) %>%
+        filter(Origin == 'Hatchery') %>%
+        group_by(SpeciesRun, POP_NAME, StreamAge, stream_weighted_mean, s_colors) %>%
+        distinct(StreamAge) %>%
+        arrange(StreamAge)
+      
+      shiny::validate(
+        need(nrow(stream_tmp) > 0, message = '*No data for the current selection.')
+      )
+      
+      p_streamage <- plot_ly(data = stream_tmp,
+                             type = 'bar',
+                             orientation = 'h',
+                             x = ~stream_weighted_mean,
+                             y = ~POP_NAME,
+                             name = ~StreamAge,
+                             hovertemplate = paste('%{x}'),
+                             marker = list(color = ~s_colors)
+                             ) %>%
+        layout(title = list(text = '<b>Hatchery Origin Stream Ages</b>',
+                            font = plotly_font),
+               barmode = 'stack',
+               xaxis = list(title = 'Percent of Total',
+                            titlefont = plotly_font,
+                            tickformat = "%",
+                            range = c(0,1.05)),
+               yaxis = list(title = '')) 
+    })
+    
   })
   
   # Restricted Data Access Tab ----
@@ -698,7 +1067,7 @@ server <- function(input, output, session) {
       disable(id='custom_submit')
 
       if(input$custom_query_menu == 'RST Summary') {
-        RV$cq_data <<- summariseRST()
+        RV$cq_data <<- summariseRST()[[2]]
       } else {
         RV$cq_data <<- summariseSGS() #'SGS Summary'
       }

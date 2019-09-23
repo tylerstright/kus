@@ -63,7 +63,7 @@ agedata_mod <- raw_age %>%
 adult_df <- agedata_mod %>%
   filter(Lifestage == 'Adult',
          CalculatedAge != -99) %>%
-  select(UniqueFishID, SpeciesRun, CollectionRepository, AgeDetermination, StreamAge, OceanAge, CalculatedAge) %>%
+  select(UniqueFishID, SpeciesRun, Origin, POP_NAME, CollectionRepository, AgeDetermination, StreamAge, OceanAge, CalculatedAge) %>%
   group_by(UniqueFishID, CollectionRepository, AgeDetermination) %>%
   distinct(UniqueFishID, .keep_all = TRUE) %>%
   spread(key = AgeDetermination, value = CalculatedAge) %>%
@@ -363,5 +363,108 @@ p_totalage <- subplot(p_sgs_total, p_weir_total, nrows = 2, shareX = TRUE, title
 # print(p_oceanage)
 
 
-  return(list(p_totalage, p_oceanage, p_streamage))
+# Summarizing for Kus Age Summary Tab ----
+
+# STREAM AGE
+stream_sum <- adult_df %>%
+  filter(StreamAge != -99) %>%
+  group_by(SpeciesRun, Origin, POP_NAME, CollectionRepository, StreamAge) %>%
+  summarize(stream_count = n())
+
+stream_sum_total <- adult_df %>%
+  filter(StreamAge != -99) %>% #  CollectionRepository != 'PTAGIS'
+  group_by(SpeciesRun, Origin, POP_NAME, CollectionRepository) %>%
+  summarize(stream_total = n()) %>%
+  left_join(stream_sum, by = c('SpeciesRun', 'Origin', 'POP_NAME', 'CollectionRepository')) %>%
+  ungroup() %>%
+  group_by(SpeciesRun, Origin, POP_NAME, StreamAge) %>%
+  mutate(stream_percent = stream_count/stream_total) %>%
+  summarise(stream_weighted_mean = weighted.mean(stream_percent, stream_count))
+
+stream_df <- stream_sum_total %>%
+  group_by(SpeciesRun, Origin, POP_NAME) %>%
+  summarise(wa_sum = sum(stream_weighted_mean)) %>%
+  right_join(stream_sum_total, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
+  mutate(stream_weighted_mean = stream_weighted_mean/wa_sum)%>%
+  select(-wa_sum)
+  
+# OCEAN AGE
+ocean_sum <- adult_df %>%
+  filter(OceanAge != -99) %>%
+  group_by(SpeciesRun, Origin, POP_NAME, CollectionRepository, OceanAge) %>%
+  summarize(ocean_count = n())
+
+ocean_sum_total <- adult_df %>%
+  filter(OceanAge != -99) %>%
+  group_by(SpeciesRun, Origin, POP_NAME, CollectionRepository) %>%
+  summarize(ocean_total = n()) %>%
+  left_join(ocean_sum, by = c('SpeciesRun', 'Origin', 'POP_NAME', 'CollectionRepository')) %>%
+  ungroup() %>%
+  group_by(SpeciesRun, Origin, POP_NAME, OceanAge) %>%
+  mutate(ocean_percent = ocean_count/ocean_total) %>%
+  summarise(ocean_weighted_mean = weighted.mean(ocean_percent, ocean_count))
+
+ocean_df <- ocean_sum_total %>%
+  group_by(SpeciesRun, Origin, POP_NAME) %>%
+  summarise(wa_sum = sum(ocean_weighted_mean)) %>%
+  right_join(ocean_sum_total, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
+  mutate(ocean_weighted_mean = ocean_weighted_mean/wa_sum) %>%
+  select(-wa_sum)
+
+# TOTAL AGE (Best = chosen from avaiable sample types)
+best_sum <- adult_df %>%
+  filter(BestAge != -99) %>%
+  group_by(SpeciesRun, Origin, POP_NAME, CollectionRepository, BestAge) %>%
+  summarize(best_count = n())
+
+best_sum_total <- adult_df %>%
+  filter(BestAge != -99) %>% 
+  group_by(SpeciesRun, Origin, POP_NAME, CollectionRepository) %>%
+  summarize(best_total = n()) %>%
+  left_join(best_sum, by = c('SpeciesRun', 'Origin', 'POP_NAME', 'CollectionRepository')) %>%
+  ungroup() %>%
+  group_by(SpeciesRun, Origin, POP_NAME, BestAge) %>%
+  mutate(best_percent = best_count/best_total) %>%
+  summarise(best_weighted_mean = weighted.mean(best_percent, best_count))
+  
+best_df <- best_sum_total %>%
+  group_by(SpeciesRun, Origin, POP_NAME) %>%
+  summarise(wa_sum = sum(best_weighted_mean)) %>%
+  right_join(best_sum_total, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
+  mutate(best_weighted_mean = best_weighted_mean/wa_sum) %>%
+  select(-wa_sum)
+
+
+age_summary_df <- stream_df %>%
+  left_join(ocean_df, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
+  left_join(best_df, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
+  select(SpeciesRun, Origin, POP_NAME, StreamAge, OceanAge, BestAge, stream_weighted_mean, ocean_weighted_mean, best_weighted_mean) %>%
+  mutate(t_colors = case_when(
+    BestAge == 0 ~ "#440154FF",
+    BestAge == 1 ~ "#443A83FF",
+    BestAge == 2 ~ "#31688EFF",
+    BestAge == 3 ~ "#21908CFF",
+    BestAge == 4 ~ "#35B779FF",
+    BestAge == 5 ~ "#8FD744FF",
+    BestAge == 6 ~ "#FDE725FF"),
+    o_colors = case_when(
+      OceanAge == 0 ~ "#440154FF",
+      OceanAge == 1 ~ "#443A83FF",
+      OceanAge == 2 ~ "#31688EFF",
+      OceanAge == 3 ~ "#21908CFF",
+      OceanAge == 4 ~ "#35B779FF",
+      OceanAge == 5 ~ "#8FD744FF",
+      OceanAge == 6 ~ "#FDE725FF"),
+    s_colors = case_when(
+      StreamAge == 0 ~ "#440154FF",
+      StreamAge == 1 ~ "#443A83FF",
+      StreamAge == 2 ~ "#31688EFF",
+      StreamAge == 3 ~ "#21908CFF",
+      StreamAge == 4 ~ "#35B779FF",
+      StreamAge == 5 ~ "#8FD744FF",
+      StreamAge == 6 ~ "#FDE725FF")
+    )
+  
+
+  return(list(p_totalage, p_oceanage, p_streamage, age_summary_df))
 }

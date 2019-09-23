@@ -44,6 +44,9 @@ html_code <- NULL
 user_info <- NULL
 raw_dat <- NULL
 
+# plotly font for graph titles
+plotly_font <<- list(family = 'Balto') # family, size, color
+
   # Initial login without restricted permissions
 startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
 html_code <- status_code(startup_status)

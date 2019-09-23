@@ -68,23 +68,23 @@ body <- dashboardBody(
   # Spawning Ground Survey Summaries Tab ----
   tabItem(tabName = 'tab_sgs',
           fluidRow(
+            column(12,
             box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
                 uiOutput(outputId = 'sgs_data_button'),
                 uiOutput(outputId = 'sgs_species'),
                 uiOutput(outputId = 'sgs_pop_name')
             ),
             box(width = 7, 
-              img(src='lostine_rst.jpg', width = '100%', height='auto') 
-                )
+              img(src='carcass.png', width = '100%', height='auto') 
+                ))
           ),
           fluidRow(
-            box(title = "Yearly Total Redd Counts", width = 12,
-                plotlyOutput('p_redds'))
+            box(width = 12, plotlyOutput('p_redds'))
           ),
           fluidRow(
-            box(title = 'Percent Females', width = 4, plotlyOutput('p_females')),
-            box(title = 'Percent Hatchery Spawners', width = 4, plotlyOutput('p_phos')),
-            box(title = 'Prespawn Mortalities', width = 4, plotlyOutput('p_psm'))
+            box(width = 4, plotlyOutput('p_females')),
+            box(width = 4, plotlyOutput('p_phos')),
+            box(width = 4, plotlyOutput('p_psm'))
           ),
           box(width = 12, 
               title = 'Tabular Summary Data',
@@ -110,6 +110,7 @@ body <- dashboardBody(
   # Juvenile Monitoring Summaries Tab ----
   tabItem(tabName = 'tab_juv',
           fluidRow(
+            column(12, 
             box(title = 'Juvenile Outmigrant Summary', status='info', width= 5,
                 uiOutput(outputId = 'juv_data_button'),
                 uiOutput(outputId = 'juv_species'),
@@ -117,21 +118,16 @@ body <- dashboardBody(
             ),
             box(width = 7, 
                 img(src='lostine_rst.jpg', width = '100%', height='auto') 
-            )
+            ))
           ),
           fluidRow(
-            box(title = "Natural Origin Smolt Abundance", width = 12, plotlyOutput('j_abundance'))
+            box(width = 12, plotlyOutput('j_abundance'))
                   ),
           fluidRow(
-            box(title = "Natural Origin Smolt Survival to Lower Granite Dam", width = 6, plotlyOutput('j_survival')),
-            box(title = "Natural Origin Smolt Equivalents at Lower Granite Dam", width = 6, plotlyOutput('j_equivalents'))
+            box(width = 6, plotlyOutput('j_survival')),
+            box(width = 6, plotlyOutput('j_equivalents'))
           ),
-          # fluidRow(
-          #   box(title = "Natural Origin Smolt Survival to Lower Granite Dam", width = 12, plotlyOutput('j_survival'))
-          #         ),
-          # fluidRow(
-          #   box(title = "Natural Origin Smolt Equivalents at Lower Granite Dam", width = 12, plotlyOutput('j_equivalents'))
-          #         ),
+
           box(width = 12, title = 'Tabular Summary Data',
               fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('juv_table'))
@@ -140,24 +136,30 @@ body <- dashboardBody(
           
   # Age Sampling Tab ----
       tabItem(tabName = 'tab_age',
-              box(width = 12, 
-                  fluidRow(
-                    column(2, offset = 5, actionButton('age_summary_btn', label = 'Populate Age Summaries', icon = icon('table'))
-                           ),
-                    column(5, hidden(div(id='age_spinner',img(src='Fish.gif', style = 'height:30px'))))
-                          ),
-                  helpText(HTML('<em> *Data load may take several minutes.</em>'), style = 'text-align:center;'),
-                  hr(), 
-                  fluidRow(column(12, plotlyOutput('age_total')))
-                  ),
               fluidRow(
-              box(width = 6,
-                  fluidRow(column(12, plotlyOutput('age_stream')))
-                  ),
-              box(width = 6, 
-                  fluidRow(column(12, plotlyOutput('age_ocean')))
-                  ) 
-                )
+                column(12,
+                box(title = 'Age Data Summary', status='info', width= 5,
+                    uiOutput(outputId = 'age_data_button'),
+                    uiOutput(outputId = 'age_species'),
+                    uiOutput(outputId = 'age_pop_name')
+                    ),
+                box(width = 7, 
+                    img(src='scale.png', width = '100%', height='auto') 
+                    ))
+                ),
+              hr(),
+              fluidRow(
+                column(6,
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_total')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_ocean')))), 
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_stream'))))
+                       ),
+                column(6,
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_total')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_ocean')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_stream'))))
+                       )
+                       )
               ), # tab
   # Restricted Data Access Tab ----
     # CDMS Datasets ----
