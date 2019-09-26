@@ -1,7 +1,7 @@
 # Kus UI
 
 # DashboardHeader ----
-header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),
+header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),  # Title actually shown on browser tab located in dashboardPage()
                           tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, height = '40px'), 
                                   class = 'dropdown', style = 'position: fixed; left:40px; padding-top:6px'),
                           tags$li(tags$a("DFRM Home", href= 'http://www.nptfisheries.org', target ='_blank', class='navlinks'),
@@ -14,7 +14,6 @@ header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right
                           tags$li(tags$a(uiOutput('login_logout')), class = 'dropdown', style= 'position:absolute; left:42px')
                           )
 
-
 # Dashboard Sidebar ----
 sidebar <- dashboardSidebar(
     useShinyjs(), # Activate ShinyJS
@@ -22,8 +21,8 @@ sidebar <- dashboardSidebar(
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
-               menuSubItem('Weir Collections', tabName = 'tab_weir'),
-               menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
+               # menuSubItem('Weir Collections', tabName = 'tab_weir'),
+               # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
                menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
                menuSubItem('Age Sampling', tabName = 'tab_age')
                ),
@@ -32,8 +31,8 @@ sidebar <- dashboardSidebar(
                menuSubItem('Custom Queries', tabName = 'tab_custom'),
                menuSubItem('Reports', tabName = 'tab_reports')
                ),
-      br(), br(), br(), br(), br(), # spacers.
-      img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;') # DFRM Logo
+      br(), br(), br(), br(), br()#, # spacers
+      # img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;') # DFRM Logo
     )
   )
 
@@ -68,91 +67,98 @@ body <- dashboardBody(
   # Spawning Ground Survey Summaries Tab ----
   tabItem(tabName = 'tab_sgs',
           fluidRow(
+            column(12,
             box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
-                fluidRow(
-                  column(9, actionButton(inputId= 'sgs_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
-                  column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; '))))
-                         ),
-                helpText(HTML('<em> *Initial data load may take several minutes.</em>')),
+                uiOutput(outputId = 'sgs_data_button'),
                 uiOutput(outputId = 'sgs_species'),
                 uiOutput(outputId = 'sgs_pop_name')
             ),
             box(width = 7, 
-              img(src='lostine_rst.jpg', width = '100%', height='auto') 
-                )
+              img(src='carcass.png', width = '100%', height='auto') 
+                ))
           ),
           fluidRow(
-            box(title = "Total Redds by Year", width = 12,
-                plotlyOutput('p_redds'))
+            box(width = 12, plotlyOutput('p_redds'))
           ),
           fluidRow(
-            box(title = "Total Carcasses by Year", width = 12,
-                plotlyOutput('p_carcass'))
+            box(width = 4, plotlyOutput('p_females')),
+            box(width = 4, plotlyOutput('p_phos')),
+            box(width = 4, plotlyOutput('p_psm'))
+          ),
+          box(width = 12, 
+              title = 'Tabular Summary Data',
+              fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table'))
           )
   ),
   
   # Weir Collections Summaries Tab ----
-  tabItem(tabName = 'tab_weir',
-          fluidRow(
-            box(title = 'Weir Collection Summaries',
-                helpText('Sorry! This page is currently under contruction.'))
-          )),
+  # tabItem(tabName = 'tab_weir',
+  #         fluidRow(
+  #           box(title = 'Weir Collection Summaries',
+  #               helpText('Sorry! This page is currently under contruction.'))
+  #         )),
           
   # In-Stream Array Abundance Summaries Tab ----
-  tabItem(tabName = 'tab_array',
-          fluidRow(
-            box(title = 'In-Stream Array Summaries',
-                helpText('Sorry! This page is currently under contruction.'))
-          )),
+  # tabItem(tabName = 'tab_array',
+  #         fluidRow(
+  #           box(title = 'In-Stream Array Summaries',
+  #               helpText('Sorry! This page is currently under contruction.'))
+  #         )),
           
   # Juvenile Monitoring Summaries Tab ----
   tabItem(tabName = 'tab_juv',
           fluidRow(
-            box(title = 'Juvenile Summaries', status='info', width= 5,
-                
-                fluidRow(
-                  column(9, actionButton(inputId= 'juv_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
-                  column(1, hidden(div(id='juv_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
-                ),
-                helpText(HTML('<em> *Initial data load may take several minutes.</em>')),
+            column(12, 
+            box(title = 'Juvenile Outmigrant Summary', status='info', width= 5,
+                uiOutput(outputId = 'juv_data_button'),
                 uiOutput(outputId = 'juv_species'),
                 uiOutput(outputId = 'juv_pop_name')
             ),
             box(width = 7, 
                 img(src='lostine_rst.jpg', width = '100%', height='auto') 
-            )
+            ))
           ),
           fluidRow(
-            box(title = "Natural Juvenile Abundance Estimates", width = 12, plotlyOutput('j_abundance'))
+            box(width = 12, plotlyOutput('j_abundance'))
                   ),
           fluidRow(
-            box(title = "Natural Juvenile Survival Estimates to Lower Granite Dam", width = 12, plotlyOutput('j_survival'))
-                  ),
-          fluidRow(
-            box(title = "Natural Juvenile Equivalents at Lower Granite Dam", width = 12, plotlyOutput('j_equivalents'))
-                  )
+            box(width = 6, plotlyOutput('j_survival')),
+            box(width = 6, plotlyOutput('j_equivalents'))
+          ),
+
+          box(width = 12, title = 'Tabular Summary Data',
+              fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('juv_table'))
+              )
           ),
           
   # Age Sampling Tab ----
       tabItem(tabName = 'tab_age',
-              box(width = 12, 
-                  fluidRow(
-                    column(2, offset = 5, actionButton('age_summary_btn', label = 'Populate Age Summaries', icon = icon('table'))
-                           ),
-                    column(5, hidden(div(id='age_spinner',img(src='Fish.gif', style = 'height:30px'))))
-                          ),
-                  helpText(HTML('<em> *Data load may take several minutes.</em>'), style = 'text-align:center;'),
-                  hr(), 
-                  fluidRow(column(12, plotlyOutput('age_total')))
-                  ),
               fluidRow(
-              box(width = 6,
-                  fluidRow(column(12, plotlyOutput('age_stream')))
-                  ),
-              box(width = 6, 
-                  fluidRow(column(12, plotlyOutput('age_ocean')))
-                  ) 
-                )
+                column(12,
+                box(title = 'Age Data Summary', status='info', width= 5,
+                    uiOutput(outputId = 'age_data_button'),
+                    uiOutput(outputId = 'age_species'),
+                    uiOutput(outputId = 'age_pop_name')
+                    ),
+                box(width = 7, 
+                    img(src='scale.png', width = '100%', height='auto') 
+                    ))
+                ),
+              hr(),
+              fluidRow(
+                column(6,
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_total')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_ocean')))), 
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_stream'))))
+                       ),
+                column(6,
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_total')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_ocean')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_stream'))))
+                       )
+                       )
               ), # tab
   # Restricted Data Access Tab ----
     # CDMS Datasets ----
@@ -173,7 +179,6 @@ body <- dashboardBody(
                               selectInput(inputId= 'q_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
                               selectInput(inputId= 'q_pop_name', label= 'Choose Population:', choices= NULL, selected = NULL, multiple = TRUE),
                               selectInput(inputId= 'q_stream', label= 'Choose Stream:', choices= NULL, selected = NULL, multiple = TRUE),
-                              # selectInput(inputId= 'q_transect', label= 'Choose Transect:', choices= NULL, selected = NULL, multiple = TRUE),
                               br(),
                               fluidRow(
                                 column(8, offset = 2, actionButton('clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
@@ -181,7 +186,9 @@ body <- dashboardBody(
                               )
               ),
               hr(),
-              fluidRow(column(12, align = "center", downloadButton("raw_export", label = "Export .CSV File"))),
+              fluidRow(column(12, align = "center", 
+                              uiOutput('selected_cdms'), hr(),
+                              downloadButton("raw_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
               )
       ),
@@ -207,18 +214,36 @@ body <- dashboardBody(
                              )
                 ),
               box(width = 12, 
-                  fluidRow(column(12, align = "center", downloadButton("custom_export", label = "Export .CSV File"))),
+                  fluidRow(column(12, align = "center", 
+                                  uiOutput('selected_custom'),
+                                  downloadButton("custom_export", label = "Export .CSV File"))),
                   div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
               )
         ),
     # Reports ----
       tabItem(tabName = 'tab_reports',
               fluidRow(
-                box(title = 'Reports!',
-                    helpText('Sorry! This page is currently under construction. Come back later!'))
+                box(width = 12,
+                    h2('Reports!', style = 'text-align: center;'),
+                    h4('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. similar graphs and tables of information), we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.'),
+                    h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
+                    )
+              ),
+              fluidRow(
+                box(width = 12,
+                    title = 'Report Download',
+                    selectInput('pdf_reports', "Available Reports:", choices = c('Juvenile Summary MY17', 'SGS Summary SY18'), 
+                                selected = 'Juvenile Summary MY17'),
+                    downloadButton('reports', label = 'Download Report')
+                    # fluidRow(
+                    #   column(2, downloadButton('reports', label = 'Download Report')),
+                    #   # column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; '))))
+                    #   column(1, div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; ')))
+                    #         )
+                    )
               ))
   
     ) #tabItems
   ) #dashboardBody
 
-dashboardPage(header, sidebar, body, skin= 'blue')
+dashboardPage(title = "Nez Perce Tribe's Kus Web Application", header, sidebar, body, skin= 'blue')

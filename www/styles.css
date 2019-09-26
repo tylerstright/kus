@@ -16,9 +16,13 @@ Hex	RBG
 
 #juv_spinner {height:30px;}
 
+#age_spinner {height:30px;}
+
 #datasets_spinner {height:30px;}
 
 #query_spinner {height:30px;}
+
+#reports_spinner {height:30px;}
 
 .navlinks {
   color: white;
@@ -47,6 +51,12 @@ Hex	RBG
 background-color: #ECF0F5;
 overflow:auto; /* extend when page grows */
 }
+
+/*
+body {
+  min-height: 700px;
+  min-width: 1200px;
+} */
 
 #kustitle {
   font-family: Impact;
