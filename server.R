@@ -321,8 +321,7 @@ server <- function(input, output, session) {
                xaxis= list(title = ''),
                yaxis= list(title= 'Prespawn Mortality',
                            titlefont = plotly_font,
-                           tickformat = "%",
-                           range = c(0,1.05)))
+                           tickformat = "%"))
     })
     
   })
@@ -852,7 +851,7 @@ server <- function(input, output, session) {
   
   output$raw_dataset_menu <- renderUI({
     
-    dataset <- datasets %>%
+    dataset <<- datasets %>%
       select(DatastoreId, DatastoreName) %>%
       distinct(DatastoreId, .keep_all = TRUE) %>%
       filter(!DatastoreId %in% c(81:84, 87:91)) %>% 
@@ -916,6 +915,15 @@ server <- function(input, output, session) {
       
       updateSelectInput(session, inputId= 'test', label= 'DATA LOAD WORKED!', choices= sort(unique(RV$query_data$LocationLabel)),
                         selected = NULL) 
+      
+      # Display loaded CDMS Dataset
+      output$selected_cdms <- renderText({
+        selected_df <- dataset %>%
+          filter(DatastoreId == isolate(input$datasets)) %>%
+          pull(DatastoreName)
+        
+        paste0(h2('Currently Loaded Dataset: ', selected_df))
+      })
 
         shinyjs::hide(id='datasets_spinner')
         enable(id = 'raw_submit')
@@ -1069,11 +1077,20 @@ server <- function(input, output, session) {
       if(input$custom_query_menu == 'RST Summary') {
         RV$cq_data <<- summariseRST()[[2]]
       } else {
-        RV$cq_data <<- summariseSGS() #'SGS Summary'
+        if(input$custom_query_menu == 'Fall Chinook Redd Summary') {
+          RV$cq_data <<- sum_FCHN_redds() 
+        } else{
+          RV$cq_data <<- summariseSGS() #'SGS Summary'
+          }
       }
     
       updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$cq_data), selected = NULL) 
 
+      # Display loaded Custom Query
+      output$selected_custom <- renderText({
+        paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
+      })
+      
     enable(id='custom_query_menu')
     enable(id='custom_submit')
     hide(id='query_spinner')
@@ -1106,5 +1123,33 @@ server <- function(input, output, session) {
   )
   
   # Reports ----
+  
+  # PDF Reports ----
+  
+  output$reports <- downloadHandler(
+    
+    # filename = 'test.pdf',
+    filename = function(){
+      paste0(gsub(" ","_",input$pdf_reports),
+             "_",
+             format(Sys.time(), "%m_%d_%y_%H%M%S"),
+             ".pdf")
+    },
+    
+    content = function(file){
+
+            # Dynamic File Path based on input$pdf_reports
+      if(input$pdf_reports == 'Juvenile Summary MY17') {
+        tempReport <- file.path(getwd(), "JUV_Status_Report.Rmd")
+
+        } else {
+          tempReport <- file.path(getwd(), "SGS_Status_Report.Rmd")
+      
+          }
+      
+      rmarkdown::render(tempReport, output_file = file, envir = new.env(parent = globalenv()))
+      
+    }
+  )
   
 } # close Server

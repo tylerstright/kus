@@ -14,7 +14,6 @@ header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right
                           tags$li(tags$a(uiOutput('login_logout')), class = 'dropdown', style= 'position:absolute; left:42px')
                           )
 
-
 # Dashboard Sidebar ----
 sidebar <- dashboardSidebar(
     useShinyjs(), # Activate ShinyJS
@@ -32,8 +31,8 @@ sidebar <- dashboardSidebar(
                menuSubItem('Custom Queries', tabName = 'tab_custom'),
                menuSubItem('Reports', tabName = 'tab_reports')
                ),
-      br(), br(), br(), br(), br(), # spacers
-      img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;') # DFRM Logo
+      br(), br(), br(), br(), br()#, # spacers
+      # img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;') # DFRM Logo
     )
   )
 
@@ -187,7 +186,9 @@ body <- dashboardBody(
                               )
               ),
               hr(),
-              fluidRow(column(12, align = "center", downloadButton("raw_export", label = "Export .CSV File"))),
+              fluidRow(column(12, align = "center", 
+                              uiOutput('selected_cdms'), hr(),
+                              downloadButton("raw_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
               )
       ),
@@ -213,17 +214,27 @@ body <- dashboardBody(
                              )
                 ),
               box(width = 12, 
-                  fluidRow(column(12, align = "center", downloadButton("custom_export", label = "Export .CSV File"))),
+                  fluidRow(column(12, align = "center", 
+                                  uiOutput('selected_custom'),
+                                  downloadButton("custom_export", label = "Export .CSV File"))),
                   div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
               )
         ),
     # Reports ----
       tabItem(tabName = 'tab_reports',
               fluidRow(
-                box(width = 12, title = 'Reports!',
-                    h2('There are currently no saved Reports.', style = 'text-align: center;'),
+                box(width = 12,
+                    h2('Reports!', style = 'text-align: center;'),
                     h4('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. similar graphs and tables of information), we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.'),
-                    h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.')
+                    h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
+                    )
+              ),
+              fluidRow(
+                box(width = 12,
+                    title = 'Report Download',
+                    selectInput('pdf_reports', "Available Reports:", choices = c('Juvenile Summary MY17', 'SGS Summary SY18'), 
+                                selected = 'Juvenile Summary MY17'),
+                    downloadButton('reports', label = 'Download Report')
                     )
               ))
   

@@ -9,7 +9,7 @@ library(lubridate)
 library(plotly)
 library(shinyjs)
 library(viridis)
-# library(markdown)
+library(markdown)
 # library(sf) 
 library(DT)
 
@@ -18,6 +18,7 @@ library(cdmsR)
 #library(cuyem)
 
 # Source
+source('./R/sum_FCHN_redds.R') # custom query
 source('./R/summariseSGS.R') # custom query
 source('./R/summariseRST.R') # custom query
 source('./R/summariseAGE.R') # summary page function
@@ -54,8 +55,9 @@ user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
 
 # Custom Query df
-  query_names <- c('-Select Custom Query-', 'RST Summary', 'SGS Summary')
+  query_names <- c('-Select Custom Query-', 'Fall Chinook Redd Summary', 'RST Summary', 'SGS Summary')
   
-  query_descriptions <- c('Choose a dataset to see description.', 'Combined abundance and survival data summaries.', 'Combined redd and carcass data summarized by population.')
+  query_descriptions <- c('Choose a dataset to see description.', 'Summarized yearly aerial Fall Chinook redd counts per RKM.', 
+                          'Combined abundance and survival data summaries.', 'Combined redd and carcass data summarized by population.')
   
   custom_query_df <- tibble(query_names, query_descriptions)

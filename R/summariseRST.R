@@ -43,7 +43,8 @@ summariseRST <- function() {
   
   # Dataframe for Custom Queries Tab :
   RST_customq_df <- tmp_abundance %>%
-    full_join(tmp_survival) %>%
+    full_join(tmp_survival, by = c("ESU_DPS", "MPG", "POP_NAME", "TRT_POPID", "SpeciesRun", "Species", "Run", "StreamName", "TribToName", "LocationLabel", 
+                                   "Origin", "BroodYear", "MigratoryYear", "Lifestage", "Year")) %>%
     mutate(Ab_SE = round(Ab_SE, 0),
            Equivalents = round(Abundance*Survival, digits = 0),
            Survival = round(Survival, 2),

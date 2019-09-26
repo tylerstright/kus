@@ -1,0 +1,128 @@
+---
+title: |
+    | Nez Perce Tribe
+    | Juvenile Monitoring Status Report
+    | Migration Year 2017
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: pdf_document
+always_allow_html: yes
+header-includes:
+    - \usepackage{booktabs}
+    - \usepackage{pdflscape} 
+---
+```{r Useful or useless?, include=FALSE}
+# classoption: landscape
+# header-includes:
+#   - \usepackage{pdflscape}    This inclusion (for landscape pages) is breaking it in shiny
+# params:
+#   n: NA
+```
+```{r Rmd Setup, include=FALSE}
+options(knitr.kable.NA = '') # removes NA values from kable (applies to all)
+library(cdmsR)
+library(knitr)
+library(kableExtra) 
+library(tidyverse)
+library(lubridate)
+
+source('./R/cdms_api_keys.R')
+source('./R/summariseRST.R')
+```
+
+```{r CDMS Login, include = FALSE}
+keys <- cdmsKeys()
+cdms_host <- keys[1]
+username <- keys[2]
+api_key <- keys[3]
+
+cdmsLogin(username, api_key) #login.
+```
+
+```{r Data Processing: Juvenile Abundance/Survival/Equivalents, include=FALSE}
+ASE_df <- summariseRST()[[2]] %>%
+  filter(MigratoryYear == 2017) %>%
+  select(POP_NAME, SpeciesRun, StreamName, LocationLabel, SampleType, Origin, BroodYear, MigratoryYear, Year, Lifestage, Abundance, Ab_SE, Ab_L95, Ab_U95, 
+         ReleaseType, ReleaseGroup, AdClipped, SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95, Equivalents)
+
+# Natural A/S/E
+nat_ASE <- ASE_df %>%
+  filter(Origin == 'Natural') %>%
+  select(StreamName, SpeciesRun, Lifestage, Abundance, Ab_SE, Ab_L95, Ab_U95, Survival, Surv_SE, Surv_L95, Surv_U95, Equivalents) %>%
+  rename(`Rotary Screw Trap` = StreamName)
+
+# Hatchery Survival
+hat_SUV <- ASE_df %>%
+  filter(Origin == 'Hatchery') %>%
+  select(StreamName, LocationLabel, SpeciesRun, Lifestage, ReleaseType, Survival, Surv_SE, Surv_L95, Surv_U95) %>%
+  rename(`Release Site` = LocationLabel)
+
+# N v H Survival
+nat_streams <- nat_ASE %>%
+  distinct(`Rotary Screw Trap`) %>% # RST = StreamName
+  pull(`Rotary Screw Trap`)
+
+hat_streams <- hat_SUV %>%
+  distinct(StreamName) %>%
+  pull(StreamName)
+
+hat_streams_df <- ASE_df %>%
+  filter(Origin == 'Hatchery',
+         StreamName %in% nat_streams)
+
+nvh_surv <- ASE_df %>%
+  filter(Origin == 'Natural', 
+         StreamName %in% hat_streams) %>%
+  full_join(hat_streams_df, by = c('POP_NAME', 'SpeciesRun', 'StreamName', 'LocationLabel', 'Lifestage', 'Origin', 'BroodYear', 'MigratoryYear',
+                                   'ReleaseGroup', 'Abundance', 'Ab_SE', 'Ab_L95', 'Ab_U95', 'SurvivalTo', 'Survival', 'Surv_SE', 
+                                   'Surv_L95', 'Surv_U95')) %>%
+  filter(!is.na(Survival)) %>%
+  select(StreamName, LocationLabel, Origin, Lifestage, ReleaseGroup, Survival, Surv_SE, Surv_L95, Surv_U95) %>%
+  arrange(StreamName, Lifestage, Origin) %>%
+  rename(`Release Site` = LocationLabel)
+
+```
+
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics{www/NPT.png}
+  \end{center}
+\end{figure}
+
+\begin{center}
+
+{\large Prepared by:}
+
+{\Large Tyler Stright
+
+\vfill
+
+Nez Perce Tribe\\
+Department of Fisheries Resource Management\\
+Fisheries Research Division\\
+Lapwai, ID 83540\\
+}
+
+{\vspace{5mm}}
+
+\end{center}
+
+\newpage
+
+```{r Table 1: RST Ab/Surv/Eq, echo=FALSE}
+kable(nat_ASE, caption = 'Migratory year 2017 abundance, survival to Lower Granite Dam, and smolt equivalent estimates for natural origin fish interrogated at Rotary Screw Traps maintained by the Nez Perce Tribe Department of Fisheries Resource Management.', booktabs = TRUE) %>%
+  kable_styling(latex_options = 'scale_down') %>%
+  add_footnote(label = 'Blank fields indicate missing data.')
+```
+
+```{r Table 2: Hatchery Survivals, echo=FALSE}
+kable(hat_SUV, caption = 'Migratory year 2017 survival estimates to Lower Granite Dam for hatchery origin fish released by the Nez Perce Tribe Department of Fisheries Resource Management.', booktabs = TRUE) %>%
+  kable_styling(latex_options = 'scale_down') %>%
+  add_footnote(label = 'Blank fields indicate missing data.')
+```
+
+```{r Table 4: Nat v Hat Survival, echo=FALSE}
+kable(nvh_surv, caption = 'Survival estimates to Lower Granite Dam in Migration Year 2017 for hatchery and natural origin Spring/Summer Chinook salmon.', booktabs = TRUE) %>%
+  kable_styling(latex_options = 'scale_down') %>%
+  add_footnote(label = 'Blank fields indicate missing data.')
+```
