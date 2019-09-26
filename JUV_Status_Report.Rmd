@@ -10,13 +10,6 @@ header-includes:
     - \usepackage{booktabs}
     - \usepackage{pdflscape} 
 ---
-```{r Useful or useless?, include=FALSE}
-# classoption: landscape
-# header-includes:
-#   - \usepackage{pdflscape}    This inclusion (for landscape pages) is breaking it in shiny
-# params:
-#   n: NA
-```
 ```{r Rmd Setup, include=FALSE}
 options(knitr.kable.NA = '') # removes NA values from kable (applies to all)
 library(cdmsR)
@@ -109,6 +102,8 @@ Lapwai, ID 83540\\
 
 \newpage
 
+\begin{landscape}
+
 ```{r Table 1: RST Ab/Surv/Eq, echo=FALSE}
 kable(nat_ASE, caption = 'Migratory year 2017 abundance, survival to Lower Granite Dam, and smolt equivalent estimates for natural origin fish interrogated at Rotary Screw Traps maintained by the Nez Perce Tribe Department of Fisheries Resource Management.', booktabs = TRUE) %>%
   kable_styling(latex_options = 'scale_down') %>%
@@ -126,3 +121,5 @@ kable(nvh_surv, caption = 'Survival estimates to Lower Granite Dam in Migration 
   kable_styling(latex_options = 'scale_down') %>%
   add_footnote(label = 'Blank fields indicate missing data.')
 ```
+
+\end{landscape}

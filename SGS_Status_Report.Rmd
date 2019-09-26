@@ -10,7 +10,6 @@ header-includes:
     - \usepackage{booktabs}
     - \usepackage{float}
     - \usepackage{pdflscape} 
-classoption: landscape
 ---
 
 ```{r Rmd Setup, include=FALSE}

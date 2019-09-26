@@ -1125,9 +1125,8 @@ server <- function(input, output, session) {
   # Reports ----
   
   # PDF Reports ----
-  
   output$reports <- downloadHandler(
-    
+
     # filename = 'test.pdf',
     filename = function(){
       paste0(gsub(" ","_",input$pdf_reports),

@@ -235,6 +235,11 @@ body <- dashboardBody(
                     selectInput('pdf_reports', "Available Reports:", choices = c('Juvenile Summary MY17', 'SGS Summary SY18'), 
                                 selected = 'Juvenile Summary MY17'),
                     downloadButton('reports', label = 'Download Report')
+                    # fluidRow(
+                    #   column(2, downloadButton('reports', label = 'Download Report')),
+                    #   # column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; '))))
+                    #   column(1, div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; ')))
+                    #         )
                     )
               ))
   
