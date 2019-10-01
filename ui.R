@@ -165,7 +165,6 @@ body <- dashboardBody(
       tabItem(tabName = 'tab_cdms',
               box(width = 12, 
               fluidRow(column(6, uiOutput("raw_dataset_menu"),
-                              # helpText(HTML("<em> Select the desired dataset and click 'Load Data'. </em>"), style = 'text-align:center;'),
                               fluidRow(
                                 column(8, offset = 2, actionButton("raw_submit", label = "Load Data", icon = icon('hourglass-start'), width = '100%')),
                                 column(2, hidden(div(id='datasets_spinner',img(src='Fish.gif', style = 'height:30px'))))

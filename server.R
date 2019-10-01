@@ -94,9 +94,6 @@ server <- function(input, output, session) {
   
 
   
-  # HOME Tab ----
-    # NOTHING ON SERVER SIDE.
-  
   # Spawning Ground Surveys Summaries Tab ----
 
     # UI
@@ -820,7 +817,7 @@ server <- function(input, output, session) {
   })
   
   # Restricted Data Access Tab ----
-  # Create ***REACTIVE VALUES*** for dynamic data and Inputs ----
+  # Create ***REACTIVE VALUES*** (RV$) for dynamic data and Inputs ----
   RV <- reactiveValues(query_data = NULL)
   
   # Clear Field Values Button ----
@@ -1017,10 +1014,11 @@ server <- function(input, output, session) {
 
     if(is.null(input$q_fields)) {
       cdms_table_data <<- RV$query_data %>%
-        filter(Year %in% input$q_year)
+        filter(Year %in% c(min(input$q_year): max(input$q_year)))
+      
     } else {
       cdms_table_data <<- RV$query_data %>% 
-        filter(Year %in% input$q_year) %>%
+        filter(Year %in% c(min(input$q_year): max(input$q_year))) %>%
         select(input$q_fields)
       }
 
@@ -1107,8 +1105,7 @@ server <- function(input, output, session) {
   )
   
   # Reports ----
-  
-  # PDF Reports ----
+    # PDF 
   output$reports <- downloadHandler(
 
     # filename = 'test.pdf',
