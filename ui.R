@@ -165,7 +165,6 @@ body <- dashboardBody(
       tabItem(tabName = 'tab_cdms',
               box(width = 12, 
               fluidRow(column(6, uiOutput("raw_dataset_menu"),
-                              # helpText(HTML("<em> Select the desired dataset and click 'Load Data'. </em>"), style = 'text-align:center;'),
                               fluidRow(
                                 column(8, offset = 2, actionButton("raw_submit", label = "Load Data", icon = icon('hourglass-start'), width = '100%')),
                                 column(2, hidden(div(id='datasets_spinner',img(src='Fish.gif', style = 'height:30px'))))
@@ -234,6 +233,7 @@ body <- dashboardBody(
                     title = 'Report Download',
                     selectInput('pdf_reports', "Available Reports:", choices = c('Juvenile Summary MY17', 'SGS Summary SY18'), 
                                 selected = 'Juvenile Summary MY17'),
+                    helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
                     downloadButton('reports', label = 'Download Report')
                     # fluidRow(
                     #   column(2, downloadButton('reports', label = 'Download Report')),

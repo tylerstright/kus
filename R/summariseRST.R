@@ -49,7 +49,11 @@ summariseRST <- function() {
            Equivalents = round(Abundance*Survival, digits = 0),
            Survival = round(Survival, 2),
            Surv_SE = round(Surv_SE, 2)) %>%
-    arrange(Year)
+    arrange(Year) %>%
+    select(POP_NAME, LocationLabel, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage,
+           Abundance, Ab_SE, Ab_L95, Ab_U95, ReleaseType, ReleaseGroup, 
+           SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95, Equivalents)
+            # Select the fields we want to appear in the field selection input.
 
 
 return(list(RSTsummary_df, RST_customq_df))
