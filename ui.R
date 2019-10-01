@@ -234,6 +234,7 @@ body <- dashboardBody(
                     title = 'Report Download',
                     selectInput('pdf_reports', "Available Reports:", choices = c('Juvenile Summary MY17', 'SGS Summary SY18'), 
                                 selected = 'Juvenile Summary MY17'),
+                    helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
                     downloadButton('reports', label = 'Download Report')
                     # fluidRow(
                     #   column(2, downloadButton('reports', label = 'Download Report')),

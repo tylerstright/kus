@@ -876,25 +876,26 @@ server <- function(input, output, session) {
       raw_dat <<- raw_dat %>%
         mutate(SpeciesRun = paste(Run, Species),
                SurveyDate = as_date(SurveyDate),
-               Year = year(SurveyDate))
+               Year = year(SurveyDate)) %>% 
+        select(-contains('Id'))
     } else {
       if(input$datasets %in% c(85, 86)) { # = c('NPT RST Abundance Estimates', 'NPT Juvenile Survival Estimates')
         raw_dat <<- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
       # Prepare Juvenile Data (i.e. Migratory Year)
       raw_dat <<- raw_dat %>%
         mutate(SpeciesRun = paste(Run, Species),
-               Year = MigratoryYear)
+               Year = MigratoryYear) %>% 
+        select(-contains('Id'))
       } else {
         raw_dat <<- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
         # Prepare Age Data (i.e. Collection Date)
         raw_dat <<- raw_dat %>%
           mutate(SpeciesRun = paste(Run, Species),
                  CollectionDate = as_date(CollectionDate),
-                 Year = year(CollectionDate))
+                 Year = year(CollectionDate)) %>% 
+          select(-contains('Id'))
       }
-      
-      raw_dat <<- raw_dat %>% select(-contains('Id'))
-      
+
     }
   
       RV$query_data <<- raw_dat  # Populate our dynamic dataframe.
@@ -906,16 +907,11 @@ server <- function(input, output, session) {
                         selected = NULL) 
       updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
                         selected = NULL) 
-      updateSelectInput(session, inputId= 'q_transect', label= 'Choose Transect:', choices= sort(unique(RV$query_data$LocationLabel)),
-                        selected = NULL) 
       updateSelectInput(session, inputId= 'q_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$query_data), selected = NULL) 
       
       updateSliderInput(session, inputId = 'q_year', label = '*Choose Years:', min = min(RV$query_data$Year), max = max(RV$query_data$Year), 
                         value = c(min(RV$query_data$Year), max(RV$query_data$Year)), step = 1)
-      
-      updateSelectInput(session, inputId= 'test', label= 'DATA LOAD WORKED!', choices= sort(unique(RV$query_data$LocationLabel)),
-                        selected = NULL) 
-      
+
       # Display loaded CDMS Dataset
       output$selected_cdms <- renderText({
         selected_df <- dataset %>%
@@ -951,11 +947,7 @@ server <- function(input, output, session) {
                    if(!is.null(input$q_stream)) {
                      RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
                    }
-                   
-                   if(!is.null(input$q_transect)) {
-                     RV$query_data <<- RV$query_data %>% filter(LocationLabel %in% input$q_transect)
-                   }
-                   
+
                    updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
                                      selected = selected_pop)
                    updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
@@ -982,11 +974,7 @@ server <- function(input, output, session) {
                    if(!is.null(input$q_stream)) {
                      RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
                    }
-                   
-                   if(!is.null(input$q_transect)) {
-                     RV$query_data <<- RV$query_data %>% filter(LocationLabel %in% input$q_transect)
-                   }
-                   
+
                    updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
                                      selected = selected_species)
                    updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
@@ -1013,11 +1001,7 @@ server <- function(input, output, session) {
                    if(!is.null(input$q_stream)) {
                      RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
                    }
-                   
-                   if(!is.null(input$q_transect)) {
-                     RV$query_data <<- RV$query_data %>% filter(LocationLabel %in% input$q_transect)
-                   }
-                   
+
                    updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
                                      selected = selected_species)
                    updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
@@ -1049,7 +1033,7 @@ server <- function(input, output, session) {
       paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(raw_dat_final, file, row.names = FALSE)
+      write.csv(cdms_table_data, file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
