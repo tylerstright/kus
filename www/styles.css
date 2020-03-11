@@ -1,28 +1,26 @@
+
 /*
 p = creates a TAG
 .class = creates a class
 #ID = creates an ID
 */
 
-/* colour palatte is blue-grey
-Hex	RBG
-#6e7f80	(110,127,128) - lighter grey-2
-#536872	(83,104,114) - darker background color
-#708090	(112,128,144) - lightest-1
-#536878	(83,104,120)-3
-#36454f	(54,69,79) - darkest */
-
+/*
 #sgs_spinner {height:30px;}
-
 #juv_spinner {height:30px;}
-
 #age_spinner {height:30px;}
-
 #datasets_spinner {height:30px;}
-
 #query_spinner {height:30px;}
-
 #reports_spinner {height:30px;}
+*/
+
+
+/* .box-info {
+  background-color:green;    /* changes the color behind titles (.box-title)
+} 
+.box-body{
+  background-color: gray;
+} */
 
 .navlinks {
   color: white;
@@ -30,25 +28,62 @@ Hex	RBG
   font-family: 'Arial Narrow';
 }
 
-.sidebar {
+.skin-blue .main-sidebar {
   position: fixed;
   height: 100vh;
+  background-color: rgb(0,0,0);
 } 
 
-.main-header {
-  position: fixed;
-  width:100%;
+/* sidebar toggle button */
+.sidebar-toggle > li.hover a{
+  background-color: rgb(0,0,100);
+}
+
+/* active selected tab in the sidebarmenu */
+.skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+background-color: rgb(0,0,100);
+color: white;
+}
+
+/* other links in the sidebarmenu */
+.skin-blue .main-sidebar .sidebar .sidebar-menu a{
+background-color: rgb(0,0,0);
+}
+/* sidebar bar to left of selected tab */
+.skin-blue .sidebar-menu > li.active > a {
+  border-left-color: rgb(0,0,100);
 }
 
 
+/* header */
+.skin-blue .main-header {
+  position:fixed;
+  width:100%;
+  background-color: rgb(0,0,0);
+}
+
+/* logo portion of header */
+.skin-blue .main-header .logo {
+background-color: rgb(0,0,0);
+}
+.skin-blue .main-header .logo:hover {
+background-color: rgb(0,0,0);
+}
+                              
+                              
+/* navbar (rest of the header) */
+.skin-blue .main-header .navbar {
+background-color: rgb(0,0,0);
+}
 
 /* body */
 .content {
   padding-top:60px;
-  height:110vh;
+  height:100vh;
+  overflow:auto;
 }
 .content-wrapper, .right-side {
-background-color: #ECF0F5;
+background-color: rgb(100,100,100);
 overflow:auto; /* extend when page grows */
 }
 
@@ -62,7 +97,7 @@ body {
   font-family: Impact;
   font-size: 45px;
   font-weight: normal;
-  color: #36454f;
+  color: white;  /* #36454f */
 }
 
 h2 {
@@ -97,22 +132,20 @@ p {font-family: "Arial Narrow";
   /*border-bottom: 1px solid rgb(0, 0, 0); */
 }
 
-/* .kusbg {
-  width: 1728px; 
-  height: 100vh;
-  display: block; 
-  background-size: contain; /*cover;   this should give 100% screen size 
-  background-position: bottom center;
-
-  background-position: top center; 
-  background-repeat:no-repeat;
-  background-attachment:fixed;
-  overflow: hidden; /* this seems to be important for not having a scrollbar when image is too large 
-  position: fixed; /* fixed = not affected by scrolling 
-  bottom:0;
-  right:0;
+.shinybusy-busy {
+  position: fixed !important;
+  z-index:9999 !important;
+  top:200px !important;
+  right:38vw !important;
+  height:300px !important;
+  width:300px !important;
 }
-@media screen and (max-width:900px) {
-  .kusbg{ background-size: 900px auto;} /*900px is the image original width 
-}*/
 
+.shinybusy {
+  position: fixed !important;
+  z-index:9999 !important;
+  top:200px !important;
+  right:38vw !important;
+  height:400px !important;
+  width:400px !important;
+}

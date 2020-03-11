@@ -82,15 +82,20 @@ server <- function(input, output, session) {
     }
   })
   
-
+  # Home Tab / Leaflet ----
+  getPage<-function() {
+    return(includeHTML("./www/kus_map.html"))
+  }
+  output$map<-renderUI({getPage()})
   
   # Spawning Ground Surveys Summaries Tab ----
     # UI
   output$sgs_data_button <- renderUI({
     tagList(
       fluidRow(
-        column(9, actionButton(inputId= 'sgs_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
-        column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; '))))
+        column(12, actionButton(inputId= 'sgs_dataload', label = 'Click to Load Data', icon = icon('hourglass-start'), width = '100%'))#,
+        # column(9, actionButton(inputId= 'sgs_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
+        # column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; '))))
       ),
       helpText(HTML('<em> *Initial data load may take several minutes.</em>'))
     )
@@ -297,8 +302,9 @@ server <- function(input, output, session) {
   output$juv_data_button <- renderUI({
     tagList(
       fluidRow(
-        column(9, actionButton(inputId= 'juv_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
-        column(1, hidden(div(id='juv_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
+        column(12, actionButton(inputId= 'juv_dataload', label = 'Click to Load Data', icon = icon('hourglass-start'), width = '100%'))
+        # column(9, actionButton(inputId= 'juv_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
+        # column(1, hidden(div(id='juv_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
       ),
       helpText(HTML('<em> *Initial data load may take several minutes.</em>'))
     )
@@ -337,7 +343,7 @@ server <- function(input, output, session) {
     
     output$juv_pop_name <- renderUI({
       selectInput(inputId= 'juv_pop_name', label= 'Choose Population:', choices= juv_population_list, selectize= FALSE, 
-                  selected = 'Snake River Lower Mainstem', multiple = TRUE)
+                  selected = NULL, multiple = TRUE)
     })
     
   })
@@ -497,8 +503,9 @@ server <- function(input, output, session) {
   output$age_data_button <- renderUI({
     tagList(
       fluidRow(
-        column(9, actionButton(inputId= 'age_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
-        column(1, hidden(div(id='age_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
+        column(12, actionButton(inputId= 'age_dataload', label = 'Click to Load Data', icon = icon('hourglass-start'), width = '100%'))
+        # column(9, actionButton(inputId= 'age_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
+        # column(1, hidden(div(id='age_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
       ),
       helpText(HTML('<em> *Initial data load may take several minutes.</em>'))
     )
@@ -539,7 +546,7 @@ server <- function(input, output, session) {
     
     output$age_pop_name <- renderUI({
       selectInput(inputId= 'age_pop_name', label= 'Choose Population:', choices= age_population_list, selectize= FALSE, 
-                  selected = 'Snake River Lower Mainstem', multiple = TRUE)
+                  selected = NULL, multiple = TRUE)
     })
     
   })
@@ -754,8 +761,9 @@ server <- function(input, output, session) {
     
   })
   
-  # Restricted Data Access Tab ----
-  # Create ***REACTIVE VALUES*** (RV$) for dynamic data and Inputs ----
+  # Restricted Data Access ====================================================
+  # CDMS DATASETS ----
+  # Create ***REACTIVE VALUES*** (RV$) for dynamic data and Inputs
   RV <- reactiveValues(query_data = NULL)
   
   # Clear Field Values Button ----
@@ -862,6 +870,7 @@ server <- function(input, output, session) {
   })
   
   # Input Reactivity ----
+    # Species
   observeEvent(input$q_species, {
                    
                    # save existing input values
@@ -888,7 +897,7 @@ server <- function(input, output, session) {
                    updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
                                      selected = selected_stream)
                  })
-  # POP
+    # POP
   observeEvent(input$q_pop_name, {
                    
                    # save existing input values
@@ -915,7 +924,7 @@ server <- function(input, output, session) {
                    updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
                                      selected = selected_stream)
                  })
-  # Stream
+    # Stream
   observeEvent(input$q_stream, {
                    
                    # save existing input values
