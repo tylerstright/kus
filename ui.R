@@ -15,6 +15,7 @@ header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right
 # Dashboard Sidebar ----
 sidebar <- dashboardSidebar(
     useShinyjs(), # Activate ShinyJS
+    tags$script(src='javascript.js'), # include Javascript file (for custom busyspinner functionality)
     sidebarMenu(
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
