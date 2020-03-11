@@ -85,7 +85,6 @@ server <- function(input, output, session) {
 
   
   # Spawning Ground Surveys Summaries Tab ----
-
     # UI
   output$sgs_data_button <- renderUI({
     tagList(
@@ -113,7 +112,7 @@ server <- function(input, output, session) {
 
     output$sgs_species <- renderUI({
       selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= as.list(unique(sgs_pop_list_full$SpeciesRun)), selectize= FALSE,
-                       selected = 'Fall Chinook Salmon', multiple = FALSE)
+                       selected = 'Spring/summer Chinook salmon', multiple = FALSE)
     })
 
     hide(id= 'sgs_spinner')
@@ -133,7 +132,6 @@ server <- function(input, output, session) {
       selectInput(inputId= 'sgs_pop_name', label= 'Choose Population:', choices= sgs_population_list, selectize= FALSE, multiple = TRUE,
                   selected= NULL)
     })
-
   })
 
   observeEvent(input$sgs_pop_name, {
@@ -151,7 +149,7 @@ server <- function(input, output, session) {
       shiny::validate(
         need(nrow(redd_tmp) > 0, message = '*No Redd data for the current selection.')
       )
-  
+      # plot
       yr_plotly <- plot_ly(data = redd_tmp,
                            x = ~Year,
                            y = ~TotalRedds,
@@ -183,24 +181,7 @@ server <- function(input, output, session) {
       shiny::validate(
         need(nrow(pf_tmp) > 0, message = '*No data for the current selection.')
       )
-      # LINES
-      # pfem_plotly <- plot_ly(data = pf_tmp,
-      #                      x = ~Year,
-      #                      y = ~PercentFemales,
-      #                      name = ~POP_NAME,
-      #                      type = 'scatter',
-      #                      mode = 'lines+markers',
-      #                      color = ~POP_NAME,
-      #                      colors = viridis_pal(option="D")(length(unique(pf_tmp$POP_NAME)))
-      #                      ) %>%
-      #   layout(title = list(text = '<b>Percent Females</b>',
-      #                       font = plotly_font),
-      #          xaxis= list(title = 'Year'),
-      #          yaxis= list(title= 'Percent Females',
-      #                      tickformat = "%",
-      #          range = c(0,1.05)),
-      #          legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
-      # BOXPLOT
+      # plot
       pfem_plotly <- plot_ly(data = pf_tmp,
                              x = ~POP_NAME,
                              y = ~PercentFemales,
@@ -217,8 +198,8 @@ server <- function(input, output, session) {
                yaxis= list(title= 'Percent Females',
                            titlefont = plotly_font,
                            tickformat = "%",
-                           range = c(0,1.05),
-                           zeroline = FALSE))
+                           range = c(0,1.05) #,zeroline = FALSE
+                           ))
     })
     
     # SGS Carcass - Percent Hatchery Origin Spawners
@@ -231,22 +212,7 @@ server <- function(input, output, session) {
       shiny::validate(
         need(nrow(phos_tmp) > 0, message = '*No data for the current selection.')
       )
-      # LINES
-      # phos_plotly <- plot_ly(data = phos_tmp,
-      #                      x = ~Year,
-      #                      y = ~pHOS,
-      #                      name = ~POP_NAME,
-      #                      type = 'scatter',
-      #                      mode = 'lines+markers',
-      #                      color = ~POP_NAME,
-      #                      colors = viridis_pal(option="D")(length(unique(phos_tmp$POP_NAME)))
-      #                      ) %>%
-      #   layout(title = list(text= '<b>Percent Hatchery Origin Spawners</b>',
-      #                       font = plotly_font),
-      #          yaxis= list(tickformat = "%",
-      #                      range = c(0,1.05)),
-      #          legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
-      # BOXPLOT
+      # plot
       phos_plotly <- plot_ly(data = phos_tmp,
                              x = ~POP_NAME,
                              y = ~pHOS,
@@ -276,23 +242,7 @@ server <- function(input, output, session) {
       shiny::validate(
         need(nrow(psm_tmp) > 0, message = '*No data for the current selection.')
       )
-      # LINES
-      # psm_plotly <- plot_ly(data = psm_tmp,
-      #                      x = ~Year,
-      #                      y = ~PrespawnMortality,
-      #                      name = ~POP_NAME,
-      #                      type = 'scatter',
-      #                      mode = 'lines+markers',
-      #                      color = ~POP_NAME,
-      #                      colors = viridis_pal(option="D")(length(unique(psm_tmp$POP_NAME)))
-      #                      ) %>%
-      #   layout(title = list(text= '<b>Percent Prespawn Mortality</b>',
-      #                       font = plotly_font),
-      #          yaxis = list(title= 'Prespawn Mortalities',
-      #                       tickformat = "%",
-      #                       range = c(0,1.05)),
-      #          legend = list(orientation = 'h', xanchor = 'center', x = 0.5, y = -0.15))
-      # BOXPLOT
+      # plot
       psm_plotly <- plot_ly(data = psm_tmp,
                              x = ~POP_NAME,
                              y = ~PrespawnMortality,
@@ -308,7 +258,8 @@ server <- function(input, output, session) {
                xaxis= list(title = ''),
                yaxis= list(title= 'Prespawn Mortality',
                            titlefont = plotly_font,
-                           tickformat = "%"))
+                           tickformat = "%",
+                           range = c(0,1.05)))
     })
     
   })
@@ -337,12 +288,9 @@ server <- function(input, output, session) {
     },
     contentType = "text/csv"
   )
-  
 
   # Weir Collections Summaries Tab ----
-  
   # In-Stream Array Abundance Summaries Tab ----
-
   # Juvenile Monitoring Summaries Tab ----
     
     # UI
@@ -371,7 +319,7 @@ server <- function(input, output, session) {
     
     output$juv_species <- renderUI({
       selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= as.list(unique(juv_pop_list_full$SpeciesRun)), selectize= FALSE, 
-                  selected = 'Fall Chinook Salmon', multiple = FALSE)
+                  selected = 'Spring/summer Chinook salmon', multiple = FALSE)
     })
     
     hide(id= 'juv_spinner')
@@ -571,7 +519,7 @@ server <- function(input, output, session) {
   
   output$age_species <- renderUI({
     selectInput(inputId= 'age_species', label= 'Choose Species:', choices= as.list(unique(age_pop_list_full$SpeciesRun)), selectize= FALSE, 
-                selected = 'Fall Chinook Salmon', multiple = FALSE)
+                selected = 'Spring/summer Chinook salmon', multiple = FALSE)
   })
   
   
