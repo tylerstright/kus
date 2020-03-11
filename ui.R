@@ -30,8 +30,10 @@ sidebar <- dashboardSidebar(
                menuSubItem('Custom Queries', tabName = 'tab_custom'),
                menuSubItem('Reports', tabName = 'tab_reports')
                ),
-      br(), br(), br(), br(), br()#, # spacers
-      # img(src = 'DFRM.png', title = NULL, draggable = FALSE, width = '100%', style = 'padding-left:10px;') # DFRM Logo
+      br(), br(), br(), br(), br(), br(), br(),
+      div(class = 'busy',
+          img(src="kus_spinner.gif", height= 'auto', width = '100%') # BUSY SPINNER
+      )
     )
   )
 
