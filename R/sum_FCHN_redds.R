@@ -14,7 +14,7 @@
 sum_FCHN_redds <- function() {
   
   # Get F_CHN Redd data from CDMS
-  redd_df <- getDatasetView(datastoreID = 78) #, species = 'Chinook Salmon', run = 'Fall') 
+  redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host)  
   
   redd_df2 <- redd_df %>%  
     filter(WPTType == 'New Redd',

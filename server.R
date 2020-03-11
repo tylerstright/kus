@@ -93,9 +93,7 @@ server <- function(input, output, session) {
   output$sgs_data_button <- renderUI({
     tagList(
       fluidRow(
-        column(12, actionButton(inputId= 'sgs_dataload', label = 'Click to Load Data', icon = icon('hourglass-start'), width = '100%'))#,
-        # column(9, actionButton(inputId= 'sgs_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
-        # column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; '))))
+        column(12, actionButton(inputId= 'sgs_dataload', label = 'Click to Load Data', icon = icon('hourglass-start'), width = '100%'))
       ),
       helpText(HTML('<em> *Initial data load may take several minutes.</em>'))
     )
@@ -104,8 +102,7 @@ server <- function(input, output, session) {
   # Load SGS (Redd & Carcass) data
   observeEvent(input$sgs_dataload, {
     disable(id = 'sgs_dataload')
-    shinyjs::show(id='sgs_spinner')
-    
+
     # Load Summarized SGS Data 
     sgs_summary_df <<- summariseSGS()
 
@@ -120,7 +117,6 @@ server <- function(input, output, session) {
                        selected = 'Spring/summer Chinook salmon', multiple = FALSE)
     })
 
-    hide(id= 'sgs_spinner')
     hide(id= 'sgs_data_button')
   })
   
@@ -313,7 +309,6 @@ server <- function(input, output, session) {
   # Load Juvenile Summary data (Abundance & Survival)
   observeEvent(input$juv_dataload, {
     disable(id = 'juv_dataload')
-    shinyjs::show(id='juv_spinner')
     
     juv_summary_df <<- summariseRST()[[1]]  # snag summary dataframe
     
@@ -328,7 +323,6 @@ server <- function(input, output, session) {
                   selected = 'Spring/summer Chinook salmon', multiple = FALSE)
     })
     
-    hide(id= 'juv_spinner')
     hide(id= 'juv_data_button')
   })
   
@@ -514,7 +508,6 @@ server <- function(input, output, session) {
   # Load Summarized Age data
   observeEvent(input$age_dataload, {
     shinyjs::disable(id='age_summary_btn')
-    shinyjs::show(id='age_spinner')
   
   age_summary_df <<- summariseAGE()[[4]]
   
@@ -529,8 +522,6 @@ server <- function(input, output, session) {
                 selected = 'Spring/summer Chinook salmon', multiple = FALSE)
   })
   
-  
-  shinyjs::hide(id='age_spinner')
   shinyjs::hide(id= 'age_data_button')
   
   })
@@ -781,7 +772,7 @@ server <- function(input, output, session) {
                         selected = NULL) 
       updateSelectInput(session, inputId= 'q_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$query_data), selected = NULL) 
       
-      updateSliderInput(session, inputId = 'q_year', label = '*Choose Years:', min = min(RV$query_data$Year), max = max(RV$query_data$Year), 
+      updateSliderInput(session, inputId = 'q_year', label = 'Choose Years*:', min = min(RV$query_data$Year), max = max(RV$query_data$Year), 
                         value = c(min(RV$query_data$Year), max(RV$query_data$Year)), step = 1)
     }
   })
@@ -797,7 +788,7 @@ server <- function(input, output, session) {
     dataset <<- datasets %>%
       select(DatastoreId, DatastoreName) %>%
       distinct(DatastoreId, .keep_all = TRUE) %>%
-      filter(!DatastoreId %in% c(81:84, 87:91)) %>% 
+      filter(!DatastoreId %in% c(81:84, 87:91, 93, 98)) %>% 
       arrange(DatastoreName)
     
     datasets_ls <- as.list(dataset[,1])
@@ -811,10 +802,9 @@ server <- function(input, output, session) {
     # hide/show inputs
     disable(id = 'raw_submit')
     disable(id = 'datasets')
-    shinyjs::show(id='datasets_spinner')
 
     if(input$datasets %in% c(78, 79)) { # =c("SGS Redd Data", "SGS Carcass Data")
-      raw_dat <<- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host) 
+      raw_dat <<- getDatasetView(datastoreID = input$datasets, cdms_host = cdms_host) 
       # Prepare Adult Data (i.e. Survey Date)
       raw_dat <<- raw_dat %>%
         mutate(SpeciesRun = paste(Run, Species),
@@ -823,14 +813,14 @@ server <- function(input, output, session) {
         select(-contains('Id'))
     } else {
       if(input$datasets %in% c(85, 86)) { # = c('NPT RST Abundance Estimates', 'NPT Juvenile Survival Estimates')
-        raw_dat <<- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
+        raw_dat <<- getDatasetView(datastoreID = input$datasets, cdms_host = cdms_host)
       # Prepare Juvenile Data (i.e. Migratory Year)
       raw_dat <<- raw_dat %>%
         mutate(SpeciesRun = paste(Run, Species),
                Year = MigratoryYear) %>% 
         select(-contains('Id'))
       } else {
-        raw_dat <<- getDatasetView(datastoreID = input$datasets, projectID = NULL, waterbodyID = NULL, locationID = NULL, cdms_host = cdms_host)
+        raw_dat <<- getDatasetView(datastoreID = input$datasets, cdms_host = cdms_host)
         # Prepare Age Data (i.e. Collection Date)
         raw_dat <<- raw_dat %>%
           mutate(SpeciesRun = paste(Run, Species),
@@ -864,7 +854,6 @@ server <- function(input, output, session) {
         paste0(h2('Currently Loaded Dataset: ', selected_df))
       })
 
-        shinyjs::hide(id='datasets_spinner')
         enable(id = 'raw_submit')
         enable(id = 'datasets')
   })
@@ -978,28 +967,27 @@ server <- function(input, output, session) {
       paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(cdms_table_data, file, row.names = FALSE)
+      write.csv(cdms_table_data, file, row.names = FALSE, na='')
     },
     contentType = "text/csv"
   )
   
   # Custom Queries (CUSTOM!) --------------------------------------------------
   
-  # Dynamic Description for selected Query
+  # Dynamic Description for Custom Queries
   output$query_description <- renderText({
     # match Query with Description and paste value
     q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
     paste0("Description: ", q_description)
   })
 
-  # Submit Query Request
+  # Submit Custom Query Request
   observeEvent(input$custom_submit, {
     
     if(input$custom_query_menu == '-Select Custom Query-') {
       NULL
     } else {
       
-      show(id='query_spinner')
       disable(id='custom_query_menu')
       disable(id='custom_submit')
 
@@ -1022,12 +1010,10 @@ server <- function(input, output, session) {
       
     enable(id='custom_query_menu')
     enable(id='custom_submit')
-    hide(id='query_spinner')
-    
     }
   })
   
-  # Apply Field Selection and create Custom Table ----
+  # Apply Field Selection and create Custom Query Table ----
   output$custom_table <- DT::renderDataTable({
     
     if(is.null(input$cq_fields)) {
@@ -1040,13 +1026,13 @@ server <- function(input, output, session) {
     DT::datatable(custom_table_data, options = list(orderClasses = TRUE), filter = 'top')  
   })
   
-  # Dataset EXPORT
+  # Custom Query EXPORT
   output$custom_export <- downloadHandler(
     filename = function() {
       paste0(input$custom_query_menu,"_custom_query_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(custom_table_data, file, row.names = FALSE)
+      write.csv(custom_table_data, file, row.names = FALSE, na = '')
     },
     contentType = "text/csv"
   )

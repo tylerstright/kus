@@ -24,7 +24,8 @@ source('./R/summariseRST.R')
 
 ```{r CDMS Login, include = FALSE}
 keys <- cdmsKeys()
-cdms_host <- keys[1]
+# cdms_host <- keys[1]
+cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
 username <- keys[2]
 api_key <- keys[3]
 
@@ -32,10 +33,9 @@ cdmsLogin(username, api_key) #login.
 ```
 
 ```{r Data Processing: Juvenile Abundance/Survival/Equivalents, include=FALSE}
-ASE_df <- summariseRST()[[2]] %>%
+ASE_df <- summariseRST()[[3]] %>%
   filter(MigratoryYear == 2017) %>%
-  select(POP_NAME, SpeciesRun, StreamName, LocationLabel, SampleType, Origin, BroodYear, MigratoryYear, Year, Lifestage, Abundance, Ab_SE, Ab_L95, Ab_U95, 
-         ReleaseType, ReleaseGroup, AdClipped, SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95, Equivalents)
+  select(POP_NAME, SpeciesRun, StreamName, LocationLabel, SampleType, Origin, BroodYear, MigratoryYear, Year, Lifestage, Abundance, Ab_SE, Ab_L95, Ab_U95, ReleaseType, ReleaseGroup, AdClipped, SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95, Equivalents)
 
 # Natural A/S/E
 nat_ASE <- ASE_df %>%

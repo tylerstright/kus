@@ -25,15 +25,16 @@ source('./R/cdms_api_keys.R')
 
 ```{r CDMS Login, include = FALSE}
 keys <- cdmsKeys()
-cdms_host <- keys[1]
+# cdms_host <- keys[1]
+cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
 username <- keys[2]
 api_key <- keys[3]
 
-cdmsLogin(username, api_key) #login.
+cdmsLogin(username, api_key, cdms_host = cdms_host) #login.
 ```
 
 ```{r Data Processing: Redd, include=FALSE}
-redd_df <- getDatasetView(78) %>%
+redd_df <- getDatasetView(78, cdms_host = cdms_host) %>%
   mutate(SurveyDate = ymd(gsub(pattern = 'T00:00:00', replacement = '', SurveyDate)),
          SurveyYear = year(SurveyDate)) %>%
   distinct(ActivityId, .keep_all = TRUE)
@@ -73,7 +74,7 @@ schn_redds_df <- redd_df %>%
 ```
 
 ```{r Data Processing: Carcass, include=FALSE}
-carcass_df <- getDatasetView(79) %>%
+carcass_df <- getDatasetView(79, cdms_host = cdms_host) %>%
   mutate(SurveyDate = ymd(gsub(pattern = 'T00:00:00', replacement = '', SurveyDate)),
          SurveyYear = year(SurveyDate),
          Origin = case_when(

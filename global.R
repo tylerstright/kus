@@ -11,6 +11,7 @@ library(viridis)
 library(markdown)
 # library(sf) 
 library(DT)
+library(kableExtra) # necessary for creating markdown reports
 
 # GitHub
 library(cdmsR)

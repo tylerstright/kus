@@ -164,9 +164,7 @@ body <- dashboardBody(
               box(width = 12, 
               fluidRow(column(6, uiOutput("raw_dataset_menu"),
                               fluidRow(
-                                column(8, offset = 2, actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'))#,
-                                # column(8, offset = 2, actionButton("raw_submit", label = "Load Data", icon = icon('hourglass-start'), width = '100%')),
-                                # column(2, hidden(div(id='datasets_spinner',img(src='Fish.gif', style = 'height:30px'))))
+                                column(8, offset = 2, actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'))
                                       ),
                               br(),
                               selectInput(inputId = 'q_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
@@ -193,16 +191,16 @@ body <- dashboardBody(
     # Custom Queries ----
       tabItem(tabName = 'tab_custom',
                 box(width = 12,
-                    helpText(h3('This page is intended to meet the needs of Projects and Biologists to produce desired data views or 
-                             summaries. Please contact the Data Management team with requests or inquiries!'), style = 'text-align:center;'),
+                    h3('This page is intended to meet the needs of Projects and Biologists to produce desired data views or 
+                             summaries.', style = 'text-align: center;'),
+                    h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;'),
                     hr(),
                     fluidRow(column(6, 
                                     selectInput('custom_query_menu', label = NULL, choices = query_names, selected = '-Select Custom Query-'),
                                     uiOutput('query_description', style = 'text-align:center;'),
                                     br(),
                                     fluidRow(
-                                      column(8, offset=2, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%')),
-                                      column(2, hidden(div(id='query_spinner',img(src='Fish.gif', style = 'height:30px'))))
+                                      column(8, offset=2, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'))
                                             )
                                     ),
                              column(6, 
@@ -223,7 +221,8 @@ body <- dashboardBody(
               fluidRow(
                 box(width = 12,
                     h2('Reports!', style = 'text-align: center;'),
-                    h4('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. similar graphs and tables of information), we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.'),
+                    h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. similar graphs and tables of information),
+                       we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
                     h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
                     )
               ),
@@ -234,11 +233,6 @@ body <- dashboardBody(
                                 selected = 'Juvenile Summary MY17'),
                     helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
                     downloadButton('reports', label = 'Download Report')
-                    # fluidRow(
-                    #   column(2, downloadButton('reports', label = 'Download Report')),
-                    #   # column(1, hidden(div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; '))))
-                    #   column(1, div(id='sgs_spinner', img(src='Fish.gif', style = 'height:30px; ')))
-                    #         )
                     )
               ))
   
