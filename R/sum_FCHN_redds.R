@@ -14,12 +14,12 @@
 sum_FCHN_redds <- function() {
   
   # Get F_CHN Redd data from CDMS
-  redd_df <- getDatasetView(datastoreID = 78, species = 'Chinook Salmon', run = 'Fall') 
+  redd_df <- getDatasetView(datastoreID = 78) #, species = 'Chinook Salmon', run = 'Fall') 
   
-  redd_df2 <- redd_df %>%  # 41920   Figure out why this isnt working
+  redd_df2 <- redd_df %>%  
     filter(WPTType == 'New Redd',
-           # Species == 'Chinook Salmon',
-           # Run == 'Fall',
+           Species == 'Chinook salmon',
+           Run == 'Fall',
            SurveyMethod == 'Helicopter') %>%      
     mutate(SurveyDate = ymd(gsub(pattern = 'T00:00:00', replacement = '', SurveyDate)),
            SurveyYear = year(SurveyDate),

@@ -3,12 +3,12 @@ server <- function(input, output, session) {
   # Hide & show Tabs based on login status ----
   observe({
     if(is.null(login_status)) {
-      hideElement(selector = "ul li:eq(10)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
+      hideElement(selector = "ul li:eq(9)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
     } else {
       if(status_code(login_status) != 200) {
-        hideElement(selector = "ul li:eq(10)", anim= TRUE) # change as tabs are included in sidebar
+        hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
       } else {
-        showElement(selector = "ul li:eq(10)", anim= TRUE) # change as tabs are included in sidebar
+        showElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
         }
     }
   })
@@ -17,13 +17,11 @@ server <- function(input, output, session) {
     # Login
   output$login_logout <- renderUI({
     if(is.null(login_status)) {
-      actionLink('login_link', '[Sign-In]', icon = icon('sign-in-alt'),
-                 style = 'color: white;')
+      actionLink('login_link', '[Sign-In]', icon = icon('sign-in-alt'), style = 'color: white;')
     } else {
       if(status_code(login_status) == 200) {
         actionLink('logout_link', label = paste0(user_info()$Fullname, ' [Sign Out]'),
-                   icon = icon('sign-out-alt'),
-                   style = 'color: white;')
+                   icon = icon('sign-out-alt'), style = 'color: white;')
       } 
     }
   })  
@@ -37,17 +35,17 @@ server <- function(input, output, session) {
   # Login Modal Process ----
   makeReactiveBinding("login_status")
     # User information
-  user_info <- reactive({
-    httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
-  })
+  user_info <- reactive({httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]})
     # Modal
+  modal_widgits <- list(
+    textInput('username','Username', width = "100%"), 
+    passwordInput('password', 'Password', width = "100%"), 
+    tags$head(tags$script(HTML(jscode))),
+    actionButton('login', 'Login'))
+  
   observeEvent(input$login_link,
                showModal(modalDialog(
-                 textInput('username','Username', width = "100%"), 
-                 passwordInput('password', 'Password', width = "100%"), 
-                 tags$head(tags$script(HTML(jscode))),
-                 actionButton('login', 'Login'),
-                 size = "m",
+                 modal_widgits,
                  easyClose = TRUE,
                  title = "DFRM Fisheries Data Access",
                  footer = HTML("<em> Restricted data access is intended for DFRM Staff only. </em>")
@@ -58,11 +56,7 @@ server <- function(input, output, session) {
     if(input$username == '' | input$password == '')
     {
       showModal(modalDialog(
-        textInput('username','Username', width = "100%"),
-        passwordInput('password', 'Password', width = "100%"),
-        tags$head(tags$script(HTML(jscode))),
-        actionButton('login', 'Login'),
-        size = "m",
+        modal_widgits,
         easyClose = TRUE,
         title = "Username or password fields are blank.",
         footer = "Please fill in your username and password correctly."
@@ -72,11 +66,7 @@ server <- function(input, output, session) {
       
       if(status_code(login_status) != 200) {
         showModal(modalDialog(
-          textInput('username','Username', width = "100%"),
-          passwordInput('password', 'Password', width = "100%"),
-          tags$head(tags$script(HTML(jscode))),
-          actionButton('login', 'Login'),
-          size = "m",
+          modal_widgits,
           easyClose = TRUE,
           title = "Invalid Username or Password",
           footer = "I'm sorry you are having trouble. Try re-checking the post-it note on your computer screen. :)"
