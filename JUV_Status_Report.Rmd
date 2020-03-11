@@ -24,8 +24,8 @@ source('./R/summariseRST.R')
 
 ```{r CDMS Login, include = FALSE}
 keys <- cdmsKeys()
-# cdms_host <- keys[1]
-cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
+cdms_host <- keys[1]
+# cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
 username <- keys[2]
 api_key <- keys[3]
 

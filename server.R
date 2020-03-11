@@ -1,41 +1,44 @@
 # Kus Server ----
 server <- function(input, output, session) {
   # Hide & show Tabs based on login status ----
-  observe({
-    if(is.null(login_status)) {
-      hideElement(selector = "ul li:eq(9)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
-    } else {
-      if(status_code(login_status) != 200) {
-        hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
-      } else {
-        showElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
-        }
-    }
-  })
+  # observe({
+  #   if(is.null(login_status)) {
+  #     hideElement(selector = "ul li:eq(9)", anim= TRUE) # Number is the "list item" (tags$li and menuItems) to remove(x-1)), # change as tabs are included in sidebar
+  #   } else {
+  #     if(status_code(login_status) != 200) {
+  #       hideElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
+  #     } else {
+  #       showElement(selector = "ul li:eq(9)", anim= TRUE) # change as tabs are included in sidebar
+  #       }
+  #   }
+  # })
   
   # Create Login / Logout Functionality ----
     # Login
-  output$login_logout <- renderUI({
+  output$login_link <- renderUI({
     if(is.null(login_status)) {
-      actionLink('login_link', '[Sign-In]', icon = icon('sign-in-alt'), style = 'color: white;')
-    } else {
-      if(status_code(login_status) == 200) {
-        actionLink('logout_link', label = paste0(user_info()$Fullname, ' [Sign Out]'),
-                   icon = icon('sign-out-alt'), style = 'color: white;')
-      } 
-    }
+      actionLink('login_link', '[Sign-In]', style = 'color: white;') #icon = icon('sign-in-alt'), 
+    } 
+    # else {
+    #   if(status_code(login_status) == 200) {
+    #     actionLink('logout_link', label = paste0(user_info()$Fullname, ' [Sign Out]'),
+    #                icon = icon('sign-out-alt'), style = 'color: white;')
+    #   } 
+    # }
   })  
     # Logout
-  observeEvent(input$logout_link, {
-    login_status <<- NULL
-    hideElement(selector = "ul li:eq(10)", anim= TRUE) # change as tabs are included in sidebar
-    output$login_logout <- renderUI({actionLink('login_link', '[Sign In]', icon = icon('sign-in-alt'), style = 'color: white;')}) 
-  })
+  # observeEvent(input$logout_link, {
+  #   login_status <<- NULL
+  #   # hideElement(selector = "ul li:eq(10)", anim= TRUE) # change as tabs are included in sidebar
+  #   output$login_logout <- renderUI({actionLink('login_link', '[Sign In]', icon = icon('sign-in-alt'), style = 'color: white;')}) 
+  # })
   
-  # Login Modal Process ----
+  # User Information ----
   makeReactiveBinding("login_status")
-    # User information
-  user_info <- reactive({httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]})
+  user_info <- reactive({
+    httr::content(login_status, "parsed", encoding = "UTF-8")[[3]]
+    })
+  
     # Modal
   modal_widgits <- list(
     textInput('username','Username', width = "100%"), 
@@ -73,10 +76,15 @@ server <- function(input, output, session) {
         ))
       } else {
         removeModal()
-        showElement(selector = "ul li:eq(10)") # change as tabs are included in sidebar
-        output$login_logout <- renderUI({
-          actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
-                    icon = icon('sign-out-alt'), style = 'color: white;')
+        # Show restricted Data:
+        output$rd_cdms <- renderMenu({menuSubItem('CDMS Datasets', tabName = 'tab_cdms')})
+        output$rd_customquery <- renderMenu({menuSubItem('Custom Queries', tabName = 'tab_custom')})
+        output$rd_reports <- renderMenu({menuSubItem('Reports', tabName = 'tab_reports')})
+        # showElement(selector = "ul li:eq(10)") # change as tabs are included in sidebar
+        output$login_link <- renderUI({
+          # actionLink('logout_link', label = paste(user_info()$Fullname, ' [Sign Out]'),
+          #           icon = icon('sign-out-alt'), style = 'color: white;')
+          actionLink('greeting', label = paste0('Hello, ', user_info()$Fullname, "!"), style = 'color: white;')
         })
       }
     }

@@ -9,7 +9,7 @@ header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right
                           tags$li(tags$a("PITtrackR Web App", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank', class='navlinks'),
                                   class = 'dropdown'),
                           # Login/Logout Link
-                          tags$li(tags$a(uiOutput('login_logout')), class = 'dropdown', style= 'position:absolute; left:42px')
+                          tags$li(tags$a(uiOutput('login_link')), class = 'dropdown', style= 'position:absolute; left:42px')
                           )
 
 # Dashboard Sidebar ----
@@ -26,9 +26,12 @@ sidebar <- dashboardSidebar(
                menuSubItem('Age Sampling', tabName = 'tab_age')
                ),
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
-               menuSubItem('CDMS Datasets', tabName = 'tab_cdms'),
-               menuSubItem('Custom Queries', tabName = 'tab_custom'),
-               menuSubItem('Reports', tabName = 'tab_reports')
+               menuItemOutput('rd_cdms'),
+               menuItemOutput('rd_customquery'),
+               menuItemOutput('rd_reports')
+               # menuSubItem('CDMS Datasets', tabName = 'tab_cdms'),
+               # menuSubItem('Custom Queries', tabName = 'tab_custom'),
+               # menuSubItem('Reports', tabName = 'tab_reports')
                ),
       br(), br(), br(), br(), br(), br(), br(),
       div(class = 'busy',
