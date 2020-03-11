@@ -29,13 +29,10 @@ sidebar <- dashboardSidebar(
                menuItemOutput('rd_cdms'),
                menuItemOutput('rd_customquery'),
                menuItemOutput('rd_reports')
-               # menuSubItem('CDMS Datasets', tabName = 'tab_cdms'),
-               # menuSubItem('Custom Queries', tabName = 'tab_custom'),
-               # menuSubItem('Reports', tabName = 'tab_reports')
                ),
       br(), br(), br(), br(), br(), br(), br(),
       div(class = 'busy',
-          img(src="kus_spinner.gif", height= 'auto', width = '100%') # BUSY SPINNER
+          img(src="kus_spinner.gif", height= 'auto', width = '100%') # Ty's B.A. custom Spinner
       )
     )
   )
