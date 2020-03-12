@@ -281,8 +281,6 @@ server <- function(input, output, session) {
     tagList(
       fluidRow(
         column(12, actionButton(inputId= 'juv_dataload', label = 'Click to Load Data', icon = icon('hourglass-start'), width = '100%'))
-        # column(9, actionButton(inputId= 'juv_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
-        # column(1, hidden(div(id='juv_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
       ),
       helpText(HTML('<em> *Initial data load may take several minutes.</em>'))
     )
@@ -480,8 +478,6 @@ server <- function(input, output, session) {
     tagList(
       fluidRow(
         column(12, actionButton(inputId= 'age_dataload', label = 'Click to Load Data', icon = icon('hourglass-start'), width = '100%'))
-        # column(9, actionButton(inputId= 'age_dataload', label = 'Load Data', icon = icon('hourglass-start'), width = '100%')),
-        # column(1, hidden(div(id='age_spinner', img(src='Fish.gif', style = 'height:30px; float:left;'))))
       ),
       helpText(HTML('<em> *Initial data load may take several minutes.</em>'))
     )
@@ -491,7 +487,8 @@ server <- function(input, output, session) {
   observeEvent(input$age_dataload, {
     shinyjs::disable(id='age_summary_btn')
   
-  age_summary_df <<- summariseAGE()[[4]]
+  # age_bundle <- summariseAGE()
+  age_summary_df <<- summariseAGE()
   
   age_pop_list_full <<- age_summary_df %>%
     group_by(SpeciesRun, POP_NAME) %>%
