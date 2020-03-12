@@ -121,8 +121,10 @@ body <- dashboardBody(
             box(width = 12, plotlyOutput('j_abundance'))
                   ),
           fluidRow(
-            box(width = 6, plotlyOutput('j_survival')),
-            box(width = 6, plotlyOutput('j_equivalents'))
+            box(width = 6, plotlyOutput('j_survival'),
+                helpText('Solid Lines = Natural Origin; Dashed Lines = Hatchery Origin.', style= 'text-align:center;')),
+            box(width = 6, plotlyOutput('j_equivalents'),
+                br(), br())
           ),
 
           box(width = 12, title = 'Tabular Summary Data',
@@ -169,7 +171,7 @@ body <- dashboardBody(
                               br(),
                               selectInput(inputId = 'q_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
                               sliderInput(inputId= 'q_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1),
-                              helpText(HTML('<em>* Year is "Spawn Year" for adult datasets and "Migratory Year" for juvenile datasets.</em>'), style = 'text-align:center;')
+                              helpText(HTML('<em>* Year is "Spawn Year" for adult datasets, "Migratory Year" for juvenile datasets, and "Collection Year" for Age data.</em>'), style = 'text-align:center;')
                               ),
                        column(6, 
                               selectInput(inputId= 'q_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
