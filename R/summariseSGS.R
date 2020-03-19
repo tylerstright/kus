@@ -16,8 +16,8 @@ summariseSGS <- function() {
   # Summarise Redd Data ---- 
 tmp_reddsum <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
   distinct(ActivityId, .keep_all = TRUE) %>%
-  mutate(SpeciesRun = paste(Run, Species),
-         Year = year(SurveyDate)) %>%
+  mutate(SpeciesRun = paste(Run, Species)) %>% 
+         # Year = year(SurveyDate)) %>%
   group_by(Year, POP_NAME, SpeciesRun) %>%
   summarise(TotalRedds = sum(NewRedds, na.rm=TRUE)) %>%
   ungroup()
@@ -25,7 +25,7 @@ tmp_reddsum <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%
   # Summarise Carcass Data ----
 tmp_carcsum <- getDatasetView(datastoreID = 79, cdms_host = cdms_host) %>%
   mutate(SpeciesRun = paste(Run, Species),
-         Year = year(SurveyDate),
+         # Year = year(SurveyDate),
          Origin = case_when(
             AdiposeFinClipped == 'No' & is.na(CWTCode) ~ "Natural",
             AdiposeFinClipped == 'No' & CWTCode == 'NA' ~ "Natural",

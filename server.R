@@ -65,9 +65,8 @@ server <- function(input, output, session) {
   })
   
   # Home Tab / Leaflet ----
-  getPage<-function() {
-    return(includeHTML("./www/kus_map.html"))
-  }
+  getPage <- function() { return(includeHTML("./www/kus_map.html")) }
+  
   output$map<-renderUI({getPage()})
   
   # Spawning Ground Surveys Summaries Tab ----
@@ -121,7 +120,8 @@ server <- function(input, output, session) {
     
     RV$sgs_data <- sgs_summary_df %>%
       filter(SpeciesRun == input$sgs_species,
-             POP_NAME %in% input$sgs_pop_name)
+             POP_NAME %in% input$sgs_pop_name) %>%
+      group_by(POP_NAME)  # maybe remove this if it's not working.
     
     # Total Redds per Year
     output$p_redds <- renderPlotly({
@@ -146,105 +146,178 @@ server <- function(input, output, session) {
                            color = ~POP_NAME,
                            colors = viridis_pal(option="D")(length(unique(redd_tmp$POP_NAME)))
                            ) %>%
-        layout(title = list(text = '<b>Yearly Total Redd Counts</b>',
-                            font = plotly_font),
-               yaxis = list(title= 'Total Redds',
-                            titlefont = plotly_font),
-               xaxis = list(title= 'Spawn Year',
-                            titlefont = plotly_font))
+        layout(title = list(text = '<b>Yearly Total Redd Counts</b>', font = plotly_font),
+               yaxis = list(title= 'Total Redds', titlefont = plotly_font),
+               xaxis = list(title= 'Spawn Year', titlefont = plotly_font))
     })
 
-    # SGS Carcass - Percent Females
+    # Base Plotly: %F, pHOS, PSM
+    p_sgs_base <- plot_ly(data = RV$sgs_data %>% filter(!is.na(graph_field)),
+                          name = ~POP_NAME,
+                          type = 'box',
+                          hoverinfo = 'y',
+                          color = ~POP_NAME,
+                          colors = viridis_pal(option="D")(length(unique(RV$sgs_data$POP_NAME))),
+                          showlegend = FALSE) %>%
+      layout(title = list(font = plotly_font),
+             xaxis = list(title = ''),
+             yaxis = list(titlefont = plotly_font,
+                          tickformat = "%",
+                          range = c(0,1.05) #,zeroline = FALSE
+             ))
+
+    # SGS NEW - Percent Females
     output$p_females <- renderPlotly({
+
+      graph_field <- paste("PercentFemales")
       
-      pf_tmp <- RV$sgs_data %>%
-        filter(!is.na(PercentFemales)) %>%
-        group_by(POP_NAME)
-      
+      plotly_data <- RV$sgs_data %>%
+        filter(!is.na(PercentFemales)) #%>%
+        # group_by(POP_NAME)
+
       shiny::validate(
-        need(nrow(pf_tmp) > 0, message = '*No data for the current selection.')
+        need(nrow(plotly_data) > 0, message = '*No data for the current selection.')
       )
       # plot
-      pfem_plotly <- plot_ly(data = pf_tmp,
-                             x = ~POP_NAME,
-                             y = ~PercentFemales,
-                             name = ~POP_NAME,
-                             type = 'box',
-                             hoverinfo = 'y',
-                             color = ~POP_NAME,
-                             colors = viridis_pal(option="D")(length(unique(pf_tmp$POP_NAME))),
-                             showlegend = FALSE
-      ) %>%
-        layout(title = list(text = '<b>Percent Females</b>',
-                            font = plotly_font),
-               xaxis= list(title = ''),
-               yaxis= list(title= 'Percent Females',
-                           titlefont = plotly_font,
-                           tickformat = "%",
-                           range = c(0,1.05) #,zeroline = FALSE
-                           ))
+      pfem_plotly <- p_sgs_base %>%
+        add_boxplot(y = ~PercentFemales,
+                    x = ~POP_NAME,
+                    name = ~ POP_NAME) %>%
+        layout(title = list(text = '<b>Percent Females</b>'),
+               yaxis= list(title= 'Percent Females'))
     })
-    
-    # SGS Carcass - Percent Hatchery Origin Spawners
+
+    # SGS NEW - Percent Hatchery Origin Spawners
     output$p_phos <- renderPlotly({
       
-      phos_tmp <- RV$sgs_data %>%
-        filter(!is.na(pHOS)) %>%
-        group_by(POP_NAME)
-      
+      graph_field <- paste("pHOS")
+
+      plotly_data <- RV$sgs_data %>%
+        filter(!is.na(pHOS)) #%>%
+        # group_by(POP_NAME)
+
       shiny::validate(
-        need(nrow(phos_tmp) > 0, message = '*No data for the current selection.')
+        need(nrow(plotly_data) > 0, message = '*No data for the current selection.')
       )
       # plot
-      phos_plotly <- plot_ly(data = phos_tmp,
-                             x = ~POP_NAME,
-                             y = ~pHOS,
-                             name = ~POP_NAME,
-                             type = 'box',
-                             hoverinfo = 'y',
-                             color = ~POP_NAME,
-                             colors = viridis_pal(option="D")(length(unique(phos_tmp$POP_NAME))),
-                             showlegend = FALSE
-      ) %>%
-        layout(title = list(text = '<b>Percent Hatchery Origin Spawners</b>',
-                            font = plotly_font),
-               xaxis= list(title = ''),
-               yaxis= list(title= 'pHOS',
-                           titlefont = plotly_font,
-                           tickformat = "%",
-                           range = c(0,1.05)))
+      phos_plotly <- p_sgs_base %>%
+        add_boxplot(x = ~POP_NAME,
+                y = ~pHOS) %>%
+        layout(title = list(text = '<b>Percent Hatchery Origin Spawners</b>'),
+               yaxis= list(title= 'pHOS'))
     })
-    
-    # SGS Carcass - Prespawn Mortalities
+
+    # SGS NEW - Prespawn Mortalities
     output$p_psm <- renderPlotly({
+
+      graph_field <- paste("PrespawnMortality")
       
-      psm_tmp <- RV$sgs_data %>%
-        filter(!is.na(PrespawnMortality)) %>%
-        group_by(POP_NAME)
-      
+      plotly_data <- RV$sgs_data %>%
+        filter(!is.na(PrespawnMortality)) #%>%
+        # group_by(POP_NAME)
+
       shiny::validate(
-        need(nrow(psm_tmp) > 0, message = '*No data for the current selection.')
+        need(nrow(plotly_data) > 0, message = '*No data for the current selection.')
       )
       # plot
-      psm_plotly <- plot_ly(data = psm_tmp,
-                             x = ~POP_NAME,
-                             y = ~PrespawnMortality,
-                             name = ~POP_NAME,
-                             type = 'box',
-                             hoverinfo = 'y',
-                             color = ~POP_NAME,
-                             colors = viridis_pal(option="D")(length(unique(psm_tmp$POP_NAME))),
-                             showlegend = FALSE
-      ) %>%
-        layout(title = list(text = '<b>Percent Prespawn Mortality</b>',
-                            font = plotly_font),
-               xaxis= list(title = ''),
-               yaxis= list(title= 'Prespawn Mortality',
-                           titlefont = plotly_font,
-                           tickformat = "%",
-                           range = c(0,1.05)))
+      psm_plotly <- p_sgs_base %>%
+        add_boxplot(x = ~POP_NAME,
+                    y = ~PrespawnMortality) %>%
+        layout(title = list(text = '<b>Percent Prespawn Mortality</b>'),
+               yaxis= list(title= 'Prespawn Mortality'))
     })
-    
+
+    # # SGS Carcass - Percent Females
+    # output$p_females <- renderPlotly({
+    # 
+    #   pf_tmp <- RV$sgs_data %>%
+    #     filter(!is.na(PercentFemales)) %>%
+    #     group_by(POP_NAME)
+    # 
+    #   shiny::validate(
+    #     need(nrow(pf_tmp) > 0, message = '*No data for the current selection.')
+    #   )
+    #   # plot
+    #   pfem_plotly <- plot_ly(data = pf_tmp,
+    #                          x = ~POP_NAME,
+    #                          y = ~PercentFemales,
+    #                          name = ~POP_NAME,
+    #                          type = 'box',
+    #                          hoverinfo = 'y',
+    #                          color = ~POP_NAME,
+    #                          colors = viridis_pal(option="D")(length(unique(pf_tmp$POP_NAME))),
+    #                          showlegend = FALSE
+    #   ) %>%
+    #     layout(title = list(text = '<b>Percent Females</b>',
+    #                         font = plotly_font),
+    #            xaxis= list(title = ''),
+    #            yaxis= list(title= 'Percent Females',
+    #                        titlefont = plotly_font,
+    #                        tickformat = "%",
+    #                        range = c(0,1.05) #,zeroline = FALSE
+    #                        ))
+    # })
+    # 
+    # # SGS Carcass - Percent Hatchery Origin Spawners
+    # output$p_phos <- renderPlotly({
+    # 
+    #   phos_tmp <- RV$sgs_data %>%
+    #     filter(!is.na(pHOS)) %>%
+    #     group_by(POP_NAME)
+    # 
+    #   shiny::validate(
+    #     need(nrow(phos_tmp) > 0, message = '*No data for the current selection.')
+    #   )
+    #   # plot
+    #   phos_plotly <- plot_ly(data = phos_tmp,
+    #                          x = ~POP_NAME,
+    #                          y = ~pHOS,
+    #                          name = ~POP_NAME,
+    #                          type = 'box',
+    #                          hoverinfo = 'y',
+    #                          color = ~POP_NAME,
+    #                          colors = viridis_pal(option="D")(length(unique(phos_tmp$POP_NAME))),
+    #                          showlegend = FALSE
+    #   ) %>%
+    #     layout(title = list(text = '<b>Percent Hatchery Origin Spawners</b>',
+    #                         font = plotly_font),
+    #            xaxis= list(title = ''),
+    #            yaxis= list(title= 'pHOS',
+    #                        titlefont = plotly_font,
+    #                        tickformat = "%",
+    #                        range = c(0,1.05)))
+    # })
+    # 
+    # # SGS Carcass - Prespawn Mortalities
+    # output$p_psm <- renderPlotly({
+    # 
+    #   psm_tmp <- RV$sgs_data %>%
+    #     filter(!is.na(PrespawnMortality)) %>%
+    #     group_by(POP_NAME)
+    # 
+    #   shiny::validate(
+    #     need(nrow(psm_tmp) > 0, message = '*No data for the current selection.')
+    #   )
+    #   # plot
+    #   psm_plotly <- plot_ly(data = psm_tmp,
+    #                          x = ~POP_NAME,
+    #                          y = ~PrespawnMortality,
+    #                          name = ~POP_NAME,
+    #                          type = 'box',
+    #                          hoverinfo = 'y',
+    #                          color = ~POP_NAME,
+    #                          colors = viridis_pal(option="D")(length(unique(psm_tmp$POP_NAME))),
+    #                          showlegend = FALSE
+    #   ) %>%
+    #     layout(title = list(text = '<b>Percent Prespawn Mortality</b>',
+    #                         font = plotly_font),
+    #            xaxis= list(title = ''),
+    #            yaxis= list(title= 'Prespawn Mortality',
+    #                        titlefont = plotly_font,
+    #                        tickformat = "%",
+    #                        range = c(0,1.05)))
+    # })
+
   })
   
   # SGS Summary Data Table

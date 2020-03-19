@@ -62,3 +62,4 @@ user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
                           'Combined abundance and survival data summaries.', 'Combined redd and carcass data summarized by population.')
   
   custom_query_df <- tibble(query_names, query_descriptions)
+  
