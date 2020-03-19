@@ -100,10 +100,7 @@ server <- function(input, output, session) {
 
     hide(id= 'sgs_data_button')
   })
-  
-  # create our SGS Reactive Data
-  RV <- reactiveValues(sgs_data = NULL)
-  
+
   observeEvent(input$sgs_species, {
     
     sgs_population_list <- sgs_pop_list_full %>%
@@ -121,7 +118,7 @@ server <- function(input, output, session) {
     RV$sgs_data <- sgs_summary_df %>%
       filter(SpeciesRun == input$sgs_species,
              POP_NAME %in% input$sgs_pop_name) %>%
-      group_by(POP_NAME)  # maybe remove this if it's not working.
+      group_by(POP_NAME)
     
     # Total Redds per Year
     output$p_redds <- renderPlotly({
@@ -152,6 +149,7 @@ server <- function(input, output, session) {
     })
 
     # Base Plotly: %F, pHOS, PSM
+    graph_field <- paste('pHOS') # place holder (below base plot requires it until fed to renderPlot())
     p_sgs_base <- plot_ly(data = RV$sgs_data %>% filter(!is.na(graph_field)),
                           name = ~POP_NAME,
                           type = 'box',
@@ -163,20 +161,15 @@ server <- function(input, output, session) {
              xaxis = list(title = ''),
              yaxis = list(titlefont = plotly_font,
                           tickformat = "%",
-                          range = c(0,1.05) #,zeroline = FALSE
-             ))
+                          range = c(0,1.05) )) #,zeroline = FALSE
 
     # SGS NEW - Percent Females
     output$p_females <- renderPlotly({
 
       graph_field <- paste("PercentFemales")
-      
-      plotly_data <- RV$sgs_data %>%
-        filter(!is.na(PercentFemales)) #%>%
-        # group_by(POP_NAME)
 
       shiny::validate(
-        need(nrow(plotly_data) > 0, message = '*No data for the current selection.')
+        need(nrow(RV$sgs_data %>% filter(!is.na(PercentFemales))) > 0, message = '*No data for the current selection.')
       )
       # plot
       pfem_plotly <- p_sgs_base %>%
@@ -192,12 +185,8 @@ server <- function(input, output, session) {
       
       graph_field <- paste("pHOS")
 
-      plotly_data <- RV$sgs_data %>%
-        filter(!is.na(pHOS)) #%>%
-        # group_by(POP_NAME)
-
       shiny::validate(
-        need(nrow(plotly_data) > 0, message = '*No data for the current selection.')
+        need(nrow(RV$sgs_data %>% filter(!is.na(pHOS))) > 0, message = '*No data for the current selection.')
       )
       # plot
       phos_plotly <- p_sgs_base %>%
@@ -211,13 +200,9 @@ server <- function(input, output, session) {
     output$p_psm <- renderPlotly({
 
       graph_field <- paste("PrespawnMortality")
-      
-      plotly_data <- RV$sgs_data %>%
-        filter(!is.na(PrespawnMortality)) #%>%
-        # group_by(POP_NAME)
 
       shiny::validate(
-        need(nrow(plotly_data) > 0, message = '*No data for the current selection.')
+        need(nrow(RV$sgs_data %>% filter(!is.na(PrespawnMortality))) > 0, message = '*No data for the current selection.')
       )
       # plot
       psm_plotly <- p_sgs_base %>%
@@ -320,9 +305,7 @@ server <- function(input, output, session) {
 
   })
   
-  # SGS Summary Data Table
-  
-    # Create SGS_Summary Dataset table (reactive/self-updating)
+  # SGS Summary Data Table (reactive)
   output$sgs_table <- DT::renderDataTable({
     
     shiny::validate(
@@ -378,9 +361,6 @@ server <- function(input, output, session) {
     
     hide(id= 'juv_data_button')
   })
-  
-  # create our Juvenile Reactive Data
-  RV <- reactiveValues(juv_data = NULL)
   
   observeEvent(input$juv_species, {
     
@@ -577,10 +557,7 @@ server <- function(input, output, session) {
   shinyjs::hide(id= 'age_data_button')
   
   })
-  
-  # create our Age Sumamry Reactive Data
-  RV <- reactiveValues(age_data = NULL)
-  
+
   observeEvent(input$age_species, {
     
     age_population_list <- age_pop_list_full %>%
@@ -806,10 +783,7 @@ server <- function(input, output, session) {
   
   # Restricted Data Access ====================================================
   # CDMS DATASETS ----
-  # Create ***REACTIVE VALUES*** (RV$) for dynamic data and Inputs
-  RV <- reactiveValues(query_data = NULL)
-  
-  # Clear Field Values Button ----
+    # Clear Field Values Button
   observeEvent(input$clear_fields, {
     if(exists('raw_dat') != TRUE) {
       NULL
