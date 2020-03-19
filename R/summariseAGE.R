@@ -92,13 +92,13 @@ stream_sum_total <- adult_df %>%
   ungroup() %>%
   group_by(SpeciesRun, Origin, POP_NAME, StreamAge) %>%
   mutate(stream_percent = stream_count/stream_total) %>%
-  summarise(stream_weighted_mean = weighted.mean(stream_percent, stream_count))
+  summarise(StreamAge_Wmean = weighted.mean(stream_percent, stream_count))
 
 stream_df <- stream_sum_total %>%
   group_by(SpeciesRun, Origin, POP_NAME) %>%
-  summarise(wa_sum = sum(stream_weighted_mean)) %>%
+  summarise(wa_sum = sum(StreamAge_Wmean)) %>%
   right_join(stream_sum_total, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
-  mutate(stream_weighted_mean = stream_weighted_mean/wa_sum)%>%
+  mutate(StreamAge_Wmean = StreamAge_Wmean/wa_sum)%>%
   select(-wa_sum)
   
 # OCEAN AGE
@@ -115,13 +115,13 @@ ocean_sum_total <- adult_df %>%
   ungroup() %>%
   group_by(SpeciesRun, Origin, POP_NAME, OceanAge) %>%
   mutate(ocean_percent = ocean_count/ocean_total) %>%
-  summarise(ocean_weighted_mean = weighted.mean(ocean_percent, ocean_count))
+  summarise(OceanAge_Wmean = weighted.mean(ocean_percent, ocean_count))
 
 ocean_df <- ocean_sum_total %>%
   group_by(SpeciesRun, Origin, POP_NAME) %>%
-  summarise(wa_sum = sum(ocean_weighted_mean)) %>%
+  summarise(wa_sum = sum(OceanAge_Wmean)) %>%
   right_join(ocean_sum_total, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
-  mutate(ocean_weighted_mean = ocean_weighted_mean/wa_sum) %>%
+  mutate(OceanAge_Wmean = OceanAge_Wmean/wa_sum) %>%
   select(-wa_sum)
 
 # TOTAL AGE (Best = chosen from avaiable sample types)
@@ -138,21 +138,21 @@ best_sum_total <- adult_df %>%
   ungroup() %>%
   group_by(SpeciesRun, Origin, POP_NAME, BestAge) %>%
   mutate(best_percent = best_count/best_total) %>%
-  summarise(best_weighted_mean = weighted.mean(best_percent, best_count))
+  summarise(BestAge_Wmean = weighted.mean(best_percent, best_count))
   
 best_df <- best_sum_total %>%
   group_by(SpeciesRun, Origin, POP_NAME) %>%
-  summarise(wa_sum = sum(best_weighted_mean)) %>%
+  summarise(wa_sum = sum(BestAge_Wmean)) %>%
   right_join(best_sum_total, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
-  mutate(best_weighted_mean = best_weighted_mean/wa_sum) %>%
+  mutate(BestAge_Wmean = BestAge_Wmean/wa_sum) %>%
   select(-wa_sum)
 
 
 age_summary_df <- stream_df %>%
   left_join(ocean_df, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
   left_join(best_df, by = c('SpeciesRun', 'Origin', 'POP_NAME')) %>%
-  select(SpeciesRun, Origin, POP_NAME, StreamAge, OceanAge, BestAge, stream_weighted_mean, ocean_weighted_mean, best_weighted_mean) %>%
-  mutate(t_colors = case_when(
+  select(SpeciesRun, Origin, POP_NAME, StreamAge, OceanAge, BestAge, StreamAge_Wmean, OceanAge_Wmean, BestAge_Wmean) %>%
+  mutate(b_colors = case_when(
     BestAge == 0 ~ "#440154FF",
     BestAge == 1 ~ "#443A83FF",
     BestAge == 2 ~ "#31688EFF",
@@ -176,8 +176,28 @@ age_summary_df <- stream_df %>%
       StreamAge == 4 ~ "#35B779FF",
       StreamAge == 5 ~ "#8FD744FF",
       StreamAge == 6 ~ "#FDE725FF")
-    )
+    ) %>%
+  mutate_at(vars(StreamAge, OceanAge, BestAge), funs(as.character))
   
+# Stream Age Summary
+StreamAge_df <- age_summary_df %>%
+  group_by(SpeciesRun, Origin, POP_NAME, StreamAge, StreamAge_Wmean, colors = s_colors) %>%
+  distinct(StreamAge) %>%
+  arrange(StreamAge)
 
-  return(age_summary_df) #list(p_totalage, p_oceanage, p_streamage, age_summary_df))
+# Ocean Age Summary 
+OceanAge_df <- age_summary_df %>%
+  group_by(SpeciesRun, Origin, POP_NAME, OceanAge, OceanAge_Wmean, colors = o_colors) %>%
+  distinct(OceanAge) %>%
+  arrange(OceanAge)
+
+# Total Age Summary
+BestAge_df <- age_summary_df %>%
+  group_by(SpeciesRun, Origin, POP_NAME, BestAge, BestAge_Wmean, colors = b_colors) %>%
+  distinct(BestAge) %>%
+  arrange(BestAge)
+
+
+
+  return(list(age_summary_df, BestAge_df, OceanAge_df, StreamAge_df))
 }

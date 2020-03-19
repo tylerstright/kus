@@ -163,7 +163,7 @@ server <- function(input, output, session) {
                           tickformat = "%",
                           range = c(0,1.05) )) #,zeroline = FALSE
 
-    # SGS NEW - Percent Females
+    # SGS Summary - Percent Females
     output$p_females <- renderPlotly({
 
       graph_field <- paste("PercentFemales")
@@ -180,7 +180,7 @@ server <- function(input, output, session) {
                yaxis= list(title= 'Percent Females'))
     })
 
-    # SGS NEW - Percent Hatchery Origin Spawners
+    # SGS Summary - Percent Hatchery Origin Spawners
     output$p_phos <- renderPlotly({
       
       graph_field <- paste("pHOS")
@@ -196,7 +196,7 @@ server <- function(input, output, session) {
                yaxis= list(title= 'pHOS'))
     })
 
-    # SGS NEW - Prespawn Mortalities
+    # SGS Summary - Prespawn Mortalities
     output$p_psm <- renderPlotly({
 
       graph_field <- paste("PrespawnMortality")
@@ -212,98 +212,7 @@ server <- function(input, output, session) {
                yaxis= list(title= 'Prespawn Mortality'))
     })
 
-    # # SGS Carcass - Percent Females
-    # output$p_females <- renderPlotly({
-    # 
-    #   pf_tmp <- RV$sgs_data %>%
-    #     filter(!is.na(PercentFemales)) %>%
-    #     group_by(POP_NAME)
-    # 
-    #   shiny::validate(
-    #     need(nrow(pf_tmp) > 0, message = '*No data for the current selection.')
-    #   )
-    #   # plot
-    #   pfem_plotly <- plot_ly(data = pf_tmp,
-    #                          x = ~POP_NAME,
-    #                          y = ~PercentFemales,
-    #                          name = ~POP_NAME,
-    #                          type = 'box',
-    #                          hoverinfo = 'y',
-    #                          color = ~POP_NAME,
-    #                          colors = viridis_pal(option="D")(length(unique(pf_tmp$POP_NAME))),
-    #                          showlegend = FALSE
-    #   ) %>%
-    #     layout(title = list(text = '<b>Percent Females</b>',
-    #                         font = plotly_font),
-    #            xaxis= list(title = ''),
-    #            yaxis= list(title= 'Percent Females',
-    #                        titlefont = plotly_font,
-    #                        tickformat = "%",
-    #                        range = c(0,1.05) #,zeroline = FALSE
-    #                        ))
-    # })
-    # 
-    # # SGS Carcass - Percent Hatchery Origin Spawners
-    # output$p_phos <- renderPlotly({
-    # 
-    #   phos_tmp <- RV$sgs_data %>%
-    #     filter(!is.na(pHOS)) %>%
-    #     group_by(POP_NAME)
-    # 
-    #   shiny::validate(
-    #     need(nrow(phos_tmp) > 0, message = '*No data for the current selection.')
-    #   )
-    #   # plot
-    #   phos_plotly <- plot_ly(data = phos_tmp,
-    #                          x = ~POP_NAME,
-    #                          y = ~pHOS,
-    #                          name = ~POP_NAME,
-    #                          type = 'box',
-    #                          hoverinfo = 'y',
-    #                          color = ~POP_NAME,
-    #                          colors = viridis_pal(option="D")(length(unique(phos_tmp$POP_NAME))),
-    #                          showlegend = FALSE
-    #   ) %>%
-    #     layout(title = list(text = '<b>Percent Hatchery Origin Spawners</b>',
-    #                         font = plotly_font),
-    #            xaxis= list(title = ''),
-    #            yaxis= list(title= 'pHOS',
-    #                        titlefont = plotly_font,
-    #                        tickformat = "%",
-    #                        range = c(0,1.05)))
-    # })
-    # 
-    # # SGS Carcass - Prespawn Mortalities
-    # output$p_psm <- renderPlotly({
-    # 
-    #   psm_tmp <- RV$sgs_data %>%
-    #     filter(!is.na(PrespawnMortality)) %>%
-    #     group_by(POP_NAME)
-    # 
-    #   shiny::validate(
-    #     need(nrow(psm_tmp) > 0, message = '*No data for the current selection.')
-    #   )
-    #   # plot
-    #   psm_plotly <- plot_ly(data = psm_tmp,
-    #                          x = ~POP_NAME,
-    #                          y = ~PrespawnMortality,
-    #                          name = ~POP_NAME,
-    #                          type = 'box',
-    #                          hoverinfo = 'y',
-    #                          color = ~POP_NAME,
-    #                          colors = viridis_pal(option="D")(length(unique(psm_tmp$POP_NAME))),
-    #                          showlegend = FALSE
-    #   ) %>%
-    #     layout(title = list(text = '<b>Percent Prespawn Mortality</b>',
-    #                         font = plotly_font),
-    #            xaxis= list(title = ''),
-    #            yaxis= list(title= 'Prespawn Mortality',
-    #                        titlefont = plotly_font,
-    #                        tickformat = "%",
-    #                        range = c(0,1.05)))
-    # })
-
-  })
+  }) # close observeEvent(input$sgs_pop_name...
   
   # SGS Summary Data Table (reactive)
   output$sgs_table <- DT::renderDataTable({
@@ -497,9 +406,7 @@ server <- function(input, output, session) {
   
   })
   
-    # Juvenile Summary Data Table 
-  
-    # Juvenile Summary Dataset table (reactive/self-updating)
+    # Juvenile Summary Data Table (reactive)
   output$juv_table <- DT::renderDataTable({
     
     shiny::validate(
@@ -524,7 +431,7 @@ server <- function(input, output, session) {
     contentType = "text/csv"
   )
   
-  # Age Samples Tab ----
+  # Age Sampling Tab ----
   
   # UI
   output$age_data_button <- renderUI({
@@ -540,8 +447,9 @@ server <- function(input, output, session) {
   observeEvent(input$age_dataload, {
     shinyjs::disable(id='age_summary_btn')
   
-  # age_bundle <- summariseAGE()
-  age_summary_df <<- summariseAGE()
+  age_summary_bundle <<- summariseAGE()  # feeds our age summary graphs
+  
+  age_summary_df <<- age_summary_bundle[[1]]
   
   age_pop_list_full <<- age_summary_df %>%
     group_by(SpeciesRun, POP_NAME) %>%
@@ -572,211 +480,129 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$age_pop_name, {
-    # Reactive data! This feeds to each graph
-    RV$age_data <<- age_summary_df %>%
-      filter(SpeciesRun == input$age_species,
-             POP_NAME %in% input$age_pop_name,
-             POP_NAME != 'NA',
-             Origin != 'Unknown')  
+    # Base Plotly - Best (Total), Stream, and Ocean Age
+    p_age_base <<- plot_ly(type = 'bar',
+                           orientation = 'h',
+                           hovertemplate = paste('%{x}'),
+                           marker = list(color = ~colors)
+                           ) %>%
+      layout(title = list(font = plotly_font),
+             barmode = 'stack',
+             xaxis = list(title = 'Percent of Total',
+                          titlefont = plotly_font,
+                          tickformat = "%",
+                          range = c(0,1.05)),
+             yaxis = list(title = ''))
     
-    # Best Age Graphs
+      # Best Age Graphs
     output$n_age_total <- renderPlotly({
+      tmp_dat <- age_summary_bundle[[2]] %>%
+        filter(SpeciesRun == input$age_species,
+               Origin == 'Natural',
+               POP_NAME %in% input$age_pop_name)
       # NATURAL
-      best_tmp <- RV$age_data %>%
-        mutate(BestAge = as.character(BestAge)) %>%
-        filter(Origin == 'Natural') %>%
-        group_by(SpeciesRun, POP_NAME, BestAge, best_weighted_mean, t_colors) %>%
-        distinct(BestAge) %>%
-        arrange(BestAge)
-      
       shiny::validate(
-        need(nrow(best_tmp) > 0, message = '*No data for the current selection.')
+        need(nrow(tmp_dat) > 0, message = '*No data for the current selection.')
       )
-      
-        p_bestage <- plot_ly(data = best_tmp,
-                           type = 'bar',
-                           orientation = 'h',
-                           x = ~best_weighted_mean,
-                           y = ~POP_NAME,
-                           name = ~BestAge,
-                           hovertemplate = paste('%{x}'),
-                           # hovertemplate = paste(
-                           #   'Age %{name}, %{x}'),
-                           marker = list(color = ~t_colors),
-                           color = ~BestAge
-                           ) %>%
-        layout(title = list(text = '<b>Natural Origin Total Ages</b>',
-                            font = plotly_font),
-               barmode = 'stack',
-               xaxis = list(title = 'Percent of Total',
-                            titlefont = plotly_font,
-                            tickformat = "%",
-                            range = c(0,1.05)),
-               yaxis = list(title = ''))  
 
-    }) 
-    
-    output$h_age_total <- renderPlotly({
-      # HATCHERY
-      best_tmp <- RV$age_data %>%
-        mutate(BestAge = as.character(BestAge)) %>%
-        filter(Origin == 'Hatchery') %>%
-        group_by(SpeciesRun, POP_NAME, BestAge, best_weighted_mean, t_colors) %>%
-        distinct(BestAge) %>%
-        arrange(BestAge)
-      
-      shiny::validate(
-        need(nrow(best_tmp) > 0, message = '*No data for the current selection.')
-      )
-      
-      p_bestage <- plot_ly(data = best_tmp,
-                           type = 'bar',
-                           orientation = 'h',
-                           x = ~best_weighted_mean,
-                           y = ~POP_NAME,
-                           name = ~BestAge,
-                           hovertemplate = paste('%{x}'),
-                           marker = list(color = ~t_colors)
-                           ) %>%
-        layout(title = list(text = '<b>Hatchery Origin Total Ages</b>',
-                            font = plotly_font),
-               barmode = 'stack',
-               xaxis = list(title = 'Percent of Total',
-                            titlefont = plotly_font,
-                            tickformat = "%",
-                            range = c(0,1.05)),
-               yaxis = list(title = ''))  
-
+        p_bestage <- p_age_base %>%
+          add_bars(data = tmp_dat,
+                   x = ~BestAge_Wmean,
+                   y = ~POP_NAME,
+                   name = ~BestAge) %>%
+          layout(title = list(text = '<b>Natural Origin Total Ages</b>'))
     })
-    
+
+    output$h_age_total <- renderPlotly({
+      tmp_dat <- age_summary_bundle[[2]] %>%
+        filter(SpeciesRun == input$age_species,
+               Origin == 'Hatchery',
+               POP_NAME %in% input$age_pop_name)
+      # HATCHERY
+      shiny::validate(
+        need(nrow(tmp_dat) > 0, message = '*No data for the current selection.')
+      )
+
+      p_bestage <- p_age_base %>%
+        add_bars(data = tmp_dat,
+                 x = ~BestAge_Wmean,
+                 y = ~POP_NAME,
+                 name = ~BestAge) %>%
+        layout(title = list(text = '<b>Hatchery Origin Total Ages</b>'))
+    })
+
     # Ocean Age Graphs
     output$n_age_ocean <- renderPlotly({
+      tmp_dat <- age_summary_bundle[[3]] %>%
+        filter(SpeciesRun == input$age_species,
+               Origin == 'Natural',
+               POP_NAME %in% input$age_pop_name)
       # NATURAL
-      ocean_tmp <- RV$age_data %>% 
-        mutate(OceanAge = as.factor(OceanAge)) %>%
-        filter(Origin == 'Natural') %>%
-        group_by(SpeciesRun, POP_NAME, OceanAge, ocean_weighted_mean, o_colors) %>%
-        distinct(OceanAge) %>%
-        arrange(OceanAge)
-      
       shiny::validate(
-        need(nrow(ocean_tmp) > 0, message = '*No data for the current selection.')
+        need(nrow(tmp_dat) > 0, message = '*No data for the current selection.')
       )
 
-        p_oceanage <- plot_ly(data = ocean_tmp,
-                             type = 'bar',
-                             orientation = 'h',
-                             x = ~ocean_weighted_mean,
-                             y = ~POP_NAME,
-                             name = ~OceanAge,
-                             hovertemplate = paste('%{x}'),
-                             marker = list(color = ~o_colors)
-                             ) %>%
-          layout(title = list(text = '<b>Natural Origin Ocean Ages</b>',
-                              font = plotly_font),
-                 barmode = 'stack',
-                 xaxis = list(title = 'Percent of Total',
-                              titlefont = plotly_font,
-                              tickformat = "%",
-                              range = c(0,1.05)),
-                 yaxis = list(title = '')) 
-    })  
-    
+        p_oceanage <- p_age_base %>%
+          add_bars(data = tmp_dat,
+                   x = ~OceanAge_Wmean,
+                   y = ~POP_NAME,
+                   name = ~OceanAge) %>%
+          layout(title = list(text = '<b>Natural Origin Ocean Ages</b>'))
+    })
+
     output$h_age_ocean <- renderPlotly({
+      tmp_dat <- age_summary_bundle[[3]] %>%
+        filter(SpeciesRun == input$age_species,
+               Origin == 'Hatchery',
+               POP_NAME %in% input$age_pop_name)
       # HATCHERY
-      ocean_tmp <- RV$age_data %>% 
-        mutate(OceanAge = as.factor(OceanAge)) %>%
-        filter(Origin == 'Hatchery') %>%
-        group_by(SpeciesRun, POP_NAME, OceanAge, ocean_weighted_mean, o_colors) %>%
-        distinct(OceanAge) %>%
-        arrange(OceanAge)
-      
       shiny::validate(
-        need(nrow(ocean_tmp) > 0, message = '*No data for the current selection.')
+        need(nrow(tmp_dat) > 0, message = '*No data for the current selection.')
       )
-      
-      p_oceanage <- plot_ly(data = ocean_tmp,
-                            type = 'bar',
-                            orientation = 'h',
-                            x = ~ocean_weighted_mean,
-                            y = ~POP_NAME,
-                            name = ~OceanAge,
-                            hovertemplate = paste('%{x}'),
-                            marker = list(color = ~o_colors)
-                            ) %>%
-        layout(title = list(text = '<b>Hatchery Origin Ocean Ages</b>',
-                            font = plotly_font),
-               barmode = 'stack',
-               xaxis = list(title = 'Percent of Total',
-                            titlefont = plotly_font,
-                            tickformat = "%",
-                            range = c(0,1.05)),
-               yaxis = list(title = '')) 
-    }) 
-    
+
+      p_oceanage <- p_age_base %>%
+        add_bars(data = tmp_dat,
+                 x = ~OceanAge_Wmean,
+                 y = ~POP_NAME,
+                 name = ~OceanAge) %>%
+        layout(title = list(text = '<b>Hatchery Origin Ocean Ages</b>'))
+    })
+
     # Stream Age Graphs
     output$n_age_stream <- renderPlotly({
+      tmp_dat <- age_summary_bundle[[4]] %>%
+        filter(SpeciesRun == input$age_species,
+               Origin == 'Natural',
+               POP_NAME %in% input$age_pop_name)
       # NATURAL
-      stream_tmp <- RV$age_data %>% 
-        mutate(StreamAge = as.factor(StreamAge)) %>%
-        filter(Origin == 'Natural') %>%
-        group_by(SpeciesRun, POP_NAME, StreamAge, stream_weighted_mean, s_colors) %>%
-        distinct(StreamAge) %>%
-        arrange(StreamAge)
-      
       shiny::validate(
-        need(nrow(stream_tmp) > 0, message = '*No data for the current selection.')
+        need(nrow(tmp_dat) > 0, message = '*No data for the current selection.')
       )
 
-      p_streamage <- plot_ly(data = stream_tmp,
-                           type = 'bar',
-                           orientation = 'h',
-                           x = ~stream_weighted_mean,
-                           y = ~POP_NAME,
-                           name = ~StreamAge,
-                           hovertemplate = paste('%{x}'),
-                           marker = list(color = ~s_colors)
-                           ) %>%
-        layout(title = list(text = '<b>Natural Origin Stream Ages</b>',
-                            font = plotly_font),
-               barmode = 'stack',
-               xaxis = list(title = 'Percent of Total',
-                            titlefont = plotly_font,
-                            tickformat = "%",
-                            range = c(0,1.05)),
-               yaxis = list(title = '')) 
+      p_streamage <- p_age_base %>%
+        add_bars(data = tmp_dat,
+                 x = ~StreamAge_Wmean,
+                 y = ~POP_NAME,
+                 name = ~StreamAge) %>%
+        layout(title = list(text = '<b>Natural Origin Stream Ages</b>'))
     })
-    
+
     output$h_age_stream <- renderPlotly({
+      tmp_dat <- age_summary_bundle[[4]] %>%
+        filter(SpeciesRun == input$age_species,
+               Origin == 'Hatchery',
+               POP_NAME %in% input$age_pop_name)
       # HATCHERY
-      stream_tmp <- RV$age_data %>% 
-        mutate(StreamAge = as.factor(StreamAge)) %>%
-        filter(Origin == 'Hatchery') %>%
-        group_by(SpeciesRun, POP_NAME, StreamAge, stream_weighted_mean, s_colors) %>%
-        distinct(StreamAge) %>%
-        arrange(StreamAge)
-      
       shiny::validate(
-        need(nrow(stream_tmp) > 0, message = '*No data for the current selection.')
+        need(nrow(tmp_dat) > 0, message = '*No data for the current selection.')
       )
-      
-      p_streamage <- plot_ly(data = stream_tmp,
-                             type = 'bar',
-                             orientation = 'h',
-                             x = ~stream_weighted_mean,
-                             y = ~POP_NAME,
-                             name = ~StreamAge,
-                             hovertemplate = paste('%{x}'),
-                             marker = list(color = ~s_colors)
-                             ) %>%
-        layout(title = list(text = '<b>Hatchery Origin Stream Ages</b>',
-                            font = plotly_font),
-               barmode = 'stack',
-               xaxis = list(title = 'Percent of Total',
-                            titlefont = plotly_font,
-                            tickformat = "%",
-                            range = c(0,1.05)),
-               yaxis = list(title = '')) 
+
+      p_streamage <- p_age_base %>%
+        add_bars(data = tmp_dat,
+                 x = ~StreamAge_Wmean,
+                 y = ~POP_NAME,
+                 name = ~StreamAge) %>%
+        layout(title = list(text = '<b>Hatchery Origin Stream Ages</b>'))
     })
     
   })
