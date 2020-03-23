@@ -1,7 +1,7 @@
 # Kus UI
 
 # DashboardHeader ----
-header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),  # Title actually shown on browser tab located in dashboardPage()
+header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),  # Title shown on browser tab located in dashboardPage()
                           tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, height = '40px'), 
                                   class = 'dropdown', style = 'position: fixed; left:40px; padding-top:6px'),
                           tags$li(tags$a("PITPH Web App", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank', class='navlinks'),
@@ -15,7 +15,7 @@ header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right
 # Dashboard Sidebar ----
 sidebar <- dashboardSidebar(
     useShinyjs(), # Activate ShinyJS
-    tags$script(src='javascript.js'), # include Javascript file (for custom busyspinner functionality)
+    tags$script(src='javascript.js'), # include Javascript file (for custom spinner functionality)
     sidebarMenu(
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
@@ -159,7 +159,7 @@ body <- dashboardBody(
                        box(width= 12, fluidRow(column(12, plotlyOutput('h_age_stream'))))
                        )
                        )
-              ), # tab
+              ),
   # Restricted Data Access Tab ----
     # CDMS Datasets ----
       tabItem(tabName = 'tab_cdms',

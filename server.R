@@ -494,10 +494,10 @@ server <- function(input, output, session) {
                           range = c(0,1.05)),
              yaxis = list(title = ''))
     
-      # Best Age Graphs
+      # Best (Total) Age Graphs
     output$n_age_total <- renderPlotly({
       tmp_dat <- age_summary_bundle[[2]] %>%
-        filter(SpeciesRun == input$age_species,
+        filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Natural',
                POP_NAME %in% input$age_pop_name)
       # NATURAL
@@ -515,7 +515,7 @@ server <- function(input, output, session) {
 
     output$h_age_total <- renderPlotly({
       tmp_dat <- age_summary_bundle[[2]] %>%
-        filter(SpeciesRun == input$age_species,
+        filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Hatchery',
                POP_NAME %in% input$age_pop_name)
       # HATCHERY
@@ -534,7 +534,7 @@ server <- function(input, output, session) {
     # Ocean Age Graphs
     output$n_age_ocean <- renderPlotly({
       tmp_dat <- age_summary_bundle[[3]] %>%
-        filter(SpeciesRun == input$age_species,
+        filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Natural',
                POP_NAME %in% input$age_pop_name)
       # NATURAL
@@ -552,7 +552,7 @@ server <- function(input, output, session) {
 
     output$h_age_ocean <- renderPlotly({
       tmp_dat <- age_summary_bundle[[3]] %>%
-        filter(SpeciesRun == input$age_species,
+        filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Hatchery',
                POP_NAME %in% input$age_pop_name)
       # HATCHERY
@@ -571,7 +571,7 @@ server <- function(input, output, session) {
     # Stream Age Graphs
     output$n_age_stream <- renderPlotly({
       tmp_dat <- age_summary_bundle[[4]] %>%
-        filter(SpeciesRun == input$age_species,
+        filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Natural',
                POP_NAME %in% input$age_pop_name)
       # NATURAL
@@ -589,7 +589,7 @@ server <- function(input, output, session) {
 
     output$h_age_stream <- renderPlotly({
       tmp_dat <- age_summary_bundle[[4]] %>%
-        filter(SpeciesRun == input$age_species,
+        filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Hatchery',
                POP_NAME %in% input$age_pop_name)
       # HATCHERY
@@ -657,42 +657,8 @@ server <- function(input, output, session) {
 
     raw_dat <<- getDatasetView(input$datasets, cdms_host = cdms_host) %>%
       mutate(SpeciesRun = gsub(' NA', '', paste(Species, Run)))
-    # if(input$datasets %in% c(78, 79)) { # =c("SGS Redd Data", "SGS Carcass Data")
-    #   raw_dat <<- getDatasetView(datastoreID = input$datasets, cdms_host = cdms_host) 
-    #   # Prepare Adult Data (i.e. Survey Date)
-    #   raw_dat <<- raw_dat %>%
-    #     mutate(SpeciesRun = paste(Run, Species),
-    #            SurveyDate = as_date(SurveyDate),
-    #            Year = year(SurveyDate)) %>% 
-    #     select(-contains('Id'))
-    # } else {
-    #   if(input$datasets %in% c(85, 86)) { # = c('NPT RST Abundance Estimates', 'NPT Juvenile Survival Estimates')
-    #     raw_dat <<- getDatasetView(datastoreID = input$datasets, cdms_host = cdms_host)
-    #   # Prepare Juvenile Data (i.e. Migratory Year)
-    #   raw_dat <<- raw_dat %>%
-    #     mutate(SpeciesRun = paste(Run, Species),
-    #            Year = MigratoryYear) %>% 
-    #     select(-contains('Id'))
-    #   } else {
-    #     if(input$datasets %in% c(92, 97)) { # c('Snake River Sturgeon Sampling', 'Lamprey Data')
-    #       raw_dat <<- getDatasetView(datastoreID = input$datasets, cdms_host = cdms_host)
-    #       # Prepare Sturgeon/Lamprey data
-    #       raw_dat <<- raw_dat %>%
-    #         mutate(SpeciesRun = Species) %>%
-    #         select(-countains('Id'))
-    #       } else {
-    #     raw_dat <<- getDatasetView(datastoreID = input$datasets, cdms_host = cdms_host)
-    #     # Prepare Age Data (i.e. Collection Date)
-    #     raw_dat <<- raw_dat %>%
-    #       mutate(SpeciesRun = paste(Run, Species),
-    #              CollectionDate = as_date(CollectionDate),
-    #              Year = year(CollectionDate)) %>% 
-    #       select(-contains('Id'))
-    #     }
-    #   }
-    # }
-  
-      RV$query_data <<- raw_dat  # Populate our dynamic dataframe.
+
+      RV$query_data <<- raw_dat  # reactive dataframe
       
       # Update our Inputs
       updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
@@ -754,7 +720,7 @@ server <- function(input, output, session) {
                    selected_species <- input$q_species
                    selected_stream <- input$q_stream
                    
-                   RV$query_data <<- raw_dat  # re-Populate our dynamic dataframe.
+                   RV$query_data <<- raw_dat  # re-Populate our reactive dataframe.
                    
                    # Apply filters
                    if(!is.null(input$q_species)) {
@@ -781,7 +747,7 @@ server <- function(input, output, session) {
                    selected_species <- input$q_species
                    selected_pop <- input$q_pop_name
 
-                   RV$query_data <<- raw_dat  # re-Populate our dynamic dataframe.
+                   RV$query_data <<- raw_dat  # re-Populate our reactive dataframe.
                    
                    # Apply filters
                    if(!is.null(input$q_species)) {
