@@ -9,9 +9,8 @@ library(plotly)
 library(shinyjs)
 library(viridis)
 library(markdown)
-# library(sf) 
 library(DT)
-library(kableExtra) # necessary for creating markdown reports
+library(kableExtra) # Markdown reports
 
 # GitHub
 library(cdmsR)

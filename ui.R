@@ -48,8 +48,11 @@ body <- dashboardBody(
                        box(status = 'info', width=12, background = 'aqua', # ?validStatuses ?validColors
                            p('The Kus web application is intended to provide near real-time data summaries and
                               visualizations to Nez Perce Tribal members and general public. This tool supports Department 
-                              of Fisheries Resources Management staff and Snake Basin fisheries management decisions.')
-                           , style = 'color:black; font-size:1.23vw;'))),
+                              of Fisheries Resources Management staff and Snake Basin fisheries management decisions.'),
+                           helpText(HTML('<em>Data available on this application is the property of the Nez Perce Tribe.')),
+                           helpText(HTML('Any use of the data requires proper citation and any misuse of the data will 
+                                         pursued to the full extent of the law.</em>'))
+                           ), style = 'text-align:center;')),
               fluidRow(
                 column(12, 
                        box(status = 'info', width = 12, height = '800px', 
