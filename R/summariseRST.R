@@ -1,40 +1,60 @@
-#' @title summariseRST:
+#' @title summariseRST
 #'
-#' @description Summarise Rotary Screw Trap data by Trap/Year, combine with survival data.
-#'
-#' @param streamfilter input$summ_streams
+#' @description Combine CDMS RST Abundance and Survival Summaries, calculate Equivalents.
 #'
 #' @author Tyler Stright
 #'
-#' @examples summariseRST(streamfilter = input$summrst, rst_data = abund_df, suv_data = suv_df)
+#' @examples summariseRST() 
 #'
-#' @import lubridate dplyr tidyr
+#' @import tidyverse
 #' @export
 #' @return NULL
 
 
-summariseRST <- function(rst_data, suv_data, species, startyear, endyear, location) {
+summariseRST <- function() {
   
-  tmp_abund <- rst_data %>%
-    select(Location, BroodYear, MigratoryYear, SpeciesRun, Origin, Lifestage, Abundance,
-           `Abundance SE` = StdError)
+  # temporary df
+  tmp_abundance <- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
+    mutate(SpeciesRun = paste(Run, Species)) %>%
+           # Year = MigratoryYear) %>%
+    rename(Ab_SE = StdError, Ab_L95 = Lower95, Ab_U95 = Upper95)  # rename common fields
 
-  tmp_suv <- suv_data %>%
-    select(Location, BroodYear, MigratoryYear, SpeciesRun, Origin, Lifestage,
-           `Survival` = Survival,
-           `Survival SE` = StdError)
-
-  rst_df <- full_join(tmp_abund, tmp_suv, by = c("Location", "BroodYear", "MigratoryYear", "SpeciesRun", "Origin", "Lifestage")) %>%
-    mutate(`Species` = case_when(
-      `SpeciesRun` == 'S_CHN' ~ 'Spring/Summer Chinook',
-      `SpeciesRun` == 'F_CHN' ~ 'Fall Chinook',
-      `SpeciesRun` == 'S_STH' ~ 'Summer Steelhead')) %>%
-    filter(Location %in% location) %>%
-    filter(Species %in% species) %>%
-    filter(MigratoryYear >= startyear) %>%
-    filter(MigratoryYear <= endyear) %>%
-    select(Location, BroodYear, MigratoryYear, Species, everything(), -SpeciesRun)
+  tmp_survival <- getDatasetView(datastoreID = 86, cdms_host = cdms_host) %>%
+    mutate(SpeciesRun = paste(Run, Species)) %>%
+           # Year = MigratoryYear) %>%
+    rename(Surv_SE = StdError, Surv_L95 = Lower95, Surv_U95 = Upper95) # rename common fields
   
-return(rst_df)
+  # base df - will feed into Juvenile Report
+  base_df <- full_join(tmp_abundance, tmp_survival, by = c('ESU_DPS', 'MPG', 'POP_NAME', 'TRT_POPID', 
+                                                           'SpeciesRun', 'Species', 'Run', 'StreamName', 
+                                                           'TribToName', 'LocationLabel', 'Origin', 'BroodYear', 
+                                                           'MigratoryYear', 'Lifestage', 'Year')) %>%
+    mutate(Ab_SE = round(Ab_SE, 0),
+           Equivalents = round(Abundance*Survival, digits = 0),
+           Survival = round(Survival, 2),
+           Surv_SE = round(Surv_SE, 2)) %>%
+    arrange(Year)
+
+  # Dataframe for RST Summary Tab :
+  RSTsummary_df <- base_df %>%
+    mutate(Ab_L95_errorbar = Abundance-Ab_L95,
+           Ab_U95_errorbar = Ab_U95-Abundance,
+           Surv_L95_errorbar = Survival-Surv_L95,
+           Surv_U95_errorbar = Surv_U95-Survival) %>%
+    select(POP_NAME, LocationLabel, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage,
+           Abundance, Ab_SE, Ab_L95, Ab_U95, Ab_L95_errorbar, Ab_U95_errorbar, ReleaseType, ReleaseGroup,
+           SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95, Surv_L95_errorbar, Surv_U95_errorbar, Equivalents) %>%
+    filter(Lifestage == 'Smolt')
+
+  
+  # Dataframe for Custom Queries Tab :
+  RST_customq_df <- base_df %>%
+    select(POP_NAME, StreamName, LocationLabel, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage,
+           Abundance, Ab_SE, Ab_L95, Ab_U95, ReleaseType, ReleaseGroup, 
+           SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95, Equivalents)
+            # Select the fields we want to appear in the field selection input.
+
+
+return(list(RSTsummary_df, RST_customq_df, base_df))
   
 }

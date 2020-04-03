@@ -1,0 +1,206 @@
+---
+title: | 
+    | Spawning Ground Survey Status Report
+    | Spawn Year 2018
+author: |
+    | Nez Perce Tribe
+    | Department of Fisheries Resource Management
+    | Fisheries Research Division
+    | Lapwai, ID 83540
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: pdf_document
+---
+
+```{r Rmd Setup, include=FALSE}
+options(knitr.kable.NA = '') # removes NA values from kable (applies to all)
+library(cdmsR)
+library(knitr)
+library(kableExtra) 
+library(tidyverse)
+library(lubridate)
+
+source('./R/cdms_api_keys.R')
+```
+
+```{r CDMS Login, include = FALSE}
+keys <- cdmsKeys()
+cdms_host <- keys[1]
+cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
+username <- keys[2]
+api_key <- keys[3]
+
+cdmsLogin(username, api_key, cdms_host = cdms_host) #login.
+```
+
+```{r Data Processing: Redd, include=FALSE}
+redd_df <- getDatasetView(78, cdms_host = cdms_host) %>%
+  mutate(SurveyDate = ymd(gsub(pattern = 'T00:00:00', replacement = '', SurveyDate)),
+         SurveyYear = year(SurveyDate)) %>%
+  distinct(ActivityId, .keep_all = TRUE)
+
+# load(file = './data/redd_df.rda') # TEMPORARY
+
+# FALL CHINOOK
+aerialredds_tmp <- redd_df %>%
+    filter(WPTType == 'New Redd',
+         Species == 'Chinook salmon',
+         Run == 'Fall',
+         SurveyMethod == 'Helicopter',
+         SurveyYear == 2018)
+
+aerial_counts <- aerialredds_tmp %>%
+    group_by(StreamName, LocationLabel) %>%
+    summarize(`Total Number of Redds` = sum(NewRedds))
+
+aerial_redds_df <- aerialredds_tmp %>%
+  group_by(StreamName, LocationLabel) %>%
+  summarize(`Number of Passes` = n()) %>%
+  left_join(aerial_counts, c("StreamName", "LocationLabel")) %>%
+  rename(Stream = LocationLabel) %>% 
+  ungroup() %>%
+  select(-StreamName)
+
+# Spring/summer CHINOOK
+schn_redds_df <- redd_df %>%
+  filter(SurveyYear %in% c(2014:2018),
+         Species == 'Chinook salmon',
+         Run == 'Spring/summer') %>%
+  group_by(SurveyYear, StreamName) %>%
+  summarize(total_redds = sum(NewRedds, na.rm= TRUE)) %>%
+  spread(key= SurveyYear, value = total_redds) %>%
+  replace_na(list(`2014`='N/S', `2015`='N/S', `2016`='N/S', `2017`='N/S', `2018`='N/S'))
+
+```
+
+```{r Data Processing: Carcass, include=FALSE}
+carcass_df <- getDatasetView(79, cdms_host = cdms_host) %>%
+  mutate(SurveyDate = ymd(gsub(pattern = 'T00:00:00', replacement = '', SurveyDate)),
+         SurveyYear = year(SurveyDate),
+         Origin = case_when(
+            AdiposeFinClipped == 'No' & is.na(CWTCode) ~ "Natural",
+            AdiposeFinClipped == 'No' & CWTCode == 'NA' ~ "Natural",
+            AdiposeFinClipped == 'No' & !is.na(CWTCode) ~ "Hatchery",
+            AdiposeFinClipped == 'Yes' ~ "Hatchery",
+            is.na(AdiposeFinClipped) & is.na(CWTCode) ~ "Unknown",
+            is.na(AdiposeFinClipped) & CWTCode == 'NA' ~ "Unknown",
+            is.na(AdiposeFinClipped) & !is.na(CWTCode) ~ "Hatchery",
+            AdiposeFinClipped == 'NA' & is.na(CWTCode) ~ "Unknown",
+            AdiposeFinClipped == 'NA' & CWTCode == 'NA' ~ "Unknown",
+            AdiposeFinClipped == 'NA' & !is.na(CWTCode) ~ "Hatchery",
+            AdiposeFinClipped == 'Unknown' & is.na(CWTCode) ~ "Unknown",
+            AdiposeFinClipped == 'Unknown' & CWTCode == 'NA' ~ "Unknown",
+            AdiposeFinClipped == 'Unknown' & !is.na(CWTCode) ~ "Hatchery")) %>%
+  filter(SurveyYear == 2018,  # Year
+         Species == 'Chinook salmon',
+         Run == 'Spring/summer')
+
+# Total carcasses - known origin
+carc_tmp <- carcass_df %>%
+  group_by(MPG, POP_NAME, StreamName) %>%
+  filter(Origin %in% c('Natural', 'Hatchery')) %>% 
+  summarize(`Total Known Origin Carcasses` = sum(Count, na.rm= TRUE))
+# Create table dataframe with pHOS
+schn_carcass_df <- carcass_df %>%
+  filter(Origin == 'Hatchery') %>%
+  group_by(MPG, POP_NAME, StreamName, Origin) %>%
+  summarize(hat_count = sum(Count, na.rm=TRUE)) %>%
+  right_join(carc_tmp, by = c("MPG", "POP_NAME", "StreamName")) %>%
+  mutate(pHOS = round(hat_count/`Total Known Origin Carcasses`, 2)*100) %>%
+  ungroup() %>%
+  select(StreamName, `Total Known Origin Carcasses`, pHOS) %>%
+  rename(Stream = StreamName)
+
+```
+
+```{r Data Processing: S_CHN SGS Details, include=FALSE}
+redd_passes <- redd_df %>%
+  filter(Species == 'Chinook salmon',
+         Run == 'Spring/summer',
+         SurveyYear == 2018) %>%
+  group_by(StreamName, LocationLabel) %>%
+  summarize(`Redd Passes` = n())
+
+redd_transect <- redd_df %>%
+    filter(Species == 'Chinook salmon',
+         Run == 'Spring/summer',
+         SurveyYear == 2018) %>%
+  group_by(StreamName, LocationLabel) %>%
+  summarize(`Total Redds` = sum(NewRedds, na.rm=TRUE))
+
+carcass_passes <- carcass_df %>%  # this df already filtered for Sp/Sum Chinook @ 2018.
+  group_by(StreamName, LocationLabel, Pass) %>%
+  distinct(Pass, .keep_all = TRUE) %>%
+  group_by(StreamName, LocationLabel) %>%
+  summarise(`Carcass Passes` = n())
+
+carcass_transect <- carcass_df %>%
+  group_by(StreamName, LocationLabel) %>%
+  summarize(`Total Carcasses` = sum(Count, na.rm=TRUE))
+
+schn_details_df <- left_join(redd_passes, redd_transect, by = c('StreamName', 'LocationLabel')) %>%
+  left_join(carcass_passes, by = c('StreamName', 'LocationLabel')) %>%
+  left_join(carcass_transect, by = c('StreamName', 'LocationLabel')) %>%
+  rename(`Stream/Transect` = LocationLabel) %>%
+  ungroup() %>%
+  select(-StreamName)
+
+```
+
+## Introduction
+
+This document summarizes adult spring, summer, and fall Naco'x (Chinook salmon) spawning ground survey information collected on streams surveyed by the Nez Perce Tribe (NPT) Department of Fisheries Resource Management (DFRM) during 2018. The purpose of this document is to provide resource assessment information to co-managers on a timely basis. data collection is conducted under multiple contracts with specific project objectives and study designs. Methods have been standardized to assure accurate characterization of basic performance measures (Beasley et al. 2008). The reader is directed to project specific annual reports for a detailed description of methods used for the calculation of performance measures.  
+
+***
+
+## Description of Study Area
+
+### Clearwater Basin 
+Multiple stream locations were sampled in the Clearwater River subbasin during spring Chinook salmon spawning by the Nez Perce Tribal Hatchery (NPTH) program.  South Fork Clearwater River tributary streams monitored for the NPTH Spring Chinook Monitoring and Evaluation (M&E) project were Lolo Creek, Yoosa Creek, Musselshell Creek, Eldorado Creek, Newsome Creek, Mill Creek, and Meadow Creek.  The lower Selway River and Meadow Creek, a tributary to the Selway, were also sampled. Two tributary streams to the Lochsa River, Fishing and Legendary Bear Creek were sampled as well. THE NPTH M&E project conducted aerial redd count surveys in the mainstem Clearwater RIver, lower Potlatch River, North Fork Clearwater River, Middle Fork Clearwater River, and the lower sections of both the Selway and South Fork Clearwater River.  
+
+### Salmon River Basin
+The Johnson Creek Artificial Propogation and Enhancement (JCAPE) program conducted multiple pass ground index and extensive area redd count surveys in Johnson Creek and Burntlog Creek, a tributary.  Surveys were also done in the South Fork Salmon River, Middle Fork Salmon River on Big Creek, and on the East Fork South Fork Salmon River and two of it's tributaries, Sugar and Meadow Creek.  The JCAPE program also surveyed the Secesh River and it's tributaries Lake Creek, Lick Creek, and Grouse Creek.
+
+### Grande Ronde River Basin 
+The Grande Ronde Supplementation: Lostine River Monitoring and Evaluation (GRSME) project worked in a cooperative effort with co-managers to conduct both index and extensive area surveys in the Lostine River.  M&E staff conducted aerial fall Chinook redd count surveys in the mainstem Grande Ronde River from the mouth of the river to the highway bridge upstream of Troy.  
+
+### Imnaha River Basin
+The NPT Imnaha River Smolt Monitoring Program (SMP) and GRSME program worked in a cooperative effort to survey the mainstem Imnaha River for Spring/summer Chinook salmon. Additionally, aerial fall Chinook salmon redd count surveys were conducted in the mainstem Imnaha River from the mouth up to rkm 19.5 at the town of Imnaha.  
+
+
+```{r Table 1: F_CHN Redds, echo=FALSE, fig.align='center'}
+kable(aerial_redds_df, caption = 'Fall Chinook salmon aerial redd count surveys conducted by the Nez Perce Tribe Department of Fisheries Resource
+      Management during 2018.', align = c('l', 'c', 'c'), booktabs = T) %>%
+  kable_styling(latex_options = 'HOLD_position') %>%
+  row_spec(row = 0, bold = TRUE) # column_spec()
+```
+
+
+```{r Table 2: S_CHN Redds, echo=FALSE, fig.align='center'}
+kable(schn_redds_df, caption = 'Spring/summer Chinook salmon redd counts from all streams surveyed by the Nez Perce Tribe from 2013 to 2018.',
+      align = c('l', 'c', 'c', 'c', 'c', 'c'), booktabs = T) %>%
+  kable_styling(latex_options = 'HOLD_position') %>%
+  add_footnote('N/S: Not Surveyed.') %>%
+  row_spec(row = 0, bold = TRUE)
+```
+
+
+```{r Table 3: S_CHN Carcass, echo=FALSE, fig.align='center'}
+kable(schn_carcass_df, caption = 'Spring/summer Chinook salmon spawning ground survey carcass recovery information from all streams surveyed
+      by the Nez Perce Tribe in 2018.', align = c('l', 'c', 'c'), booktabs = T) %>%
+  kable_styling(latex_options = 'HOLD_position') %>%
+  row_spec(row = 0, bold = TRUE)
+```
+
+```{r Table 4: S_CHN Carcass, echo=FALSE, fig.align='center'}
+kable(schn_details_df, caption = 'Spring/summer Chinook salmon spawning ground survey redd and carcass recovery information from all streams surveyed
+      by the Nez Perce Tribe in 2018, separated by transect.', align = c('l', 'c', 'c', 'c', 'c'), booktabs = T) %>%
+  kable_styling(latex_options = 'HOLD_position') %>%
+  kable_styling(latex_options = 'scale_down') %>%
+  row_spec(row = 0, bold = TRUE)
+```
+
+
+## References
+
+
+Beasley, C.A., B.A. Berejikian, R. W. Carmichael, D.E. Fast, P.F. Galbreath, M.J. Ford, J.A. Hesse, L.L. McDonald, A.R. Murdoch, C.M. Peven, and D.A. Venditti. 2008.  Recommendations for broad scale monitoring to evaluate the effects of hatchery supplementation on the fitness of natural salmon and steelhead populations.  Final report of the Ad Hoc Supplementation Monitoring and Evaluation Workgroup (AHSWG).
