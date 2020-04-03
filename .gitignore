@@ -2,4 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
-.rda
+/data
+cdms_api_keys.R

@@ -1,279 +1,247 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
+# Kus UI
 
-# Load Packages ---- 
-library(shiny)
-library(shinycssloaders)
-library(tidyverse)
-library(dplyr)
-library(httr)
-library(jsonlite)
-library(lubridate)
-library(plotly)
-library(leaflet)
-library(shinyjs)
-library(viridis)
-library(markdown)
-
-# Start of UI ---- 
-shinyUI(
-  navbarPage(title = div(
-                         div(id = 'user-name', uiOutput('login_logout')), # both Log IN and OUT
-                         div(id = 'logo-id',img(src="NPTlogos2.png", height = "70px")),
-                         tags$a("DFRM Home",href = 'http://www.nptfisheries.org', target = '_blank')
-
-                         ),
-             id = "kus_navbar",
-             windowTitle = "DFRM-Kus",
-             theme = "styles.css",
-             position = "fixed-top",
-             collapsible = TRUE,
-             # footer = div(id = "footer-id",
-             #              "The data presented in the Kus web application is not solely collected, managed or owned
-             #              by the Nez Perce Tribe. All data should be considered draft and is not guaranteed for
-             #              accuracy.  Permission to use the data should be sought from the original collectors."),
-# Kus Home Tab ----             
-             tabPanel("Kus Home",
-                      useShinyjs(),   # include Shiny JS
-                      fluidPage(
-                        fluidRow(column(12, align = "center",
-                        h2('Department of Fisheries Resources Management'),
-                        h3('Data Summaries and Visualizations Web Application'))),
-                        fluidRow(
-                          column(12, withSpinner(leafletOutput('home_map', height = 690, width = "100%")))
-                        ),
-                        fluidRow(
-                          column(12,
-                            helpText('The Kus web application is intended to provide near real-time data summaries and
-                                      visualizations for Department of Fisheries Resources Management staff and to
-                                      support Snake Basin fisheries management decisions. The tools also creates easy access to
-                                      valuable fish information for general public consumption and informs Nez Perce
-                                      Tribal members of the most current and best fishing oppurtunities.',  
-                                     width = '100%')
-                            )
-                        )
-                      )
-              ),
-# Summarized Data Menu ----
-              navbarMenu("Summarized Data",
-#//////////////////////////////////////////////////////////////////////////////
-# Snake Basin Population Tab
-#//////////////////////////////////////////////////////////////////////////////
-                       tabPanel("Snake Basin Population Indicators and Metrics",
-                                 sidebarLayout(
-                                  sidebarPanel(
-                                    style = "position:fixed;width:25%",
-                                    width = 3,
-                                    h3('Chinook and Steelhead Population Indicators and Metrics'),
-                                    helpText('Select species, population and spawn year range of intrest then click "Query Data".'),
-                                    uiOutput('pop_spp_menu'),
-                                    uiOutput('pop_menu'), 
-                                    uiOutput('pop_year_menu'),
-                                    actionButton('weir_reset', 'Query Data', class = "mybutton", width = '100%'),
-                                    hr(),
-                                    leafletOutput('pop_map', height = 400, width = '100%')
-                                    ),
-                                  mainPanel(
-                                    titlePanel('Population Indicators and Metrics'),
-                                    fluidPage(
-                                      fluidRow(column(12, textOutput('MPGfilter')))
-                                    )
-                                  )
-                                  )
-                                ),
-#//////////////////////////////////////////////////////////////////////////////
-# Adult Weir Tab
-#//////////////////////////////////////////////////////////////////////////////
-                       tabPanel("Adult Weir Returns",
-                                sidebarLayout(
-                                  sidebarPanel(
-                                    style = "position:fixed;width:25%",
-                                    width = 3,
-                                    h3('Data Collected From Hatchery and Weir Sites'),
-                                    helpText('Select species, trap site and spawn year range of intrest then click "Query Data".'),
-                                    uiOutput('weir_spp_menu'),
-                                    uiOutput('weir_menu'), 
-                                    uiOutput('weir_year_menu'),
-                                    actionButton("weir_button", "Query Data", class = 'mybutton', width = '100%'),                                    
-                                    hr(),
-                                    leafletOutput('weir_map', height = 400, width = '100%')
-                                  ),
-                                  mainPanel(
-                                    fluidPage(
-                                    #  titlePanel('Weir Returns: Summarized Adult Trapping Data'),
-                                     # br(),
-                                      fluidRow(column(12, plotOutput('weir_totals', height = 500))),
-                                      #),
-                                      #hr(),
-                                      #titlePanel('Origin and SexSummary Table'),
-                                      fluidRow(column(12, withSpinner(DT::dataTableOutput("weir_table"))))
-                                      #hr(),
-                                      #titlePanel('Disposition Summary Table'),
-                                      #fluidRow(column(12, offset = 0, DT::dataTableOutput("weirdisp_table")))
-                                    ) 
-                                  )
-                                )
-                                 
-                       ),
-#//////////////////////////////////////////////////////////////////////////////
-# In-Stream Abundance Tab
-#//////////////////////////////////////////////////////////////////////////////
-                       tabPanel("In-Stream PIT Tag Abundance",
-                                sidebarLayout(
-                                  sidebarPanel(
-                                    style = "position:width:25%;",#fixed
-                                    width = 3,
-                                    h3('Spring/summer Chinook salmon and Steelhead Abundance Estimates'),
-                                    helpText('Select basin and site type to limit the number of PTAGIS sites shown.'),
-                                    uiOutput("dabom_basin"),
-                                    uiOutput("dabom_sitetype"),  
-                                    uiOutput("dabom_sitetypename"),
-                                    uiOutput("dabom_modelsites"),
-                                    uiOutput("dabom_spp"),
-                                    uiOutput("dabom_mpg"),
-                                    actionButton("dabom_btn", "Refresh", class = 'mybutton', width = '100%'),
-                                    downloadButton("dabom_export", label = "Export .CSV File", class = "mybutton")
-                                  ),
-                                  mainPanel(
-                                    withSpinner(leafletOutput('dabom_map', width = '100%', height = 900)),
-                                    withSpinner(DT::DTOutput("x1"))                                    
-                                    #withSpinner(DT::DTOutput("site_table"))
-                                  )
-                                )
-                       ),
-#//////////////////////////////////////////////////////////////////////////////
-# SGS Tab
-#//////////////////////////////////////////////////////////////////////////////
-                       tabPanel("Spawning Ground Surveys",
-                               sidebarLayout(
-                                   sidebarPanel(
-                                     style = "position:fixed;width:25%;",
-                                     width = 3,
-                                     h3('Data Collected From Spawning Ground Surveys'),
-                                     helpText('Select species, streams and spawn year range of intrest then click "Query Data".'),
-                                     uiOutput("sgs_species_menu"),
-                                     uiOutput("sgs_streams_menu"),                                     
-                                     uiOutput("sgs_year_menu"),
-                                     actionButton("summ_reset", label = "Query Data", class = "mybutton", width = '100%'),
-                                     hr(),
-                                     leafletOutput('sgs_map', height = 400, width = '100%')
-                                   ),
-                                 mainPanel(
-                                    fluidPage(
-                                      fluidRow(column(12, plotlyOutput(outputId = 'sgs1', height = 400, width = '120%'))),
-                                      fluidRow(
-                                               splitLayout(cellWidths = c('40%', '40%', '40%'), 
-                                                           plotlyOutput(outputId = 'sgs2', height = 300),
-                                                           plotlyOutput(outputId = 'sgs3', height = 300, width = '100%'),
-                                                           plotlyOutput(outputId = 'sgs4', height = 300 ))
-                                             ),                                      
-                                      fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("summ_table"))))
-                                    )
-                                  )
-                                )
-                              ),
-#//////////////////////////////////////////////////////////////////////////////
-# Juvenile Tab
-#//////////////////////////////////////////////////////////////////////////////
-                      tabPanel("Juvenile Abundance and Survival",
-                        sidebarLayout(
-                          sidebarPanel(
-                            style = "position:fixed;width:25%;",
-                            width = 3,
-                            h3('Data Collected From Rotary Screw Traps and Hatchery Releases'),
-                            helpText('Select species, trap site and spawn year range of intrest then click "Query Data".'),
-                            uiOutput("juv_species_menu"),
-                            uiOutput("juv_streams_menu"),                                     
-                            uiOutput("juv_year_menu"),
-                            actionButton("juv_reset", label = "Query Data", class = "mybutton", width = '100%'),
-                            hr(),
-                            leafletOutput('juv_map', height = 400, width = '100%')
-                            ),
-                          mainPanel(
-                            fluidPage(
-                               titlePanel('Juvenile Metrics: Abundance and Survival'),
-                               br(),
-                               fluidRow(
-                                        column(6, plotlyOutput('juv_sum1', height = 500)),
-                                        column(6, plotlyOutput('juv_sum2', height = 500))
-                                        ),
-                               hr(),
-                               fluidRow(column(12, offset = 0, withSpinner(DT::dataTableOutput("rstsumm_table"))))
-                            )
+# DashboardHeader ----
+header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),  # Title shown on browser tab located in dashboardPage()
+                          tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, height = '40px'), 
+                                  class = 'dropdown', style = 'position: fixed; left:40px; padding-top:6px'),
+                          tags$li(tags$a("PITPH Web App", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank', class='navlinks'),
+                                  class = 'dropdown'),
+                          tags$li(tags$a("PITtrackR Web App", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank', class='navlinks'),
+                                  class = 'dropdown'),
+                          # Login/Logout Link
+                          tags$li(tags$a(uiOutput('login_link')), class = 'dropdown', style= 'position:absolute; left:42px')
                           )
-                        )
-                      ),
-#//////////////////////////////////////////////////////////////////////////////
-# Hydro Tab
-#//////////////////////////////////////////////////////////////////////////////
-                      tabPanel("Hydro-system Conditions and Fish Counts",
-                               sidebarLayout(
-                                 sidebarPanel(
-                                   style = "position:fixed;width:25%;",
-                                   width = 3,
-                                   h3('Adult Return Counts and River Conditions at FCRPS Dams'),
-                                   h4('Data obtained from Columbia Basin Research and the DART website.'),
-                                   helpText('Select the hydrosystem project and return year of intrest then click "Query Data".'),
-                                   uiOutput("hydro_menu"),                                     
-                                   uiOutput("hydro_year_menu"),
-                                   actionButton("hydro_reset", label = "Query Data", class = "mybutton", width = '100%'),
-                                   helpText('Change the plot output by selecting species and/or river metric of interest.'),
-                                   uiOutput("hydro_species_menu"),
-                                   uiOutput("hydro_metric_menu")
-                                 ),
-                                 mainPanel(
-                                   withSpinner(plotOutput("window_plot")),
-                                   plotOutput("river_plot")
-                                   )
-                                 )
-                               )
-                      ),
-# Fish Managment Menu ----
-             navbarMenu("Fish Management Applications",
-# In-season Managment Tab
-#                        tabPanel(tags$a("In-season Snake Basin Management", target = '_blank')),
-# Hydro Operation Tab                        
-                        tabPanel(tags$a("PITPH Web Application", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank')),
-# PITtrackR Tab
-                        tabPanel(tags$a("PITtrackR Web Application", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank'))
-                        ),
-# Reporting Menu ----
-             navbarMenu("Reporting",
-                        tabPanel("Juvenile Report", id = 'juv_report', value = 'tab_juvreport',
-                                            tags$iframe(style="height:900px; width:100%; scrolling=yes",
-                                                        src="juv_draft1.pdf")#, #in www folder
-                                  ),
-                        tabPanel("Adult Report", id = 'adult_report', value = 'tab_adultreport',
-                                 tags$iframe(style="height:900px; width:100%; scrolling=yes",
-                                                         src="juv_draft1.pdf")) #in www folder)
-                       ),
-# Raw Data Menu ----
-             tabPanel("Raw Data", id = 'raw_data', value = 'tab_rawdata',
-                      fluidPage(
-                          fluidRow(
-                                column(3, uiOutput("raw_dataset_menu"))
-                            ),
-                          fluidRow(
-                            column(6, helpText("Select the desired dataset then the project, stream and locations of interest and click submit query.")),
-                            column(2, offset = 2, align = "center",
-                                   actionButton("raw_submit", label = "Submit Query", class = "mybutton")),
-                            column(2, align = "center",
-                                   downloadButton("raw_export", label = "Export .CSV File", class = "mybutton"))
-                            )
-                        ),
-                      hr(),
-                      withSpinner(DT::dataTableOutput("raw_table"))
+
+# Dashboard Sidebar ----
+sidebar <- dashboardSidebar(
+    useShinyjs(), # Activate ShinyJS
+    tags$script(src='javascript.js'), # include Javascript file (for custom spinner functionality)
+    sidebarMenu(
+      menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
+      menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
+               menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
+               # menuSubItem('Weir Collections', tabName = 'tab_weir'),
+               # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
+               menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
+               menuSubItem('Age Sampling', tabName = 'tab_age')
+               ),
+      menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
+               menuItemOutput('rd_cdms'),
+               menuItemOutput('rd_customquery'),
+               menuItemOutput('rd_reports')
+               ),
+      br(), br(), br(), br(), br(), br(), br(),
+      div(class = 'busy',
+          img(src="kus_spinner.gif", height= 'auto', width = '100%') # Ty's B.A. custom Spinner
+      )
+    )
+  )
+
+# Dashboard Body ----
+body <- dashboardBody(
+  includeCSS('./www/styles.css'),
+    tabItems(
+  # KusHome Tab ----
+      tabItem(tabName = 'tab_home',
+              fluidRow(
+                column(8, offset = 2,
+                       box(status = 'info', width=12, background = 'aqua', # ?validStatuses ?validColors
+                           p('The Kus web application is intended to provide near real-time data summaries and
+                              visualizations to Nez Perce Tribal members and general public. This tool supports Department 
+                              of Fisheries Resources Management staff and Snake Basin fisheries management decisions.'),
+                           helpText(HTML('<em>Data available on this application is the property of the Nez Perce Tribe.')),
+                           helpText(HTML('Any use of the data requires proper citation and any misuse of the data will 
+                                         pursued to the full extent of the law.</em>'))
+                           ), style = 'text-align:center;')),
+              fluidRow(
+                column(12, 
+                       box(status = 'info', width = 12, height = '800px', 
+                           fluidPage(
+                             htmlOutput('map'))
+                       )
+                )
+              )
+      ),
+
+  # Spawning Ground Survey Summaries Tab ----
+  tabItem(tabName = 'tab_sgs',
+          fluidRow(
+            column(12,
+            box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
+                uiOutput(outputId = 'sgs_data_button'),
+                uiOutput(outputId = 'sgs_species'),
+                uiOutput(outputId = 'sgs_pop_name')
+            ),
+            box(width = 7, 
+              img(src='carcass.png', width = '100%', height='auto') 
+                ))
+          ),
+          hr(),
+          fluidRow(
+            box(width = 12, plotlyOutput('p_redds'))
+          ),
+          fluidRow(
+            box(width = 4, plotlyOutput('p_females')),
+            box(width = 4, plotlyOutput('p_phos')),
+            box(width = 4, plotlyOutput('p_psm'))
+          ),
+          box(width = 12, 
+              title = 'Tabular Summary Data',
+              fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table'))
+          )
+  ),
+  
+  # Weir Collections Summaries Tab ----
+  # tabItem(tabName = 'tab_weir',
+  #         fluidRow(
+  #           box(title = 'Weir Collection Summaries',
+  #               helpText('Sorry! This page is currently under contruction.'))
+  #         )),
+          
+  # In-Stream Array Abundance Summaries Tab ----
+  # tabItem(tabName = 'tab_array',
+  #         fluidRow(
+  #           box(title = 'In-Stream Array Summaries',
+  #               helpText('Sorry! This page is currently under contruction.'))
+  #         )),
+          
+  # Juvenile Monitoring Summaries Tab ----
+  tabItem(tabName = 'tab_juv',
+          fluidRow(
+            column(12, 
+            box(title = 'Juvenile Outmigrant Summary', status='info', width= 5,
+                uiOutput(outputId = 'juv_data_button'),
+                uiOutput(outputId = 'juv_species'),
+                uiOutput(outputId = 'juv_pop_name')
+            ),
+            box(width = 7, 
+                img(src='lostine_rst.jpg', width = '100%', height='auto') 
+            ))
+          ),
+          hr(),
+          fluidRow(
+            box(width = 12, plotlyOutput('j_abundance'))
+                  ),
+          fluidRow(
+            box(width = 6, plotlyOutput('j_survival'),
+                helpText('Solid Lines = Natural Origin; Dashed Lines = Hatchery Origin.', style= 'text-align:center;')),
+            box(width = 6, plotlyOutput('j_equivalents'),
+                br(), br())
+          ),
+
+          box(width = 12, title = 'Tabular Summary Data',
+              fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('juv_table'))
+              )
+          ),
+          
+  # Age Sampling Tab ----
+      tabItem(tabName = 'tab_age',
+              fluidRow(
+                column(12,
+                box(title = 'Age Data Summary', status='info', width= 5,
+                    uiOutput(outputId = 'age_data_button'),
+                    uiOutput(outputId = 'age_species'),
+                    uiOutput(outputId = 'age_pop_name')
+                    ),
+                box(width = 7, 
+                    img(src='scale.png', width = '100%', height='auto') 
+                    ))
                 ),
-# Data Entry Menu ----
-             navbarMenu("Data Entry", menuName = 'data_entry',
-                        tabPanel(tags$a("CDMS - Project Data Entry", href = "https://cdms.nptfisheries.org/index.html#/projects", target = '_blank')),
-                        tabPanel(tags$a("LSRCP FINS", href = "https://www.finsnet.org/", target = '_blank'))
-                        )
-  ) # close navbarPage
-) # close shinyUI
+              hr(),
+              fluidRow(
+                column(6,
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_total')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_ocean')))), 
+                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_stream'))))
+                       ),
+                column(6,
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_total')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_ocean')))),
+                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_stream'))))
+                       )
+                       )
+              ),
+  # Restricted Data Access Tab ----
+    # CDMS Datasets ----
+      tabItem(tabName = 'tab_cdms',
+              box(width = 12, 
+              fluidRow(column(6, uiOutput("raw_dataset_menu"),
+                              fluidRow(
+                                column(8, offset = 2, actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'))
+                                      ),
+                              br(),
+                              selectInput(inputId = 'q_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
+                              sliderInput(inputId= 'q_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1),
+                              helpText(HTML('<em>* Year is "Spawn Year" for adult datasets, "Migratory Year" for juvenile datasets, and "Collection Year" for Age data.</em>'), style = 'text-align:center;')
+                              ),
+                       column(6, 
+                              selectInput(inputId= 'q_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
+                              selectInput(inputId= 'q_pop_name', label= 'Choose Population:', choices= NULL, selected = NULL, multiple = TRUE),
+                              selectInput(inputId= 'q_stream', label= 'Choose Stream:', choices= NULL, selected = NULL, multiple = TRUE),
+                              br(),
+                              fluidRow(
+                                column(8, offset = 2, actionButton('clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
+                                )
+                              )
+              ),
+              hr(),
+              fluidRow(column(12, align = "center", 
+                              uiOutput('selected_cdms'), hr(),
+                              downloadButton("raw_export", label = "Export .CSV File"))),
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
+              )
+      ),
+    # Custom Queries ----
+      tabItem(tabName = 'tab_custom',
+                box(width = 12,
+                    h3('This page is intended to meet the needs of Projects and Biologists to produce desired data views or 
+                             summaries.', style = 'text-align: center;'),
+                    h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;'),
+                    hr(),
+                    fluidRow(column(6, 
+                                    selectInput('custom_query_menu', label = NULL, choices = query_names, selected = '-Select Custom Query-'),
+                                    uiOutput('query_description', style = 'text-align:center;'),
+                                    br(),
+                                    fluidRow(
+                                      column(8, offset=2, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'))
+                                            )
+                                    ),
+                             column(6, 
+                                    selectInput(inputId = 'cq_fields', label = NULL, choices = NULL, selectize = TRUE, multiple = TRUE),
+                                    helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
+                                    )
+                             )
+                ),
+              box(width = 12, 
+                  fluidRow(column(12, align = "center", 
+                                  uiOutput('selected_custom'),
+                                  downloadButton("custom_export", label = "Export .CSV File"))),
+                  div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
+              )
+        ),
+    # Reports ----
+      tabItem(tabName = 'tab_reports',
+              fluidRow(
+                box(width = 12,
+                    h2('Reports!', style = 'text-align: center;'),
+                    h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. similar graphs and tables of information),
+                       we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
+                    h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
+                    )
+              ),
+              fluidRow(
+                box(width = 12,
+                    title = 'Report Download',
+                    selectInput('pdf_reports', "Available Reports:", choices = c('Juvenile Summary MY17', 'SGS Summary SY18'), 
+                                selected = 'Juvenile Summary MY17'),
+                    helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
+                    downloadButton('reports', label = 'Download Report')
+                    )
+              ))
+  
+    ) #tabItems
+  ) #dashboardBody
+
+dashboardPage(title = "Nez Perce Tribe's Kus Web Application", header, sidebar, body, skin= 'blue')
