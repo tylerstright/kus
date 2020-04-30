@@ -56,6 +56,7 @@ server <- function(input, output, session) {
         output$rd_cdms <- renderMenu({menuSubItem('CDMS Datasets', tabName = 'tab_cdms')})
         output$rd_customquery <- renderMenu({menuSubItem('Custom Queries', tabName = 'tab_custom')})
         output$rd_reports <- renderMenu({menuSubItem('Reports', tabName = 'tab_reports')})
+        output$rd_files <- renderMenu({menuSubItem('Files', tabName = 'tab_files')})
         
         output$login_link <- renderUI({
           actionLink('greeting', label = paste0('Hello, ', user_info()$Fullname, "!"), style = 'color: white;')
@@ -891,5 +892,62 @@ server <- function(input, output, session) {
       
     }
   )
+  
+  # Files Download ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_files'){
+    # build files_table
+      files <- getAllFiles(cdms_host) %>% 
+        select(ProjectId, Fullname, Name, Title, Description, Link)
+      
+      projects <- getProjects(cdms_host) %>% 
+        select(Id, Project = Name)
+      
+      files_df <<- left_join(files, projects, by = c('ProjectId'='Id')) %>%
+        select(Project, SubmittedBy=Fullname, Title, `File Name`=Name, Description, Link)
+    
+    output$files_table <- DT::renderDataTable({
+      DT::datatable(files_df %>% select(-Link), options = list(orderClasses = TRUE), filter = 'top')
+    })
+    
+    # UI
+    output$files_info <- renderUI({
+      tagList(
+        hr(),
+        fluidRow(
+          column(8, offset = 2,
+            column(8, selectInput(inputId = 'file_choice', label = '', 
+                                  choices = c('Select File:', unique(files_df$`File Name`)),
+                                  selected = '- Choose File -')),     
+            column(4, br(),
+                   actionButton(inputId= 'files_download', label = 'Download File', icon = icon('hourglass-start'), width = '100%'))
+            )
+        ), hr()#,
+        # helpText(HTML('<em> *Double check you have the correct file selected!</em>'))
+      )
+      })
+    } # closes 'if'
+  })
+  
+  # Download file
+  observeEvent(input$files_download, {
+    if(input$file_choice == 'Select File:') {
+      NULL
+    } else {
+      fileRecord <- which(grepl(input$file_choice, files_df$`File Name`))
+      
+      fileName <- files_df$`File Name`[fileRecord]
+      
+      fileLink <- files_df$Link[fileRecord]
+      
+      fullLink <- paste0('https:',fileLink)
+      
+      filePath <- paste0('../',fileName)
+      
+      download.file(fullLink, destfile = filePath, mode = "wb")
+    }
+  })
+  
+  # Fields: ProjectId (name), UserId (name), Name (file name), Title, Link, Description
   
 } # close Server
