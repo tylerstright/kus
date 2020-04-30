@@ -16,7 +16,7 @@ header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right
 sidebar <- dashboardSidebar(
     useShinyjs(), # Activate ShinyJS
     tags$script(src='javascript.js'), # include Javascript file (for custom spinner functionality)
-    sidebarMenu(
+    sidebarMenu(id = 'tabs',
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
@@ -28,7 +28,8 @@ sidebar <- dashboardSidebar(
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuItemOutput('rd_cdms'),
                menuItemOutput('rd_customquery'),
-               menuItemOutput('rd_reports')
+               menuItemOutput('rd_reports'),
+               menuItemOutput('rd_files')
                ),
       br(), br(), br(), br(), br(), br(), br(),
       div(class = 'busy',
@@ -239,7 +240,17 @@ body <- dashboardBody(
                     helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
                     downloadButton('reports', label = 'Download Report')
                     )
-              ))
+              )),
+    # Files Download ----
+      tabItem(tabName = 'tab_files',
+              fluidRow(
+                box(width = 12,
+                    h2('CDMS File Access', style = 'text-align:center;'),
+                    uiOutput(outputId='files_info'),
+                    DT::dataTableOutput('files_table')
+                ) 
+              )
+      )
   
     ) #tabItems
   ) #dashboardBody
