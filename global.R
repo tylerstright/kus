@@ -23,15 +23,9 @@ source('./R/summariseRST.R') # custom query
 source('./R/summariseAGE.R') # summary page function
 source('./R/cdms_api_keys.R')
 
-#temp Source
-source('C:/Users/tylers/Documents/R/cdmsR/R/getAllFiles.R')
-source('C:/Users/tylers/Documents/R/cdmsR/R/getProjectFiles.R')
-source('C:/Users/tylers/Documents/R/cdmsR/R/getUsers.R')
-
-
 keys <- cdmsKeys()
-# cdms_host <- keys[1]
-cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
+cdms_host <- keys[1]
+# cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
 username <- keys[2]
 api_key <- keys[3]
 
