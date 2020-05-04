@@ -107,7 +107,8 @@ server <- function(input, output, session) {
                                          choices = c('', unique(documents_df$Title)), selected = '')
                    ),     
             column(2, offset = 5,
-                   downloadButton("document_export", label = "Download Document", width = '100%')
+                   # downloadButton("document_export", label = "Download Document", width = '100%'),
+                   actionButton(inputId = 'doc_DL', label = "Download Selected Document")
                    )
           ), hr()
         )
@@ -122,7 +123,7 @@ server <- function(input, output, session) {
                  if(input$doc_project == 'All Projects') Project %in% unique(documents_df$Project) else Project == input$doc_project,
                  if(input$doc_author == 'All Authors') Author %in% unique(documents_df$Author) else Author == input$doc_author,
                  if(input$doc_keywords == '') is.character(Description) else str_detect(Description, input$doc_keywords))
-                                            # this 'above'is.character()' is a hack
+                                            # this 'is.character()' is a bit of a hack
         
         updateSelectInput(session, inputId= 'doc_choice', label= 'Select File to Download:', 
                           choices= c('', sort(unique(cdms_doc_data$Title))), selected = '') 
@@ -136,47 +137,32 @@ server <- function(input, output, session) {
   # Selected File Info ----
   observeEvent(input$doc_choice, {
     if(input$doc_choice == '') { NULL } else {
-      docRecord <<- which(grepl(input$doc_choice, cdms_doc_data$FileName))
+      docRecord <<- which(grepl(input$doc_choice, cdms_doc_data$Title))
       docType <<- cdms_doc_data$FileType[docRecord]
       docLink <<- cdms_doc_data$Link[docRecord]
       docName <<- cdms_doc_data$FileName[docRecord]
-      fullLink <<- paste0('https:',docLink)
-      filePath <<- paste0('../',docName)
+      docURL <<- paste0('http:',docLink)
+      docPath <<- paste0('../',docName)
+    }
+  })
+  
+  observeEvent(input$doc_DL, {
+    if(exists('docName') == FALSE) { NULL } else {
+    download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
     }
   })
   
   # Document Download ----
-  output$document_export <- downloadHandler(
-        filename = function() {
-          paste0(docName)
-        },
-        content = function(file) {
-          download.file(fullLink, destfile = filePath, mode = "wb")
-        },
-        contentType = function() {
-          paste0(docType)
-        }
-  )
-  
-  # Download Document
-  # observeEvent(input$files_download, {
-  #   if(input$doc_choice == 'Select File:') {
-  #     NULL
-  #   } else {
-  #     docRecord <- which(grepl(input$doc_choice, cdms_doc_data$FileName))
-  #     
-  #     docName <- cdms_doc_data$FileName[docRecord]
-  #     
-  #     docLink <- cdms_doc_data$Link[docRecord]
-  #     
-  #     fullLink <- paste0('https:',docLink)
-  #     
-  #     filePath <- paste0('../',docName)
-  #   
-  #     download.file(fullLink, destfile = filePath, mode = "wb")
-  #   }
-  # })
- #================================================================================= 
+  # output$document_export <- downloadHandler(
+  #       filename = function() {
+  #         paste0(docName)  # FileName as it exists on the server.
+  #       },
+  #       content = function(file) {
+  #         # do we need to if/else based on file type here and have several operations for content?
+  #         download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
+  #      },
+  #       contentType = NULL
+  # )
 
   # Spawning Ground Surveys Summaries Tab ----
     # UI
