@@ -70,6 +70,112 @@ server <- function(input, output, session) {
   
   output$map<-renderUI({getPage()})
   
+  # Documents Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_documents'){
+      # build files_table
+      files <- getAllFiles(cdms_host) %>% 
+        select(ProjectId, Fullname, Name, Title, Description, Link, FileType)
+      
+      projects <- getProjects(cdms_host) %>% 
+        select(Id, Project = Name)
+      
+      documents_df <- left_join(files, projects, by = c('ProjectId'='Id')) %>%
+        select(Project, Author=Fullname, Title, FileName=Name, Description, Link, FileType)
+      
+      # RV$doc_data <<- documents_df
+      
+      # UI
+      output$documents_info <- renderUI({
+        tagList(
+          hr(),
+          fluidRow(
+            column(4, offset = 2,
+                   selectInput(inputId = 'doc_filetype', 'Filter by File Type:',
+                               choices = c('All Files', unique(documents_df$FileType)), selected = 'All Files'),
+                   selectInput(inputId = 'doc_project', label = 'Filter by Project:', 
+                               choices = c('All Projects', unique(documents_df$Project)), selected = 'All Projects'),
+                   selectInput(inputId = 'doc_author', label = 'Filter by Author:',
+                               choices = c('All Authors', unique(documents_df$Author)), selected = 'All Authors')#,
+                   # textInput(inputId = 'doc_keywords', label = 'Keyword Search:')
+            ),
+            column(4, offset = 0,  # show file Title, but have it mean FileName?
+                   selectInput(inputId = 'doc_choice', label = 'Select File to Download:', 
+                                         choices = c('', unique(documents_df$Title)),
+                                         selected = ''),     
+                   br(),
+                   # actionButton(inputId= 'files_download', label = 'Download File', icon = icon('hourglass-start'), width = '100%'),
+                   br(), br(), br(),
+                   downloadButton("document_export", label = "Download Document", width = '100%')
+            )
+          ), hr()
+        )
+      })
+      
+      # Documents Table ----
+      output$documents_table <- DT::renderDataTable({
+        
+        cdms_doc_data <<- documents_df %>%
+          filter(if(input$doc_filetype == 'All Files') FileType %in% unique(documents_df$FileType) else FileType == input$doc_filetype,
+                 if(input$doc_project == 'All Projects') Project %in% unique(documents_df$Project) else Project == input$doc_project,
+                 if(input$doc_author == 'All Authors') Author %in% unique(documents_df$Author) else Author == input$doc_author)#,
+                 # if(input$doc_keywords != '') str_detect(string = Description, pattern = paste0('*',input$doc_keywords, '*'))
+        
+        updateSelectInput(session, inputId= 'doc_choice', label= 'Select File:', 
+                          choices= c('', sort(unique(cdms_doc_data$Title))),
+                          selected = '') 
+        
+        DT::datatable(cdms_doc_data %>% select(-Link, -FileName, -FileType), options = list(orderClasses = TRUE), filter = 'top')
+      })
+
+    } # closes 'if'
+  })
+  
+  # Selected File ----
+  observeEvent(input$doc_choice, {
+    if(input$doc_choice == '') { NULL } else {
+      docRecord <<- which(grepl(input$doc_choice, cdms_doc_data$FileName))
+      docType <<- cdms_doc_data$FileType[docRecord]
+      docLink <<- cdms_doc_data$Link[docRecord]
+      docName <<- cdms_doc_data$FileName[docRecord]
+      fullLink <<- paste0('https:',docLink)
+      filePath <<- paste0('../',docName)
+    }
+  })
+  
+  # Document Download ----
+  output$document_export <- downloadHandler(
+    filename = function() {
+      paste0(docName)
+    },
+    content = function(file) {
+      download.file(fullLink, destfile = filePath, mode = "wb")
+    },
+    contentType = function() {
+      paste0(docType)
+      }
+  )
+  
+  # Download Document
+  # observeEvent(input$files_download, {
+  #   if(input$doc_choice == 'Select File:') {
+  #     NULL
+  #   } else {
+  #     docRecord <- which(grepl(input$doc_choice, cdms_doc_data$FileName))
+  #     
+  #     docName <- cdms_doc_data$FileName[docRecord]
+  #     
+  #     docLink <- cdms_doc_data$Link[docRecord]
+  #     
+  #     fullLink <- paste0('https:',docLink)
+  #     
+  #     filePath <- paste0('../',docName)
+  #     
+  #     download.file(fullLink, destfile = filePath, mode = "wb")
+  #   }
+  # })
+ #================================================================================= 
+
   # Spawning Ground Surveys Summaries Tab ----
     # UI
   output$sgs_data_button <- renderUI({
@@ -892,62 +998,5 @@ server <- function(input, output, session) {
       
     }
   )
-  
-  # Files Download ----
-  observeEvent(input$tabs, {
-    if(input$tabs == 'tab_files'){
-    # build files_table
-      files <- getAllFiles(cdms_host) %>% 
-        select(ProjectId, Fullname, Name, Title, Description, Link)
-      
-      projects <- getProjects(cdms_host) %>% 
-        select(Id, Project = Name)
-      
-      files_df <<- left_join(files, projects, by = c('ProjectId'='Id')) %>%
-        select(Project, SubmittedBy=Fullname, Title, `File Name`=Name, Description, Link)
-    
-    output$files_table <- DT::renderDataTable({
-      DT::datatable(files_df %>% select(-Link), options = list(orderClasses = TRUE), filter = 'top')
-    })
-    
-    # UI
-    output$files_info <- renderUI({
-      tagList(
-        hr(),
-        fluidRow(
-          column(8, offset = 2,
-            column(8, selectInput(inputId = 'file_choice', label = '', 
-                                  choices = c('Select File:', unique(files_df$`File Name`)),
-                                  selected = '- Choose File -')),     
-            column(4, br(),
-                   actionButton(inputId= 'files_download', label = 'Download File', icon = icon('hourglass-start'), width = '100%'))
-            )
-        ), hr()#,
-        # helpText(HTML('<em> *Double check you have the correct file selected!</em>'))
-      )
-      })
-    } # closes 'if'
-  })
-  
-  # Download file
-  observeEvent(input$files_download, {
-    if(input$file_choice == 'Select File:') {
-      NULL
-    } else {
-      fileRecord <- which(grepl(input$file_choice, files_df$`File Name`))
-      
-      fileName <- files_df$`File Name`[fileRecord]
-      
-      fileLink <- files_df$Link[fileRecord]
-      
-      fullLink <- paste0('https:',fileLink)
-      
-      filePath <- paste0('../',fileName)
-      
-      download.file(fullLink, destfile = filePath, mode = "wb")
-    }
-  })
-  
-  # Fields: ProjectId (name), UserId (name), Name (file name), Title, Link, Description
   
 } # close Server
