@@ -82,9 +82,7 @@ server <- function(input, output, session) {
       
       documents_df <- left_join(files, projects, by = c('ProjectId'='Id')) %>%
         select(Project, Author=Fullname, Title, FileName=Name, Description, Link, FileType)
-      
-      # RV$doc_data <<- documents_df
-      
+
       # UI
       output$documents_info <- renderUI({
         tagList(
@@ -94,23 +92,27 @@ server <- function(input, output, session) {
                    selectInput(inputId = 'doc_filetype', 'Filter by File Type:',
                                choices = c('All Files', unique(documents_df$FileType)), selected = 'All Files'),
                    selectInput(inputId = 'doc_project', label = 'Filter by Project:', 
-                               choices = c('All Projects', unique(documents_df$Project)), selected = 'All Projects'),
+                               choices = c('All Projects', unique(documents_df$Project)), selected = 'All Projects')
+                   ),
+            column(4, offset = 0,
                    selectInput(inputId = 'doc_author', label = 'Filter by Author:',
-                               choices = c('All Authors', unique(documents_df$Author)), selected = 'All Authors')#,
-                   # textInput(inputId = 'doc_keywords', label = 'Keyword Search:')
-            ),
-            column(4, offset = 0,  # show file Title, but have it mean FileName?
+                               choices = c('All Authors', unique(documents_df$Author)), selected = 'All Authors'),
+                   textInput(inputId = 'doc_keywords', label = 'Description Keyword Search:', 
+                             placeholder = 'Search description for key words?')
+                   )
+          ),
+          fluidRow(
+            column(4, offset = 4,
                    selectInput(inputId = 'doc_choice', label = 'Select File to Download:', 
-                                         choices = c('', unique(documents_df$Title)),
-                                         selected = ''),     
-                   br(),
-                   # actionButton(inputId= 'files_download', label = 'Download File', icon = icon('hourglass-start'), width = '100%'),
-                   br(), br(), br(),
+                                         choices = c('', unique(documents_df$Title)), selected = '')
+                   ),     
+            column(2, offset = 5,
                    downloadButton("document_export", label = "Download Document", width = '100%')
-            )
+                   )
           ), hr()
         )
       })
+
       
       # Documents Table ----
       output$documents_table <- DT::renderDataTable({
@@ -118,12 +120,12 @@ server <- function(input, output, session) {
         cdms_doc_data <<- documents_df %>%
           filter(if(input$doc_filetype == 'All Files') FileType %in% unique(documents_df$FileType) else FileType == input$doc_filetype,
                  if(input$doc_project == 'All Projects') Project %in% unique(documents_df$Project) else Project == input$doc_project,
-                 if(input$doc_author == 'All Authors') Author %in% unique(documents_df$Author) else Author == input$doc_author)#,
-                 # if(input$doc_keywords != '') str_detect(string = Description, pattern = paste0('*',input$doc_keywords, '*'))
+                 if(input$doc_author == 'All Authors') Author %in% unique(documents_df$Author) else Author == input$doc_author,
+                 if(input$doc_keywords == '') is.character(Description) else str_detect(Description, input$doc_keywords))
+                                            # this 'above'is.character()' is a hack
         
-        updateSelectInput(session, inputId= 'doc_choice', label= 'Select File:', 
-                          choices= c('', sort(unique(cdms_doc_data$Title))),
-                          selected = '') 
+        updateSelectInput(session, inputId= 'doc_choice', label= 'Select File to Download:', 
+                          choices= c('', sort(unique(cdms_doc_data$Title))), selected = '') 
         
         DT::datatable(cdms_doc_data %>% select(-Link, -FileName, -FileType), options = list(orderClasses = TRUE), filter = 'top')
       })
@@ -131,7 +133,7 @@ server <- function(input, output, session) {
     } # closes 'if'
   })
   
-  # Selected File ----
+  # Selected File Info ----
   observeEvent(input$doc_choice, {
     if(input$doc_choice == '') { NULL } else {
       docRecord <<- which(grepl(input$doc_choice, cdms_doc_data$FileName))
@@ -145,15 +147,15 @@ server <- function(input, output, session) {
   
   # Document Download ----
   output$document_export <- downloadHandler(
-    filename = function() {
-      paste0(docName)
-    },
-    content = function(file) {
-      download.file(fullLink, destfile = filePath, mode = "wb")
-    },
-    contentType = function() {
-      paste0(docType)
-      }
+        filename = function() {
+          paste0(docName)
+        },
+        content = function(file) {
+          download.file(fullLink, destfile = filePath, mode = "wb")
+        },
+        contentType = function() {
+          paste0(docType)
+        }
   )
   
   # Download Document
@@ -170,7 +172,7 @@ server <- function(input, output, session) {
   #     fullLink <- paste0('https:',docLink)
   #     
   #     filePath <- paste0('../',docName)
-  #     
+  #   
   #     download.file(fullLink, destfile = filePath, mode = "wb")
   #   }
   # })

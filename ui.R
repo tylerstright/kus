@@ -67,7 +67,7 @@ body <- dashboardBody(
   # Documents Tab ----
       tabItem(tabName = 'tab_documents',
               fluidRow(
-                box(width = 12,
+                box(width = 12, status = "info",
                     h2('CDMS File Access', style = 'text-align:center;'),
                     uiOutput(outputId='documents_info'),
                     DT::dataTableOutput('documents_table')
