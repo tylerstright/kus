@@ -18,6 +18,7 @@ sidebar <- dashboardSidebar(
     tags$script(src='javascript.js'), # include Javascript file (for custom spinner functionality)
     sidebarMenu(id = 'tabs',
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
+      menuItem('Documents', tabName = 'tab_documents', icon = icon("file")),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
                # menuSubItem('Weir Collections', tabName = 'tab_weir'),
@@ -28,8 +29,7 @@ sidebar <- dashboardSidebar(
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuItemOutput('rd_cdms'),
                menuItemOutput('rd_customquery'),
-               menuItemOutput('rd_reports'),
-               menuItemOutput('rd_files')
+               menuItemOutput('rd_reports')
                ),
       br(), br(), br(), br(), br(), br(), br(),
       div(class = 'busy',
@@ -61,6 +61,17 @@ body <- dashboardBody(
                              htmlOutput('map'))
                        )
                 )
+              )
+      ),
+  
+  # Documents Tab ----
+      tabItem(tabName = 'tab_documents',
+              fluidRow(
+                box(width = 12, status = "info",
+                    h2('CDMS Document Access', style = 'text-align:center;'),
+                    uiOutput(outputId='documents_info'),
+                    DT::dataTableOutput('documents_table')
+                ) 
               )
       ),
 
@@ -240,18 +251,7 @@ body <- dashboardBody(
                     helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
                     downloadButton('reports', label = 'Download Report')
                     )
-              )),
-    # Files Download ----
-      tabItem(tabName = 'tab_files',
-              fluidRow(
-                box(width = 12,
-                    h2('CDMS File Access', style = 'text-align:center;'),
-                    uiOutput(outputId='files_info'),
-                    DT::dataTableOutput('files_table')
-                ) 
-              )
-      )
-  
+              ))
     ) #tabItems
   ) #dashboardBody
 
