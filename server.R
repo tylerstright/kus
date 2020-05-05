@@ -108,7 +108,7 @@ server <- function(input, output, session) {
                    ),     
             column(2, offset = 5,
                    # downloadButton("document_export", label = "Download Document", width = '100%'),
-                   actionButton(inputId = 'doc_DL', label = "Download Selected Document")
+                   actionButton(inputId = 'doc_DL', label = "Download Document")
                    )
           ), hr()
         )
