@@ -70,99 +70,99 @@ server <- function(input, output, session) {
   
   output$map<-renderUI({getPage()})
   
-  # Documents Tab ----
-  observeEvent(input$tabs, {
-    if(input$tabs == 'tab_documents'){
-      # build files_table
-      files <- getAllFiles(cdms_host) %>% 
-        select(ProjectId, Fullname, Name, Title, Description, Link, FileType)
-      
-      projects <- getProjects(cdms_host) %>% 
-        select(Id, Project = Name)
-      
-      documents_df <- left_join(files, projects, by = c('ProjectId'='Id')) %>%
-        select(Project, Author=Fullname, Title, FileName=Name, Description, Link, FileType)
-
-      # UI
-      output$documents_info <- renderUI({
-        tagList(
-          hr(),
-          fluidRow(
-            column(4, offset = 2,
-                   selectInput(inputId = 'doc_filetype', 'Filter by File Type:',
-                               choices = c('All Files', unique(documents_df$FileType)), selected = 'All Files'),
-                   selectInput(inputId = 'doc_project', label = 'Filter by Project:', 
-                               choices = c('All Projects', unique(documents_df$Project)), selected = 'All Projects')
-                   ),
-            column(4, offset = 0,
-                   selectInput(inputId = 'doc_author', label = 'Filter by Author:',
-                               choices = c('All Authors', unique(documents_df$Author)), selected = 'All Authors'),
-                   textInput(inputId = 'doc_keywords', label = 'Description Keyword Search:', 
-                             placeholder = 'Search description for key words?')
-                   )
-          ),
-          fluidRow(
-            column(4, offset = 4,
-                   selectInput(inputId = 'doc_choice', label = 'Select File to Download:', 
-                                         choices = c('', unique(documents_df$Title)), selected = '')
-                   ),     
-            column(2, offset = 5,
-                   # downloadButton("document_export", label = "Download Document", width = '100%'),
-                   actionButton(inputId = 'doc_DL', label = "Download Document")
-                   )
-          ), hr()
-        )
-      })
-
-      
-      # Documents Table ----
-      output$documents_table <- DT::renderDataTable({
-        
-        cdms_doc_data <<- documents_df %>%
-          filter(if(input$doc_filetype == 'All Files') FileType %in% unique(documents_df$FileType) else FileType == input$doc_filetype,
-                 if(input$doc_project == 'All Projects') Project %in% unique(documents_df$Project) else Project == input$doc_project,
-                 if(input$doc_author == 'All Authors') Author %in% unique(documents_df$Author) else Author == input$doc_author,
-                 if(input$doc_keywords == '') is.character(Description) else str_detect(Description, input$doc_keywords))
-                                            # this 'is.character()' is a bit of a hack
-        
-        updateSelectInput(session, inputId= 'doc_choice', label= 'Select File to Download:', 
-                          choices= c('', sort(unique(cdms_doc_data$Title))), selected = '') 
-        
-        DT::datatable(cdms_doc_data %>% select(-Link, -FileName, -FileType), options = list(orderClasses = TRUE), filter = 'top')
-      })
-
-    } # closes 'if'
-  })
-  
-  # Selected File Info ----
-  observeEvent(input$doc_choice, {
-    if(input$doc_choice == '') { NULL } else {
-      docRecord <<- which(grepl(input$doc_choice, cdms_doc_data$Title))
-      docType <<- cdms_doc_data$FileType[docRecord]
-      docLink <<- cdms_doc_data$Link[docRecord]
-      docName <<- cdms_doc_data$FileName[docRecord]
-      docURL <<- paste0('http:',docLink)
-      docPath <<- paste0('../',docName)
-    }
-  })
-  
-  observeEvent(input$doc_DL, {
-    if(exists('docName') == FALSE) { NULL } else {
-    download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
-    }
-  })
-  
-  # Document Download ----
-  # output$document_export <- downloadHandler(
-  #       filename = function() {
-  #         paste0(docName)  # FileName as it exists on the server.
-  #       },
-  #       content = function(file) {
-  #         # do we need to if/else based on file type here and have several operations for content?
-  #         download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
-  #      },
-  #       contentType = NULL
-  # )
+  # # Documents Tab ----
+  # observeEvent(input$tabs, {
+  #   if(input$tabs == 'tab_documents'){
+  #     # build files_table
+  #     files <- getAllFiles(cdms_host) %>% 
+  #       select(ProjectId, Fullname, Name, Title, Description, Link, FileType)
+  #     
+  #     projects <- getProjects(cdms_host) %>% 
+  #       select(Id, Project = Name)
+  #     
+  #     documents_df <- left_join(files, projects, by = c('ProjectId'='Id')) %>%
+  #       select(Project, Author=Fullname, Title, FileName=Name, Description, Link, FileType)
+  # 
+  #     # UI
+  #     output$documents_info <- renderUI({
+  #       tagList(
+  #         hr(),
+  #         fluidRow(
+  #           column(4, offset = 2,
+  #                  selectInput(inputId = 'doc_filetype', 'Filter by File Type:',
+  #                              choices = c('All Files', unique(documents_df$FileType)), selected = 'All Files'),
+  #                  selectInput(inputId = 'doc_project', label = 'Filter by Project:', 
+  #                              choices = c('All Projects', unique(documents_df$Project)), selected = 'All Projects')
+  #                  ),
+  #           column(4, offset = 0,
+  #                  selectInput(inputId = 'doc_author', label = 'Filter by Author:',
+  #                              choices = c('All Authors', unique(documents_df$Author)), selected = 'All Authors'),
+  #                  textInput(inputId = 'doc_keywords', label = 'Description Keyword Search:', 
+  #                            placeholder = 'Search description for key words?')
+  #                  )
+  #         ),
+  #         fluidRow(
+  #           column(4, offset = 4,
+  #                  selectInput(inputId = 'doc_choice', label = 'Select File to Download:', 
+  #                                        choices = c('', unique(documents_df$Title)), selected = '')
+  #                  ),     
+  #           column(2, offset = 5,
+  #                  # downloadButton("document_export", label = "Download Document", width = '100%'),
+  #                  actionButton(inputId = 'doc_DL', label = "Download Document")
+  #                  )
+  #         ), hr()
+  #       )
+  #     })
+  # 
+  #     
+  #     # Documents Table ----
+  #     output$documents_table <- DT::renderDataTable({
+  #       
+  #       cdms_doc_data <<- documents_df %>%
+  #         filter(if(input$doc_filetype == 'All Files') FileType %in% unique(documents_df$FileType) else FileType == input$doc_filetype,
+  #                if(input$doc_project == 'All Projects') Project %in% unique(documents_df$Project) else Project == input$doc_project,
+  #                if(input$doc_author == 'All Authors') Author %in% unique(documents_df$Author) else Author == input$doc_author,
+  #                if(input$doc_keywords == '') is.character(Description) else str_detect(Description, input$doc_keywords))
+  #                                           # this 'is.character()' is a bit of a hack
+  #       
+  #       updateSelectInput(session, inputId= 'doc_choice', label= 'Select File to Download:', 
+  #                         choices= c('', sort(unique(cdms_doc_data$Title))), selected = '') 
+  #       
+  #       DT::datatable(cdms_doc_data %>% select(-Link, -FileName, -FileType), options = list(orderClasses = TRUE), filter = 'top')
+  #     })
+  # 
+  #   } # closes 'if'
+  # })
+  # 
+  # # Selected File Info ----
+  # observeEvent(input$doc_choice, {
+  #   if(input$doc_choice == '') { NULL } else {
+  #     docRecord <<- which(grepl(input$doc_choice, cdms_doc_data$Title))
+  #     docType <<- cdms_doc_data$FileType[docRecord]
+  #     docLink <<- cdms_doc_data$Link[docRecord]
+  #     docName <<- cdms_doc_data$FileName[docRecord]
+  #     docURL <<- paste0('http:',docLink)
+  #     docPath <<- paste0('../',docName)
+  #   }
+  # })
+  # 
+  # observeEvent(input$doc_DL, {
+  #   if(exists('docName') == FALSE) { NULL } else {
+  #   download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
+  #   }
+  # })
+  # 
+  # # Document Download ----
+  # # output$document_export <- downloadHandler(
+  # #       filename = function() {
+  # #         paste0(docName)  # FileName as it exists on the server.
+  # #       },
+  # #       content = function(file) {
+  # #         # do we need to if/else based on file type here and have several operations for content?
+  # #         download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
+  # #      },
+  # #       contentType = NULL
+  # # )
 
   # Spawning Ground Surveys Summaries Tab ----
     # UI
