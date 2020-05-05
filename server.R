@@ -107,8 +107,8 @@ server <- function(input, output, session) {
                                          choices = c('', unique(documents_df$Title)), selected = '')
                    ),
             column(2, offset = 5,
-                   # downloadButton("document_export", label = "Download Document", width = '100%'),
-                   actionButton(inputId = 'doc_DL', label = "Download Document")
+                   downloadButton("document_export", label = "Download Document", width = '100%'),
+                   #actionButton(inputId = 'doc_DL', label = "Download Document")
                    )
           ), hr()
         )
@@ -146,23 +146,23 @@ server <- function(input, output, session) {
     }
   })
 
-  observeEvent(input$doc_DL, {
-    if(exists('docName') == FALSE) { NULL } else {
-    download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
-    }
-  })
+  # observeEvent(input$doc_DL, {
+  #   if(exists('docName') == FALSE) { NULL } else {
+  #   download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
+  #   }
+  # })
 
-  # Document Download ----
-  # output$document_export <- downloadHandler(
-  #       filename = function() {
-  #         paste0(docName)  # FileName as it exists on the server.
-  #       },
-  #       content = function(file) {
-  #         # do we need to if/else based on file type here and have several operations for content?
-  #         download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
-  #      },
-  #       contentType = NULL
-  # )
+ # Document Download ----
+  output$document_export <- downloadHandler(
+        filename = function() {
+          paste0(docName)  # FileName as it exists on the server.
+        },
+        content = function(file) {
+          
+          GET(docURL, write_disk(file))
+       },
+        contentType = NULL
+  )
 
   # Spawning Ground Surveys Summaries Tab ----
     # UI
