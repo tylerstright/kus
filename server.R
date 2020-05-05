@@ -107,7 +107,7 @@ server <- function(input, output, session) {
                                          choices = c('', unique(documents_df$Title)), selected = '')
                    ),
             column(2, offset = 5,
-                   downloadButton("document_export", label = "Download Document", width = '100%'),
+                   downloadButton("document_export", label = "Download Document", width = '100%')
                    #actionButton(inputId = 'doc_DL', label = "Download Document")
                    )
           ), hr()
