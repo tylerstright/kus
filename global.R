@@ -21,7 +21,7 @@ source('./R/sum_FCHN_redds.R') # custom query
 source('./R/summariseSGS.R') # custom query
 source('./R/summariseRST.R') # custom query
 source('./R/summariseAGE.R') # summary page function
-source('./R/cdms_api_keys.R')
+source('./cdms_api_keys.R')
 
 keys <- cdmsKeys()
 cdms_host <- keys[1]
