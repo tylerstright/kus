@@ -14,7 +14,7 @@ library(kableExtra) # Markdown reports
 
 # GitHub
 library(cdmsR)
-#library(cuyem)
+library(cuyem)
 
 # Source
 source('./R/sum_FCHN_redds.R') # custom query
@@ -60,10 +60,11 @@ user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
 
 # Custom Query df
-  query_names <- c('-Select Custom Query-', 'Fall Chinook Redd Summary', 'RST Summary', 'SGS Summary')
+  query_names <- c('-Select Custom Query-', 'Fall Chinook Redd Summary', 'RST Summary', 'Redd Summary', 'SGS Summary')
   
   query_descriptions <- c('Choose a dataset to see description.', 'Summarized yearly aerial Fall Chinook redd counts per RKM.', 
-                          'Combined abundance and survival data summaries.', 'Combined redd and carcass data summarized by population.')
+                          'Combined abundance and survival data summaries.', 'Summarized Redd data based on user-selected grouping variables.',
+                          'Combined redd and carcass data summarized by population.')
   
   custom_query_df <- tibble(query_names, query_descriptions)
   

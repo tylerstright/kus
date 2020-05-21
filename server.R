@@ -56,7 +56,6 @@ server <- function(input, output, session) {
         output$rd_cdms <- renderMenu({menuSubItem('CDMS Datasets', tabName = 'tab_cdms')})
         output$rd_customquery <- renderMenu({menuSubItem('Custom Queries', tabName = 'tab_custom')})
         output$rd_reports <- renderMenu({menuSubItem('Reports', tabName = 'tab_reports')})
-        output$rd_files <- renderMenu({menuSubItem('Files', tabName = 'tab_files')})
         
         output$login_link <- renderUI({
           actionLink('greeting', label = paste0('Hello, ', user_info()$Fullname, "!"), style = 'color: white;')
@@ -108,7 +107,6 @@ server <- function(input, output, session) {
                    ),
             column(2, offset = 5,
                    downloadButton("document_export", label = "Download Document", width = '100%')
-                   #actionButton(inputId = 'doc_DL', label = "Download Document")
                    )
           ), hr()
         )
@@ -145,12 +143,6 @@ server <- function(input, output, session) {
       docPath <<- paste0('../',docName)
     }
   })
-
-  # observeEvent(input$doc_DL, {
-  #   if(exists('docName') == FALSE) { NULL } else {
-  #   download.file(docURL, destfile = docName, method = 'auto', mode = "wb")
-  #   }
-  # })
 
  # Document Download ----
   output$document_export <- downloadHandler(
@@ -903,25 +895,54 @@ server <- function(input, output, session) {
     paste0("Description: ", q_description)
   })
 
+  # DEVELOPING - Filters on select
+  observeEvent(input$custom_query_menu, {
+    if(input$custom_query_menu != 'Redd Summary') {
+      output$custom_query_grouping <- renderUI({ NULL }) 
+      } else {
+        output$custom_query_grouping <- renderUI({
+          selectInput(inputId = 'custom_grouping', label = 'Choose Grouping Variables:', 
+                      choices = c("Species", "Run", "ESU_DPS", "MPG", "POP_NAME", "TRT_POPID", "StreamName", 
+                                  "TribToName", "SurveyYear", "TransectName", "Pass"), 
+                      selected = NULL, multiple = TRUE)
+      })
+    }
+  })
+  
+  
   # Submit Custom Query Request
   observeEvent(input$custom_submit, {
     
     if(input$custom_query_menu == '-Select Custom Query-') {
       NULL
-    } else {
+    } else { # E0
       
       disable(id='custom_query_menu')
       disable(id='custom_submit')
 
       if(input$custom_query_menu == 'RST Summary') {
         RV$cq_data <<- summariseRST()[[2]]
-      } else {
+      } else { # E1
         if(input$custom_query_menu == 'Fall Chinook Redd Summary') {
           RV$cq_data <<- sum_FCHN_redds() 
-        } else{
+        } else{ # E2
+          if(input$custom_query_menu == 'SGS Summary') {
           RV$cq_data <<- summariseSGS() #'SGS Summary'
-          }
-      }
+          } else { #E3
+            if(input$custom_query_menu == 'Redd Summary') { # I2
+              redd <- getDatasetView(78, cdms_host)
+              redd_cln <- clean_reddData(redd)
+              tmp_grouping <- input$custom_grouping
+              
+              if(is.null(tmp_grouping)) {
+                RV$cq_data <<- sum_Redds(redd_cln)
+              } else { # E4
+                RV$cq_data <<- sum_Redds(redd_cln, !!!rlang::parse_exprs(tmp_grouping)) %>% ungroup() 
+              } # E4
+            } # I2
+          } # E3
+        } # E2
+      } # E1
     
       updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$cq_data), selected = NULL) 
 
@@ -932,7 +953,7 @@ server <- function(input, output, session) {
       
     enable(id='custom_query_menu')
     enable(id='custom_submit')
-    }
+    } # E0
   })
   
   # Apply Field Selection and create Custom Query Table ----
