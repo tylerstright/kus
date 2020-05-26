@@ -80,7 +80,6 @@ body <- dashboardBody(
           fluidRow(
             column(12,
             box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
-                uiOutput(outputId = 'sgs_data_button'),
                 uiOutput(outputId = 'sgs_species'),
                 uiOutput(outputId = 'sgs_pop_name')
             ),
@@ -123,7 +122,7 @@ body <- dashboardBody(
           fluidRow(
             column(12, 
             box(title = 'Juvenile Outmigrant Summary', status='info', width= 5,
-                uiOutput(outputId = 'juv_data_button'),
+                # uiOutput(outputId = 'juv_data_button'),
                 uiOutput(outputId = 'juv_species'),
                 uiOutput(outputId = 'juv_pop_name')
             ),
@@ -153,7 +152,6 @@ body <- dashboardBody(
               fluidRow(
                 column(12,
                 box(title = 'Age Data Summary', status='info', width= 5,
-                    uiOutput(outputId = 'age_data_button'),
                     uiOutput(outputId = 'age_species'),
                     uiOutput(outputId = 'age_pop_name')
                     ),

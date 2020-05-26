@@ -65,7 +65,10 @@ summariseSGS <- function(redd_data, carcass_data) {
     full_join(c_phos, by = c('Year', 'POP_NAME', 'SpeciesRun')) %>%
     full_join(c_pfem, by = c('Year', 'POP_NAME', 'SpeciesRun')) %>%
     full_join(c_pmort, by = c('Year', 'POP_NAME', 'SpeciesRun')) %>%
-    select(Year, POP_NAME, SpeciesRun, TotalRedds, TotalCarcass, pfem_p, phos_p, pmort_p)
+    select(Year, POP_NAME, SpeciesRun, TotalRedds, TotalCarcass, 
+           PercentFemales = pfem_p, 
+           pHOS = phos_p, 
+           PrespawnMortality = pmort_p)
   
 #   # Summarise Redd Data ---- 
 # tmp_reddsum <- getDatasetView(datastoreID = 78, cdms_host = cdms_host) %>%

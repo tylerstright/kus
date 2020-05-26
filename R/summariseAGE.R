@@ -11,19 +11,14 @@
 #' @return NULL
 
 
-summariseAGE <- function() {
+summariseAGE <- function(age_data) {
 
   # *NO JUVENILE SUMMARY : the Age data currently has only 49 Juvenile records. 
-  
-  raw_age <- getDatasetView(datastoreID = 80, cdms_host = cdms_host)
-    
-  # load(file = './data/age_data_08_06_19.rda')
-  # raw_age <- final_agedata
  
   # Data Processing ----
    
   # Calculate Total European Age
-euroage_prep <- raw_age %>%
+euroage_prep <- age_data %>%
     filter(!is.na(EuropeanAge)) %>%
     separate(col = EuropeanAge, into = c('EuroFresh', 'EuroSalt'), sep = "\\.", remove = FALSE) %>%
     mutate(EuroFresh = case_when(
@@ -48,7 +43,7 @@ euroage_prep <- raw_age %>%
 
 
   # Re-join Total Age and finish prep
-agedata_mod <- raw_age %>%
+agedata_mod <- age_data %>%
   left_join(euroage_prep) %>% 
   mutate(SpeciesRun = case_when(
       SpeciesRun == 'S_CHN' ~ 'Spring/summer Chinook salmon',

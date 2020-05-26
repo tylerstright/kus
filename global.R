@@ -24,11 +24,15 @@ source('./R/summariseAGE.R') # summary page function
 source('./R/cdms_api_keys.R')
 
 # Load Static Data
-load('./data/redd.rda')
-load('./data/carcass.rda')
+load('./data/datasets.rda')
+load('./data/SGSRedd.rda')
+load('./data/SGSCarcass.rda')
+load('./data/NPTAge.rda')
+load('./data/NPTRST.rda')
+load('./data/NPTJuvSurvival.rda')
+load('./data/NPTSturgeon.rda')
+load('./data/LampreyData.rda')
 load('./data/sgs_summary.rda')
-load('./data/RSTabundance.rda')
-load('./data/RSTsurvival.rda')
 load('./data/juv_summary.rda')
 load('./data/age_summary.rda')
 
