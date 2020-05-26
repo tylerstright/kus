@@ -11,21 +11,10 @@
 #' @return NULL
 
 
-summariseRST <- function() {
-  
-  # temporary df
-  tmp_abundance <- getDatasetView(datastoreID = 85, cdms_host = cdms_host) %>%
-    mutate(SpeciesRun = paste(Run, Species)) %>%
-           # Year = MigratoryYear) %>%
-    rename(Ab_SE = StdError, Ab_L95 = Lower95, Ab_U95 = Upper95)  # rename common fields
-
-  tmp_survival <- getDatasetView(datastoreID = 86, cdms_host = cdms_host) %>%
-    mutate(SpeciesRun = paste(Run, Species)) %>%
-           # Year = MigratoryYear) %>%
-    rename(Surv_SE = StdError, Surv_L95 = Lower95, Surv_U95 = Upper95) # rename common fields
+summariseRST <- function(abundance_data, survival_data) {
   
   # base df - will feed into Juvenile Report
-  base_df <- full_join(tmp_abundance, tmp_survival, by = c('ESU_DPS', 'MPG', 'POP_NAME', 'TRT_POPID', 
+  base_df <- full_join(abundance_data, survival_data, by = c('ESU_DPS', 'MPG', 'POP_NAME', 'TRT_POPID', 
                                                            'SpeciesRun', 'Species', 'Run', 'StreamName', 
                                                            'TribToName', 'LocationLabel', 'Origin', 'BroodYear', 
                                                            'MigratoryYear', 'Lifestage', 'Year')) %>%

@@ -23,6 +23,16 @@ source('./R/summariseRST.R') # custom query
 source('./R/summariseAGE.R') # summary page function
 source('./R/cdms_api_keys.R')
 
+# Load Static Data
+load('./data/redd.rda')
+load('./data/carcass.rda')
+load('./data/sgs_summary.rda')
+load('./data/RSTabundance.rda')
+load('./data/RSTsurvival.rda')
+load('./data/juv_summary.rda')
+load('./data/age_summary.rda')
+
+# Login Credentials
 keys <- cdmsKeys()
 cdms_host <- keys[1]
 # cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
@@ -38,8 +48,7 @@ $("#login").click();
 });
 '
 
-# Set variables ----
-  # Login
+# Set login variables
 login_status <- NULL
 html_code <- NULL
 user_info <- NULL
