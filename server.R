@@ -673,21 +673,8 @@ server <- function(input, output, session) {
     }
   })
   
-  # Gather/Create dataset list from CDMS ----
-  # if(html_code == 200){
-  #   datasets <- getDatastores(cdms_host = cdms_host) %>%
-  #     rename(DatastoreId = Id, DatastoreName = Name)
-  # }
-  
   output$raw_dataset_menu <- renderUI({
     
-    # dataset <<- datasets %>%
-    #   select(DatastoreId, DatastoreName) %>%
-    #   distinct(DatastoreId, .keep_all = TRUE) %>%
-    #   filter(!DatastoreId %in% c(81:84, 87:91, 93, 98:99)) %>% 
-    #   arrange(DatastoreName)
-    
-    # datasets_ls <- as.list(dataset[,1])
     datasets_ls <- as.list(datasets[,1])
   
     names(datasets_ls) <- datasets[,2]
@@ -702,6 +689,7 @@ server <- function(input, output, session) {
 
     # raw_dat <<- getDatasetView(input$datasets, cdms_host = cdms_host) %>%
     #   mutate(SpeciesRun = gsub(' NA', '', paste(Species, Run)))
+    raw_dat <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
 
       # RV$query_data <<- raw_dat  # reactive dataframe
       RV$query_data <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
@@ -727,8 +715,6 @@ server <- function(input, output, session) {
         paste0(h2('Currently Loaded Dataset: ', selected_df))
       })
 
-        # enable(id = 'raw_submit')
-        # enable(id = 'datasets')
   })
   
   # Input Reactivity ----
