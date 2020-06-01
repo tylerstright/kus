@@ -25,18 +25,19 @@ source('./R/cdms_api_keys.R')
 
 # Load Static Data
 load('./data/datasets.rda')
-load('./data/SGSRedd.rda')
-load('./data/SGSCarcass.rda')
+load('./data/SGSRedd.rda') # already cleaned with cuyem
+load('./data/SGSCarcass.rda')# already cleaned with cuyem
 load('./data/NPTAge.rda')
 load('./data/NPTRST.rda')
 load('./data/NPTJuvSurvival.rda')
 load('./data/NPTSturgeon.rda')
 load('./data/LampreyData.rda')
 load('./data/AdultWeirData.rda')
-load('./data/sgs_summary.rda')
-load('./data/juv_summary.rda')
-load('./data/age_summary.rda')
-load('./data/fchn_summary.rda')
+load('./data/SGSsummary.rda')
+load('./data/JUVsummary.rda')
+load('./data/AGEsummary.rda')
+load('./data/FCHNsummary.rda')
+load('./data/RSTcq.rda')
 
 # Login Credentials
 keys <- cdmsKeys()
@@ -77,10 +78,13 @@ user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
 # Custom Query df
   query_names <- c('-Select Custom Query-', 'Fall Chinook Redd Summary', 'RST Summary', 'Redd Summary', 'SGS Summary')
-  
-  query_descriptions <- c('Choose a dataset to see description.', 'Summarized yearly aerial Fall Chinook redd counts per RKM.', 
+
+  query_descriptions <- c('Choose a dataset to see description.', 'Summarized yearly aerial Fall Chinook redd counts per RKM.',
                           'Combined abundance and survival data summaries.', 'Summarized Redd data based on user-selected grouping variables.',
                           'Combined redd and carcass data summarized by population.')
   
-  custom_query_df <- tibble(query_names, query_descriptions)
+  query_df <- c(NA_character_, 'FCHNsummary', 'RSTcq', 'redd_summary_placeholder', 'SGSsummary')
+
+  custom_query_df <- data.frame(query_names, query_descriptions, query_df)
+
   

@@ -161,7 +161,7 @@ server <- function(input, output, session) {
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_sgs'){
 
-    sgs_pop_list_full <<- sgs_summary %>%
+    sgs_pop_list_full <<- SGSsummary %>%
       group_by(SpeciesRun, POP_NAME) %>%
       filter(POP_NAME != 'NA') %>%
       dplyr::distinct(POP_NAME) %>%
@@ -189,7 +189,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$sgs_pop_name, {
     
-    RV$sgs_data <- sgs_summary %>%
+    RV$sgs_data <- SGSsummary %>%
       filter(SpeciesRun == input$sgs_species,
              POP_NAME %in% input$sgs_pop_name) %>%
       group_by(POP_NAME)
@@ -317,7 +317,7 @@ server <- function(input, output, session) {
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_juv'){
 
-    juv_pop_list_full <<- juv_summary[[1]] %>%
+    juv_pop_list_full <<- JUVsummary[[1]] %>%
       group_by(SpeciesRun, POP_NAME) %>%
       filter(POP_NAME != 'NA') %>%
       dplyr::distinct(POP_NAME) %>%
@@ -346,7 +346,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$juv_pop_name, {
     
-    RV$juv_data <<- juv_summary[[1]] %>%
+    RV$juv_data <<- JUVsummary[[1]] %>%
       filter(SpeciesRun == input$juv_species,
              POP_NAME %in% input$juv_pop_name)
     
@@ -495,7 +495,7 @@ server <- function(input, output, session) {
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_age'){
   
-    age_pop_list_full <<- age_summary[[1]] %>%
+    age_pop_list_full <<- AGEsummary[[1]] %>%
       group_by(SpeciesRun, POP_NAME) %>%
       filter(POP_NAME != 'NA') %>%
       dplyr::distinct(POP_NAME) %>%
@@ -539,7 +539,7 @@ server <- function(input, output, session) {
     
       # Best (Total) Age Graphs
     output$n_age_total <- renderPlotly({
-      tmp_dat <- age_summary[[2]] %>%
+      tmp_dat <- AGEsummary[[2]] %>%
         filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Natural',
                POP_NAME %in% input$age_pop_name)
@@ -557,7 +557,7 @@ server <- function(input, output, session) {
     })
 
     output$h_age_total <- renderPlotly({
-      tmp_dat <- age_summary[[2]] %>%
+      tmp_dat <- AGEsummary[[2]] %>%
         filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Hatchery',
                POP_NAME %in% input$age_pop_name)
@@ -576,7 +576,7 @@ server <- function(input, output, session) {
 
     # Ocean Age Graphs
     output$n_age_ocean <- renderPlotly({
-      tmp_dat <- age_summary[[3]] %>%
+      tmp_dat <- AGEsummary[[3]] %>%
         filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Natural',
                POP_NAME %in% input$age_pop_name)
@@ -594,7 +594,7 @@ server <- function(input, output, session) {
     })
 
     output$h_age_ocean <- renderPlotly({
-      tmp_dat <- age_summary[[3]] %>%
+      tmp_dat <- AGEsummary[[3]] %>%
         filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Hatchery',
                POP_NAME %in% input$age_pop_name)
@@ -613,7 +613,7 @@ server <- function(input, output, session) {
 
     # Stream Age Graphs
     output$n_age_stream <- renderPlotly({
-      tmp_dat <- age_summary[[4]] %>%
+      tmp_dat <- AGEsummary[[4]] %>%
         filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Natural',
                POP_NAME %in% input$age_pop_name)
@@ -631,7 +631,7 @@ server <- function(input, output, session) {
     })
 
     output$h_age_stream <- renderPlotly({
-      tmp_dat <- age_summary[[4]] %>%
+      tmp_dat <- AGEsummary[[4]] %>%
         filter(SpeciesRun == isolate(input$age_species),
                Origin == 'Hatchery',
                POP_NAME %in% input$age_pop_name)
@@ -672,6 +672,7 @@ server <- function(input, output, session) {
     }
   })
   
+  # Dataset selection ----
   output$raw_dataset_menu <- renderUI({
     
     datasets_ls <- as.list(datasets[,1])
@@ -680,15 +681,13 @@ server <- function(input, output, session) {
     selectInput("datasets", label = 'Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
   }) 
   
-  # Load Data ----
   observeEvent(input$raw_submit,{
 
     raw_dat <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
 
-      # RV$query_data <<- raw_dat  # reactive dataframe
       RV$query_data <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
     
-      # Update our Inputs
+      # Update Inputs
       updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
                         selected = NULL) 
       updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
@@ -712,7 +711,7 @@ server <- function(input, output, session) {
   })
   
   # Input Reactivity ----
-    # Species
+    # CDMS Dataset: Species
   observeEvent(input$q_species, {
                    
                    # save existing input values (to keep selectInputs the same)
@@ -730,7 +729,7 @@ server <- function(input, output, session) {
                    updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
                                      selected = selected_stream)
                  })
-    # POP
+    # CDMS Dataset: POP_NAME
   observeEvent(input$q_pop_name, {
                    
                    # save existing input values
@@ -747,7 +746,7 @@ server <- function(input, output, session) {
                    updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
                                      selected = selected_stream)
                  })
-    # Stream
+    # CDMS Dataset: StreamName
   observeEvent(input$q_stream, {
                    
                    # save existing input values
@@ -819,51 +818,75 @@ server <- function(input, output, session) {
     }
   })
   
-  
   # Submit Custom Query Request
   observeEvent(input$custom_submit, {
-    
-    if(input$custom_query_menu == '-Select Custom Query-') {
-      NULL
-    } else { # E0
-      
-      disable(id='custom_query_menu')
-      disable(id='custom_submit')
-
-      if(input$custom_query_menu == 'RST Summary') {
-        RV$cq_data <<- juv_summary[[2]]
-      } else { # E1
-        if(input$custom_query_menu == 'Fall Chinook Redd Summary') {
-          RV$cq_data <<- fchn_summary
-        } else{ # E2
-          if(input$custom_query_menu == 'SGS Summary') {
-          RV$cq_data <<- sgs_summary
-          } else { #E3
-            if(input$custom_query_menu == 'Redd Summary') { # I2
-              redd_cln <- clean_reddData(SGSRedd)
-              tmp_grouping <- input$custom_grouping
-              
-              if(is.null(tmp_grouping)) {
-                RV$cq_data <<- sum_Redds(redd_cln)
-              } else { # E4
-                RV$cq_data <<- sum_Redds(redd_cln, !!!rlang::parse_exprs(tmp_grouping)) %>% ungroup() 
-              } # E4
-            } # I2
-          } # E3
-        } # E2
-      } # E1
-    
-      updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$cq_data), selected = NULL) 
-
-      # Display loaded Custom Query
-      output$selected_custom <- renderText({
-        paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
-      })
-      
-    enable(id='custom_query_menu')
-    enable(id='custom_submit')
-    } # E0
+    if(input$custom_query_menu == '-Select Custom Query-') { NULL
+      } else {
+        if(input$custom_query_menu == 'Redd Summary') {
+          tmp_grouping <- input$custom_grouping
+          
+          if(is.null(tmp_grouping)) {
+            RV$cq_data <<- sum_Redds(SGSRedd)
+          } else {
+            RV$cq_data <<- sum_Redds(SGSRedd, !!!rlang::parse_exprs(tmp_grouping)) %>% ungroup() 
+          }
+        } else {
+      RV$cq_data <<- get(x=custom_query_df[match(input$custom_query_menu, custom_query_df$query_names), 3])
+        }
+        
+        updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$cq_data), selected = NULL)
+        
+        # Display loaded Custom Query
+        output$selected_custom <- renderText({
+          paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
+        })
+    }
   })
+  
+  # Submit Custom Query Request
+  # observeEvent(input$custom_submit, {
+  #   
+  #   if(input$custom_query_menu == '-Select Custom Query-') {
+  #     NULL
+  #   } else { # E0
+  #     
+  #     # disable(id='custom_query_menu')
+  #     # disable(id='custom_submit')
+  # 
+  #     if(input$custom_query_menu == 'RST Summary') {
+  #       RV$cq_data <<- JUVsummary[[2]]
+  #     } else { # E1
+  #       if(input$custom_query_menu == 'Fall Chinook Redd Summary') {
+  #         RV$cq_data <<- FCHNsummary
+  #       } else{ # E2
+  #         if(input$custom_query_menu == 'SGS Summary') {
+  #         RV$cq_data <<- SGSsummary
+  #         } else { #E3
+  #           if(input$custom_query_menu == 'Redd Summary') { # I2
+  #             redd_cln <- clean_reddData(SGSRedd)
+  #             tmp_grouping <- input$custom_grouping
+  #             
+  #             if(is.null(tmp_grouping)) {
+  #               RV$cq_data <<- sum_Redds(redd_cln)
+  #             } else { # E4
+  #               RV$cq_data <<- sum_Redds(redd_cln, !!!rlang::parse_exprs(tmp_grouping)) %>% ungroup() 
+  #             } # E4
+  #           } # I2
+  #         } # E3
+  #       } # E2
+  #     } # E1
+  #   
+  #     updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$cq_data), selected = NULL) 
+  # 
+  #     # Display loaded Custom Query
+  #     output$selected_custom <- renderText({
+  #       paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
+  #     })
+  #     
+  #   # enable(id='custom_query_menu')
+  #   # enable(id='custom_submit')
+  #   } # E0
+  # })
   
   # Apply Field Selection and create Custom Query Table ----
   output$custom_table <- DT::renderDataTable({

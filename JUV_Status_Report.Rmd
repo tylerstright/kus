@@ -12,28 +12,32 @@ output: pdf_document
 ---
 ```{r Rmd Setup, include=FALSE}
 options(knitr.kable.NA = '') # removes NA values from kable (applies to all)
-library(cdmsR)
+# library(cdmsR)
 library(knitr)
 library(kableExtra) 
 library(tidyverse)
 library(lubridate)
 
-source('./R/cdms_api_keys.R')
+# source('./R/cdms_api_keys.R')
 source('./R/summariseRST.R')
+
+# Load Static Data
+load('./data/JUVsummary.rda')
+
 ```
 
 ```{r CDMS Login, include = FALSE}
-keys <- cdmsKeys()
-# cdms_host <- keys[1]
-cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
-username <- keys[2]
-api_key <- keys[3]
-
-cdmsLogin(username, api_key, cdms_host = cdms_host) #login.
+# keys <- cdmsKeys()
+# # cdms_host <- keys[1]
+# cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
+# username <- keys[2]
+# api_key <- keys[3]
+# 
+# cdmsLogin(username, api_key, cdms_host = cdms_host) #login.
 ```
 
 ```{r Data Processing: Juvenile Abundance/Survival/Equivalents, include=FALSE}
-ASE_df <- summariseRST()[[3]] %>%
+ASE_df <- JUVsummary[[3]] %>% #summariseRST()[[3]] %>%
   filter(MigratoryYear == 2017) %>%
   select(POP_NAME, SpeciesRun, StreamName, LocationLabel, Origin, BroodYear, MigratoryYear, Year, Lifestage, Abundance, Ab_SE, Ab_L95, Ab_U95, ReleaseType, ReleaseGroup, AdClipped, SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95, Equivalents)
 
@@ -78,18 +82,21 @@ nvh_surv <- ASE_df %>%
 ```{r Table 1: RST Ab/Surv/Eq, echo=FALSE}
 kable(nat_ASE, caption = 'Migratory year 2017 abundance, survival to Lower Granite Dam, and smolt equivalent estimates for natural origin fish interrogated at Rotary Screw Traps maintained by the Nez Perce Tribe Department of Fisheries Resource Management.', booktabs = TRUE) %>%
   kable_styling(latex_options = 'scale_down') %>%
-  add_footnote(label = 'Blank fields indicate missing data.')
+  landscape() %>%
+  add_footnote(label = 'Blank fields indicate missing data.') 
 ```
 
 ```{r Table 2: Hatchery Survivals, echo=FALSE}
 kable(hat_SUV, caption = 'Migratory year 2017 survival estimates to Lower Granite Dam for hatchery origin fish released by the Nez Perce Tribe Department of Fisheries Resource Management.', booktabs = TRUE) %>%
   kable_styling(latex_options = 'scale_down') %>%
+  landscape() %>%
   add_footnote(label = 'Blank fields indicate missing data.')
 ```
 
 ```{r Table 4: Nat v Hat Survival, echo=FALSE}
 kable(nvh_surv, caption = 'Survival estimates to Lower Granite Dam in Migration Year 2017 for hatchery and natural origin Spring/Summer Chinook salmon.', booktabs = TRUE) %>%
   kable_styling(latex_options = 'scale_down') %>%
+  landscape() %>%
   add_footnote(label = 'Blank fields indicate missing data.')
 ```
 

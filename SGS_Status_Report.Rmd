@@ -13,32 +13,34 @@ output: pdf_document
 
 ```{r Rmd Setup, include=FALSE}
 options(knitr.kable.NA = '') # removes NA values from kable (applies to all)
-library(cdmsR)
+# library(cdmsR)
 library(knitr)
 library(kableExtra) 
 library(tidyverse)
 library(lubridate)
 
-source('./R/cdms_api_keys.R')
+# source('./R/cdms_api_keys.R')
+
+# Load Static data
+load('./data/SGSRedd.rda')
+load('./data/SGSCarcass.rda')
 ```
 
 ```{r CDMS Login, include = FALSE}
-keys <- cdmsKeys()
-cdms_host <- keys[1]
-cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
-username <- keys[2]
-api_key <- keys[3]
-
-cdmsLogin(username, api_key, cdms_host = cdms_host) #login.
+# keys <- cdmsKeys()
+# cdms_host <- keys[1]
+# # cdms_host <- 'http://localhost:80/'  # DEV
+# username <- keys[2]
+# api_key <- keys[3]
+# 
+# cdmsLogin(username, api_key, cdms_host = cdms_host)
 ```
 
 ```{r Data Processing: Redd, include=FALSE}
-redd_df <- getDatasetView(78, cdms_host = cdms_host) %>%
+redd_df <- SGSRedd %>% #getDatasetView(78, cdms_host = cdms_host) %>%
   mutate(SurveyDate = ymd(gsub(pattern = 'T00:00:00', replacement = '', SurveyDate)),
          SurveyYear = year(SurveyDate)) %>%
   distinct(ActivityId, .keep_all = TRUE)
-
-# load(file = './data/redd_df.rda') # TEMPORARY
 
 # FALL CHINOOK
 aerialredds_tmp <- redd_df %>%
@@ -73,7 +75,7 @@ schn_redds_df <- redd_df %>%
 ```
 
 ```{r Data Processing: Carcass, include=FALSE}
-carcass_df <- getDatasetView(79, cdms_host = cdms_host) %>%
+carcass_df <- SGSCarcass %>% # getDatasetView(79, cdms_host = cdms_host) %>%
   mutate(SurveyDate = ymd(gsub(pattern = 'T00:00:00', replacement = '', SurveyDate)),
          SurveyYear = year(SurveyDate),
          Origin = case_when(
