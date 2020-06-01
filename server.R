@@ -55,6 +55,7 @@ server <- function(input, output, session) {
         # Show restricted Data:
         output$rd_cdms <- renderMenu({menuSubItem('CDMS Datasets', tabName = 'tab_cdms')})
         output$rd_customquery <- renderMenu({menuSubItem('Custom Queries', tabName = 'tab_custom')})
+        output$rd_fins <- renderMenu({menuSubItem('FINS Data Access', tabName = 'tab_fins')})
         output$rd_reports <- renderMenu({menuSubItem('Reports', tabName = 'tab_reports')})
         
         output$login_link <- renderUI({
@@ -316,7 +317,7 @@ server <- function(input, output, session) {
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_juv'){
 
-    juv_pop_list_full <<- juv_summary %>%
+    juv_pop_list_full <<- juv_summary[[1]] %>%
       group_by(SpeciesRun, POP_NAME) %>%
       filter(POP_NAME != 'NA') %>%
       dplyr::distinct(POP_NAME) %>%
@@ -345,7 +346,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$juv_pop_name, {
     
-    RV$juv_data <<- juv_summary %>%
+    RV$juv_data <<- juv_summary[[1]] %>%
       filter(SpeciesRun == input$juv_species,
              POP_NAME %in% input$juv_pop_name)
     
@@ -493,10 +494,8 @@ server <- function(input, output, session) {
   # Age Sampling Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_age'){
-
-  age_summary_df <<- age_summary[[1]]
   
-    age_pop_list_full <<- age_summary_df %>%
+    age_pop_list_full <<- age_summary[[1]] %>%
       group_by(SpeciesRun, POP_NAME) %>%
       filter(POP_NAME != 'NA') %>%
       dplyr::distinct(POP_NAME) %>%
@@ -683,12 +682,7 @@ server <- function(input, output, session) {
   
   # Load Data ----
   observeEvent(input$raw_submit,{
-    # hide/show inputs
-    # disable(id = 'raw_submit')
-    # disable(id = 'datasets')
 
-    # raw_dat <<- getDatasetView(input$datasets, cdms_host = cdms_host) %>%
-    #   mutate(SpeciesRun = gsub(' NA', '', paste(Species, Run)))
     raw_dat <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
 
       # RV$query_data <<- raw_dat  # reactive dataframe
@@ -721,25 +715,16 @@ server <- function(input, output, session) {
     # Species
   observeEvent(input$q_species, {
                    
-                   # save existing input values
+                   # save existing input values (to keep selectInputs the same)
                    selected_pop <- input$q_pop_name
                    selected_stream <- input$q_stream
 
-                   RV$query_data <<- raw_dat  # re-Populate our dynamic dataframe.
+                   # filter dataframe
+                   RV$query_data <<- raw_dat %>%
+                   filter(if(is.null(input$q_species)) SpeciesRun %in% unique(raw_dat$SpeciesRun) else SpeciesRun == input$q_species,
+                          if(is.null(input$q_pop_name)) POP_NAME %in% unique(raw_dat$POP_NAME) else POP_NAME == input$q_pop_name,
+                          if(is.null(input$q_stream)) StreamName %in% unique(raw_dat$StreamName) else StreamName == input$q_stream)
                    
-                   # Apply filters
-                   if(!is.null(input$q_species)) {
-                     RV$query_data <<- RV$query_data %>% filter(SpeciesRun %in% input$q_species)
-                   }
-                   
-                   if(!is.null(input$q_pop_name)) {
-                     RV$query_data <<- RV$query_data %>% filter(POP_NAME %in% input$q_pop_name)
-                   }
-                   
-                   if(!is.null(input$q_stream)) {
-                     RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
-                   }
-
                    updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
                                      selected = selected_pop)
                    updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
@@ -751,21 +736,11 @@ server <- function(input, output, session) {
                    # save existing input values
                    selected_species <- input$q_species
                    selected_stream <- input$q_stream
-                   
-                   RV$query_data <<- raw_dat  # re-Populate our reactive dataframe.
-                   
-                   # Apply filters
-                   if(!is.null(input$q_species)) {
-                     RV$query_data <<- RV$query_data %>% filter(SpeciesRun %in% input$q_species)
-                   }
-                   
-                   if(!is.null(input$q_pop_name)) {
-                     RV$query_data <<- RV$query_data %>% filter(POP_NAME %in% input$q_pop_name)
-                   }
-                   
-                   if(!is.null(input$q_stream)) {
-                     RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
-                   }
+
+                   RV$query_data <<- raw_dat %>%
+                     filter(if(is.null(input$q_species)) SpeciesRun %in% unique(raw_dat$SpeciesRun) else SpeciesRun == input$q_species,
+                            if(is.null(input$q_pop_name)) POP_NAME %in% unique(raw_dat$POP_NAME) else POP_NAME == input$q_pop_name,
+                            if(is.null(input$q_stream)) StreamName %in% unique(raw_dat$StreamName) else StreamName == input$q_stream)
 
                    updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
                                      selected = selected_species)
@@ -779,21 +754,11 @@ server <- function(input, output, session) {
                    selected_species <- input$q_species
                    selected_pop <- input$q_pop_name
 
-                   RV$query_data <<- raw_dat  # re-Populate our reactive dataframe.
+                   RV$query_data <<- raw_dat %>%
+                     filter(if(is.null(input$q_species)) SpeciesRun %in% unique(raw_dat$SpeciesRun) else SpeciesRun == input$q_species,
+                            if(is.null(input$q_pop_name)) POP_NAME %in% unique(raw_dat$POP_NAME) else POP_NAME == input$q_pop_name,
+                            if(is.null(input$q_stream)) StreamName %in% unique(raw_dat$StreamName) else StreamName == input$q_stream)
                    
-                   # Apply filters
-                   if(!is.null(input$q_species)) {
-                     RV$query_data <<- RV$query_data %>% filter(SpeciesRun %in% input$q_species)
-                   }
-                   
-                   if(!is.null(input$q_pop_name)) {
-                     RV$query_data <<- RV$query_data %>% filter(POP_NAME %in% input$q_pop_name)
-                   }
-                   
-                   if(!is.null(input$q_stream)) {
-                     RV$query_data <<- RV$query_data %>% filter(StreamName %in% input$q_stream)
-                   }
-
                    updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
                                      selected = selected_species)
                    updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
@@ -840,10 +805,10 @@ server <- function(input, output, session) {
     paste0("Description: ", q_description)
   })
 
-  # DEVELOPING - Filters on select
+  # Redd Summary Grouping Variables
   observeEvent(input$custom_query_menu, {
     if(input$custom_query_menu != 'Redd Summary') {
-      output$custom_query_grouping <- renderUI({ NULL }) 
+      output$custom_query_grouping <- renderUI({ NULL }) # dont show grouping inputs if not on Redd summary
       } else {
         output$custom_query_grouping <- renderUI({
           selectInput(inputId = 'custom_grouping', label = 'Choose Grouping Variables:', 
@@ -866,17 +831,16 @@ server <- function(input, output, session) {
       disable(id='custom_submit')
 
       if(input$custom_query_menu == 'RST Summary') {
-        RV$cq_data <<- summariseRST()[[2]]
+        RV$cq_data <<- juv_summary[[2]]
       } else { # E1
         if(input$custom_query_menu == 'Fall Chinook Redd Summary') {
-          RV$cq_data <<- sum_FCHN_redds() 
+          RV$cq_data <<- fchn_summary
         } else{ # E2
           if(input$custom_query_menu == 'SGS Summary') {
-          RV$cq_data <<- summariseSGS() #'SGS Summary'
+          RV$cq_data <<- sgs_summary
           } else { #E3
             if(input$custom_query_menu == 'Redd Summary') { # I2
-              redd <- getDatasetView(78, cdms_host)
-              redd_cln <- clean_reddData(redd)
+              redd_cln <- clean_reddData(SGSRedd)
               tmp_grouping <- input$custom_grouping
               
               if(is.null(tmp_grouping)) {
@@ -921,6 +885,85 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       write.csv(custom_table_data, file, row.names = FALSE, na = '')
+    },
+    contentType = "text/csv"
+  )
+  
+  # FINS data ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_fins'){
+      RV$fins_data <<- AdultWeirData
+      finsRoC <<- 'raw'
+      
+      output$selected_fins <- renderText({
+        paste0(h2('Showing: Raw FINS Data'))
+      })
+      
+      updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL) 
+      
+      updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$Year), max = max(RV$fins_data$Year), 
+                        value = c(min(RV$fins_data$Year), max(RV$fins_data$Year)), step = 1)
+    }
+  })
+    # Clear Fields
+  observeEvent(input$fins_clear_fields, {
+      updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location
+                                                                                                           )),
+                        selected = NULL) 
+      updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL) 
+      
+      updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$Year), max = max(RV$fins_data$Year), 
+                        value = c(min(RV$fins_data$Year), max(RV$fins_data$Year)), step = 1)
+  })
+  
+    # Update data and display which.
+    observeEvent(input$fins_raw, {
+      RV$fins_data <<- AdultWeirData
+      finsRoC <<- 'raw'
+      
+      output$selected_fins <- renderText({
+        paste0(h2('Showing: Raw FINS Data'))
+      })
+    })
+    
+    observeEvent(input$fins_clean, {
+      RV$fins_data <<- clean_weirData(AdultWeirData)
+      finsRoC <<- 'clean'
+      
+      output$selected_fins <- renderText({
+        paste0(h2('Showing: Cleaned FINS Data'))
+      })
+    })
+  
+    # FINS Datatable
+  output$fins_table <- DT::renderDataTable({
+
+    if(is.null(input$fins_fields)) {
+      fins_table_data <<- RV$fins_data %>%
+        filter(Year %in% c(min(input$fins_year): max(input$fins_year)))
+      
+    } else {
+      fins_table_data <<- RV$fins_data %>% 
+        filter(Year %in% c(min(input$fins_year): max(input$fins_year))) %>%
+        select(input$fins_fields)
+    }
+    
+    DT::datatable(fins_table_data, options = list(orderClasses = TRUE), filter = 'top')
+  })
+  
+  # FINS Export
+  output$fins_export <- downloadHandler(
+    filename = function() {
+      paste0(finsRoC,"_fins_data_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(fins_table_data, file, row.names = FALSE, na='')
     },
     contentType = "text/csv"
   )

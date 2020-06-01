@@ -31,7 +31,8 @@ sum_FCHN_redds <- function(redd_data) {
   fchn_redds_df <- redd_df2 %>%
     group_by(SurveyYear, StreamName, LocationLabel, start_km, end_km) %>%
     summarise(redd_count = sum(Count)) %>%
-    spread(key=SurveyYear, value = redd_count) 
+    spread(key=SurveyYear, value = redd_count) %>%
+    ungroup()
     
   return(fchn_redds_df)
 }

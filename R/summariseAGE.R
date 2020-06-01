@@ -45,10 +45,12 @@ euroage_prep <- age_data %>%
   # Re-join Total Age and finish prep
 agedata_mod <- age_data %>%
   left_join(euroage_prep) %>% 
-  mutate(SpeciesRun = case_when(
-      SpeciesRun == 'S_CHN' ~ 'Spring/summer Chinook salmon',
-      SpeciesRun == 'S_STH' ~ 'Summer Steelhead',
-      SpeciesRun == 'F_CHN' ~ 'Fall Chinook salmon')) %>%
+  # mutate(SpeciesRun = case_when(
+  #     SpeciesRun == 'S_CHN' ~ 'Spring/summer Chinook salmon',
+  #     SpeciesRun == 'S_STH' ~ 'Summer Steelhead',
+  #     SpeciesRun == 'F_CHN' ~ 'Fall Chinook salmon',
+  #     TRUE ~ SpeciesRun),
+  #     ) %>%
   mutate(CalculatedAge = case_when(
     !is.na(Euro_TotalAge) ~ as.double(Euro_TotalAge),
     is.na(Euro_TotalAge) ~ as.double(TotalAge)

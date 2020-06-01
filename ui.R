@@ -29,6 +29,7 @@ sidebar <- dashboardSidebar(
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuItemOutput('rd_cdms'),
                menuItemOutput('rd_customquery'),
+               menuItemOutput('rd_fins'),
                menuItemOutput('rd_reports')
                ),
       br(), br(), br(), br(), br(), br(), br(),
@@ -234,6 +235,34 @@ body <- dashboardBody(
                   div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
               )
         ),
+    # FINS Data ----
+      tabItem(tabName = 'tab_fins',
+              box(width = 12, 
+                  fluidRow(column(6, br(), #uiOutput("fins_menu"),
+                                  fluidRow(
+                                    column(6, actionButton("fins_raw", label = "Load Raw FINS Data", icon = icon('hourglass-start'), width = '100%')),
+                                    column(6, actionButton("fins_clean", label = "Load Cleaned FINS Data", icon = icon('hourglass-start'), width = '100%'))
+                                  ),
+                                  br(),
+                                  selectInput(inputId = 'fins_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
+                                  sliderInput(inputId= 'fins_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1)
+                  ),
+                  column(6, 
+                         selectInput(inputId= 'fins_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
+                         selectInput(inputId= 'fins_location', label= 'Choose Location:', choices= NULL, selected = NULL, multiple = TRUE),
+                         br(),
+                         fluidRow(
+                           column(8, offset = 2, actionButton('fins_clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
+                         )
+                  )
+                  ),
+                  hr(),
+                  fluidRow(column(12, align = "center", 
+                                  uiOutput('selected_fins'), hr(),
+                                  downloadButton("fins_export", label = "Export .CSV File"))),
+                  div(style = 'overflow-x: scroll;', DT::dataTableOutput('fins_table'))
+              )
+      ),
     # Reports ----
       tabItem(tabName = 'tab_reports',
               fluidRow(

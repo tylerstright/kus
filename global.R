@@ -36,6 +36,7 @@ load('./data/AdultWeirData.rda')
 load('./data/sgs_summary.rda')
 load('./data/juv_summary.rda')
 load('./data/age_summary.rda')
+load('./data/fchn_summary.rda')
 
 # Login Credentials
 keys <- cdmsKeys()
@@ -65,7 +66,8 @@ plotly_font <<- list(family = 'Balto') # family, size, color
 # establish reactive values
 RV <- reactiveValues(sgs_data = NULL,
                      juv_data = NULL,
-                     query_data = NULL)
+                     query_data = NULL,
+                     fins_data = NULL)
 
   # Initial login without restricted permissions
 startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
