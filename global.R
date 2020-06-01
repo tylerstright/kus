@@ -25,14 +25,15 @@ source('./R/cdms_api_keys.R')
 
 # Load Static Data
 load('./data/datasets.rda')
-load('./data/SGSRedd.rda') # already cleaned with cuyem
-load('./data/SGSCarcass.rda')# already cleaned with cuyem
+load('./data/SGSRedd.rda') # cleaned with cuyem
+load('./data/SGSCarcass.rda')# cleaned with cuyem
 load('./data/NPTAge.rda')
 load('./data/NPTRST.rda')
 load('./data/NPTJuvSurvival.rda')
 load('./data/NPTSturgeon.rda')
 load('./data/LampreyData.rda')
 load('./data/AdultWeirData.rda')
+load('./data/AdultWeirData_clean.rda') # cleaned with cuyem
 load('./data/SGSsummary.rda')
 load('./data/JUVsummary.rda')
 load('./data/AGEsummary.rda')

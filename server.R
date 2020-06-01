@@ -956,7 +956,7 @@ server <- function(input, output, session) {
     })
     
     observeEvent(input$fins_clean, {
-      RV$fins_data <<- clean_weirData(AdultWeirData)
+      RV$fins_data <<- AdultWeirData_clean
       finsRoC <<- 'clean'
       
       output$selected_fins <- renderText({
