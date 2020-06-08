@@ -21,7 +21,7 @@ sidebar <- dashboardSidebar(
       menuItem('Documents', tabName = 'tab_documents', icon = icon("file")),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
-               # menuSubItem('Weir Collections', tabName = 'tab_weir'),
+               menuSubItem('Weir Collections', tabName = 'tab_weir'),
                # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
                menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
                menuSubItem('Age Sampling', tabName = 'tab_age')
@@ -105,11 +105,27 @@ body <- dashboardBody(
   ),
   
   # Weir Collections Summaries Tab ----
-  # tabItem(tabName = 'tab_weir',
-  #         fluidRow(
-  #           box(title = 'Weir Collection Summaries',
-  #               helpText('Sorry! This page is currently under contruction.'))
-  #         )),
+  tabItem(tabName = 'tab_weir',
+          fluidRow(
+            column(12,
+                   box(title = 'Weir Collection Summaries', status='info', width= 5,
+                       uiOutput(outputId = 'weir_species'),
+                       uiOutput(outputId = 'weir_trap')
+                   ),
+                   box(width = 7, 
+                       img(src='jcweir.jpg', width = '100%', height='auto') 
+                   ))
+          ),
+          hr(),
+          fluidRow(
+            box(width = 12, plotlyOutput('p_weircatch'))
+          ),
+          box(width = 12, 
+              title = paste(year(Sys.Date()), 'Weir Collections Summary'),
+              fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_table'))
+          )
+  ),
           
   # In-Stream Array Abundance Summaries Tab ----
   # tabItem(tabName = 'tab_array',
@@ -177,6 +193,7 @@ body <- dashboardBody(
   # Restricted Data Access Tab ----
     # CDMS Datasets ----
       tabItem(tabName = 'tab_cdms',
+              
               box(width = 12, 
               fluidRow(column(6, uiOutput("raw_dataset_menu"),
                               fluidRow(

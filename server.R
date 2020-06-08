@@ -312,6 +312,121 @@ server <- function(input, output, session) {
   )
 
   # Weir Collections Summaries Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_weir'){
+      
+      # list of traps for input
+      weir_list <<- AdultWeirData_clean %>%  
+        group_by(facility, trap, SpeciesRun) %>%
+        filter(str_detect(facility, 'NPT'),
+               SpeciesRun %in% c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead')) %>%
+        distinct(facility) 
+      # Current Year FINS data  
+      NPTweir <<- AdultWeirData_clean %>%
+        filter(trap %in% unique(weir_list$trap),
+               SpeciesRun %in% c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead'),
+               trap_year == year(Sys.Date())) # YEAR FILTER 
+        
+      # Data for Plotly
+      daily_weir <- cnt_groups(NPTweir, trap, SpeciesRun, monthday, origin) %>% 
+        mutate(origin = paste(year(Sys.Date()), ' ', origin, sep=''))
+        # historic average catch by monthday
+      historic_weir <- cnt_groups(AdultWeirData_clean %>% 
+                               filter(trap %in% unique(weir_list$trap),
+                                      trap_year != year(Sys.Date())),   # YEAR FILTER
+                             origin, trap, SpeciesRun, trapped_date, monthday, origin) %>%
+        group_by(trap, monthday, SpeciesRun, origin) %>%
+        summarize(n = mean(n)) %>%
+        mutate(origin = paste('2012-', year(Sys.Date())-1, ' ', origin, ' (AVG)', sep = ''))
+      
+      p_weir_df <<- bind_rows(daily_weir, historic_weir) # feeds to plotly
+      
+      # inputs
+      output$weir_species <- renderUI({
+        selectInput(inputId= 'weir_species', label= 'Choose Species:', 
+                    choices= c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead'), selectize= FALSE, 
+                    selected = 'Spring Chinook', multiple = FALSE)
+      })
+      
+    }
+  })
+  
+  observeEvent(input$weir_species, {
+    
+    weir_trp <- weir_list %>%
+      filter(SpeciesRun == input$weir_species)
+    
+    output$weir_trap <- renderUI({
+      selectInput(inputId= 'weir_trap', label= 'Choose Weir:', choices= sort(unique(weir_trp$trap)), selectize= FALSE, 
+                  selected = NULL, multiple = FALSE)
+    })
+    
+  })
+  
+  # weir select 
+  observeEvent(input$weir_trap, {
+    # data
+    weir_disp <- cnt_groups(NPTweir, disposition, disposition, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+      spread(key = disposition, value = n)
+
+    weir_totals <- cnt_groups(NPTweir, sex, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+      transmute(TotalCatch = n)
+
+    RV$weir_sum <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation'))
+    
+    # plotly on weir select
+    output$p_weircatch <- renderPlotly({
+      
+      p_weir_tmp <- p_weir_df %>%
+        filter(trap == input$weir_trap,
+               SpeciesRun == input$weir_species)
+    
+      p_weir <- plot_ly(data = p_weir_tmp,
+                        x = ~monthday,
+                        y = ~n,
+                        type = 'bar',
+                        legendgroup = ~origin,
+                        text = ~origin,
+                        color = ~origin,
+                        colors = viridis_pal(option="D")(length(unique(p_weir_tmp$origin)))
+      ) %>%
+        layout(hovermode = 'x',
+               title = list(text = paste(input$weir_trap, 'Catch: Current v. Historic Mean, by Origin'),
+                            font = plotly_font),
+               yaxis= list(#barmode = 'stack',  # group
+                 title = 'Count',
+                 titlefont = plotly_font),
+               xaxis= list(title = 'Month/Day',
+                           titlefont = plotly_font,
+                           tickangle = -45))
+    })
+    
+  })
+  
+  # Weir Collections Summary Data Table
+  output$weir_table <- DT::renderDataTable({
+
+    shiny::validate(
+      need(RV$weir_sum, message = '    Table will populate after data load.')
+    )
+
+    weir_table_data <<- RV$weir_sum %>% # is this step necessary?
+      filter(trap %in% input$weir_trap)
+
+    DT::datatable(weir_table_data, options = list(orderClasses = TRUE), filter = 'top')
+  })
+  
+  # Weir Collections Summary EXPORT
+  output$weir_export <- downloadHandler(
+    filename = function() {
+      paste0("NPT_Weir_summary_data_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(weir_table_data, file, row.names = FALSE)
+    },
+    contentType = "text/csv"
+  )
+  
   # In-Stream Array Abundance Summaries Tab ----
   # Juvenile Monitoring Summaries Tab ----
   observeEvent(input$tabs, {
