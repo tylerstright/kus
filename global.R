@@ -34,6 +34,8 @@ load('./data/NPTSturgeon.rda')
 load('./data/LampreyData.rda')
 load('./data/AdultWeirData.rda')
 load('./data/AdultWeirData_clean.rda') # cleaned with cuyem
+load('./data/NPTweir.rda')
+load('./data/p_weir_df.rda') # Plotly weir summary
 load('./data/SGSsummary.rda')
 load('./data/JUVsummary.rda')
 load('./data/AGEsummary.rda')

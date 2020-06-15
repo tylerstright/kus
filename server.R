@@ -321,33 +321,12 @@ server <- function(input, output, session) {
         filter(str_detect(facility, 'NPT'),
                SpeciesRun %in% c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead')) %>%
         distinct(facility) 
-      # Current Year FINS data  
-      NPTweir <<- AdultWeirData_clean %>%
-        filter(trap %in% unique(weir_list$trap),
-               SpeciesRun %in% c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead'),
-               trap_year == year(Sys.Date())) # YEAR FILTER 
-        
-      # Data for Plotly
-      daily_weir <- cnt_groups(NPTweir, trap, SpeciesRun, monthday, origin) %>% 
-        mutate(origin = paste(year(Sys.Date()), ' ', origin, sep=''))
-        # historic average catch by monthday
-      historic_weir <- cnt_groups(AdultWeirData_clean %>% 
-                               filter(trap %in% unique(weir_list$trap),
-                                      trap_year != year(Sys.Date())),   # YEAR FILTER
-                             origin, trap, SpeciesRun, trapped_date, monthday, origin) %>%
-        group_by(trap, monthday, SpeciesRun, origin) %>%
-        summarize(n = mean(n)) %>%
-        mutate(origin = paste('2012-', year(Sys.Date())-1, ' ', origin, ' (AVG)', sep = ''))
-      
-      p_weir_df <<- bind_rows(daily_weir, historic_weir) # feeds to plotly
-      
-      # inputs
+
       output$weir_species <- renderUI({
         selectInput(inputId= 'weir_species', label= 'Choose Species:', 
                     choices= c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead'), selectize= FALSE, 
                     selected = 'Spring Chinook', multiple = FALSE)
       })
-      
     }
   })
   
@@ -358,9 +337,8 @@ server <- function(input, output, session) {
     
     output$weir_trap <- renderUI({
       selectInput(inputId= 'weir_trap', label= 'Choose Weir:', choices= sort(unique(weir_trp$trap)), selectize= FALSE, 
-                  selected = NULL, multiple = FALSE)
+                  selected = 'Lostine River Weir', multiple = FALSE)
     })
-    
   })
   
   # weir select 
@@ -400,7 +378,6 @@ server <- function(input, output, session) {
                            titlefont = plotly_font,
                            tickangle = -45))
     })
-    
   })
   
   # Weir Collections Summary Data Table
@@ -1031,7 +1008,7 @@ server <- function(input, output, session) {
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_fins'){
       RV$fins_data <<- AdultWeirData
-      finsRoC <<- 'raw'
+      finsRoC <<- 'raw'   # raw or cleaned?
       
       output$selected_fins <- renderText({
         paste0(h2('Showing: Raw FINS Data'))
@@ -1043,8 +1020,8 @@ server <- function(input, output, session) {
                         selected = NULL) 
       updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL) 
       
-      updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$Year), max = max(RV$fins_data$Year), 
-                        value = c(min(RV$fins_data$Year), max(RV$fins_data$Year)), step = 1)
+      updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year), 
+                        value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
     }
   })
     # Clear Fields
@@ -1056,8 +1033,8 @@ server <- function(input, output, session) {
                         selected = NULL) 
       updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL) 
       
-      updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$Year), max = max(RV$fins_data$Year), 
-                        value = c(min(RV$fins_data$Year), max(RV$fins_data$Year)), step = 1)
+      updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year), 
+                        value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
   })
   
     # Update data and display which.
@@ -1084,11 +1061,11 @@ server <- function(input, output, session) {
 
     if(is.null(input$fins_fields)) {
       fins_table_data <<- RV$fins_data %>%
-        filter(Year %in% c(min(input$fins_year): max(input$fins_year)))
+        filter(year %in% c(min(input$fins_year): max(input$fins_year)))
       
     } else {
       fins_table_data <<- RV$fins_data %>% 
-        filter(Year %in% c(min(input$fins_year): max(input$fins_year))) %>%
+        filter(year %in% c(min(input$fins_year): max(input$fins_year))) %>%
         select(input$fins_fields)
     }
     
