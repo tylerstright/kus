@@ -257,11 +257,6 @@ body <- dashboardBody(
               box(width = 12,
                   h4("This page is still currently under development and will be updated with
                      increased functionality in the future.", style='text-align:center;'),
-              #     fluidRow(
-              #       column(width = 4, offset = 3, downloadButton("fins_export", label = "Entire FINS Dataset")),
-              #       column(width = 4, downloadButton("fins_npt_export", label = "NPT Traps, Current Year"))
-              #     )
-              # )
               # box(width = 12,
                   fluidRow(column(6, offset = 3, br(), #uiOutput("fins_menu"),
                                   # fluidRow(
@@ -269,7 +264,7 @@ body <- dashboardBody(
                                   #   column(6, actionButton("fins_clean", label = "Load Cleaned FINS Data", icon = icon('hourglass-start'), width = '100%'))
                                   # ),
                   br(),
-                  radioButtons(inputId = 'fins_filtertype', label = '*Filter by Facility or Year?', choices = c('Facility', 'Year'), 
+                  radioButtons(inputId = 'fins_filtertype', label = 'Filter by Facility or Year? *', choices = c('Facility', 'Year'), 
                                inline = TRUE, selected = 'Facility'),
                   uiOutput('fins_filter')
                   # selectInput(inputId = 'fins_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
@@ -284,7 +279,7 @@ body <- dashboardBody(
                          # )
                   # )
                   ),
-                  hr(),
+                  # hr(),
                   fluidRow(column(12, align = "center",
                                   # uiOutput('selected_fins'), 
                                   hr(),
