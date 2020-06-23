@@ -254,30 +254,42 @@ body <- dashboardBody(
         ),
     # FINS Data ----
       tabItem(tabName = 'tab_fins',
-              box(width = 12, 
-                  fluidRow(column(6, br(), #uiOutput("fins_menu"),
-                                  fluidRow(
-                                    column(6, actionButton("fins_raw", label = "Load Raw FINS Data", icon = icon('hourglass-start'), width = '100%')),
-                                    column(6, actionButton("fins_clean", label = "Load Cleaned FINS Data", icon = icon('hourglass-start'), width = '100%'))
-                                  ),
-                                  br(),
-                                  selectInput(inputId = 'fins_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
-                                  sliderInput(inputId= 'fins_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1)
+              box(width = 12,
+                  h4("This page is still currently under development and will be updated with
+                     increased functionality in the future.", style='text-align:center;'),
+              #     fluidRow(
+              #       column(width = 4, offset = 3, downloadButton("fins_export", label = "Entire FINS Dataset")),
+              #       column(width = 4, downloadButton("fins_npt_export", label = "NPT Traps, Current Year"))
+              #     )
+              # )
+              # box(width = 12,
+                  fluidRow(column(6, offset = 3, br(), #uiOutput("fins_menu"),
+                                  # fluidRow(
+                                  #   column(6, actionButton("fins_raw", label = "Load Raw FINS Data", icon = icon('hourglass-start'), width = '100%')),
+                                  #   column(6, actionButton("fins_clean", label = "Load Cleaned FINS Data", icon = icon('hourglass-start'), width = '100%'))
+                                  # ),
+                  br(),
+                  radioButtons(inputId = 'fins_filtertype', label = '*Filter by Facility or Year?', choices = c('Facility', 'Year'), 
+                               inline = TRUE, selected = 'Facility'),
+                  uiOutput('fins_filter')
+                  # selectInput(inputId = 'fins_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
+                  # sliderInput(inputId= 'fins_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1)
                   ),
-                  column(6, 
-                         selectInput(inputId= 'fins_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
-                         selectInput(inputId= 'fins_location', label= 'Choose Location:', choices= NULL, selected = NULL, multiple = TRUE),
-                         br(),
-                         fluidRow(
-                           column(8, offset = 2, actionButton('fins_clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
-                         )
-                  )
+                  # column(6,
+                         # selectInput(inputId= 'fins_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
+                         # selectInput(inputId= 'fins_facility', label= 'Choose Facility:', choices= NULL, selected = NULL, multiple = TRUE),
+                         # br(),
+                         # fluidRow(
+                         #   column(8, offset = 2, actionButton('fins_clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
+                         # )
+                  # )
                   ),
                   hr(),
-                  fluidRow(column(12, align = "center", 
-                                  uiOutput('selected_fins'), hr(),
-                                  downloadButton("fins_export", label = "Export .CSV File"))),
-                  div(style = 'overflow-x: scroll;', DT::dataTableOutput('fins_table'))
+                  fluidRow(column(12, align = "center",
+                                  # uiOutput('selected_fins'), 
+                                  hr(),
+                                  downloadButton("fins_export", label = "Export .CSV File")))#,
+              #     div(style = 'overflow-x: scroll;', DT::dataTableOutput('fins_table'))
               )
       ),
     # Reports ----
@@ -293,10 +305,9 @@ body <- dashboardBody(
               fluidRow(
                 box(width = 12,
                     title = 'Report Download',
-                    selectInput('pdf_reports', "Available Reports:", choices = c('Juvenile Summary MY17', 'SGS Summary SY18'), 
-                                selected = 'Juvenile Summary MY17'),
-                    helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
-                    downloadButton('reports', label = 'Download Report')
+                    uiOutput('pdf_reports'),
+                    # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
+                    downloadButton('report_export', label = 'Download Report')
                     )
               ))
     ) #tabItems

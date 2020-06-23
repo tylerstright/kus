@@ -9,6 +9,7 @@ author: |
     | Lapwai, ID 83540
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: pdf_document
+# always_allow_html: true
 ---
 
 ```{r Rmd Setup, include=FALSE}

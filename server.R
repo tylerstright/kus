@@ -934,51 +934,7 @@ server <- function(input, output, session) {
         })
     }
   })
-  
-  # Submit Custom Query Request
-  # observeEvent(input$custom_submit, {
-  #   
-  #   if(input$custom_query_menu == '-Select Custom Query-') {
-  #     NULL
-  #   } else { # E0
-  #     
-  #     # disable(id='custom_query_menu')
-  #     # disable(id='custom_submit')
-  # 
-  #     if(input$custom_query_menu == 'RST Summary') {
-  #       RV$cq_data <<- JUVsummary[[2]]
-  #     } else { # E1
-  #       if(input$custom_query_menu == 'Fall Chinook Redd Summary') {
-  #         RV$cq_data <<- FCHNsummary
-  #       } else{ # E2
-  #         if(input$custom_query_menu == 'SGS Summary') {
-  #         RV$cq_data <<- SGSsummary
-  #         } else { #E3
-  #           if(input$custom_query_menu == 'Redd Summary') { # I2
-  #             redd_cln <- clean_reddData(SGSRedd)
-  #             tmp_grouping <- input$custom_grouping
-  #             
-  #             if(is.null(tmp_grouping)) {
-  #               RV$cq_data <<- sum_Redds(redd_cln)
-  #             } else { # E4
-  #               RV$cq_data <<- sum_Redds(redd_cln, !!!rlang::parse_exprs(tmp_grouping)) %>% ungroup() 
-  #             } # E4
-  #           } # I2
-  #         } # E3
-  #       } # E2
-  #     } # E1
-  #   
-  #     updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$cq_data), selected = NULL) 
-  # 
-  #     # Display loaded Custom Query
-  #     output$selected_custom <- renderText({
-  #       paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
-  #     })
-  #     
-  #   # enable(id='custom_query_menu')
-  #   # enable(id='custom_submit')
-  #   } # E0
-  # })
+
   
   # Apply Field Selection and create Custom Query Table ----
   output$custom_table <- DT::renderDataTable({
@@ -1007,107 +963,157 @@ server <- function(input, output, session) {
   # FINS data ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_fins'){
-      RV$fins_data <<- AdultWeirData
-      finsRoC <<- 'raw'   # raw or cleaned?
       
-      output$selected_fins <- renderText({
-        paste0(h2('Showing: Raw FINS Data'))
+      output$fins_filter <- renderUI({
+        if(input$fins_filtertype == 'Facility') {
+          list(
+            selectInput(inputId = 'fins_filter', label = 'Filter for all data for chosen Facility:', choices = sort(unique(AdultWeirData_clean$facility)),
+                        selected = NULL),
+            h3("*Filtering by Facility will return all data for the facility (Chosen Facility, All Years).", style='text-align:center;'))
+        } else {
+          list(
+            selectInput(inputId = 'fins_filter', label = 'Filter for all data within chosen Year:', choices = sort(unique(AdultWeirData_clean$trap_year)),
+                        selected = year(Sys.Date())),
+            
+            h3("*Filtering by Year will return all data within the specified year (All Facilities, Chosen Year).", style='text-align:center;'))
+        }
       })
       
-      updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL) 
-      
-      updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year), 
-                        value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
     }
   })
-    # Clear Fields
-  observeEvent(input$fins_clear_fields, {
-      updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location
-                                                                                                           )),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL) 
-      
-      updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year), 
-                        value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
-  })
   
-    # Update data and display which.
-    observeEvent(input$fins_raw, {
-      RV$fins_data <<- AdultWeirData
-      finsRoC <<- 'raw'
-      
-      output$selected_fins <- renderText({
-        paste0(h2('Showing: Raw FINS Data'))
-      })
-    })
-    
-    observeEvent(input$fins_clean, {
-      RV$fins_data <<- AdultWeirData_clean
-      finsRoC <<- 'clean'
-      
-      output$selected_fins <- renderText({
-        paste0(h2('Showing: Cleaned FINS Data'))
-      })
-    })
-  
-    # FINS Datatable
-  output$fins_table <- DT::renderDataTable({
-
-    if(is.null(input$fins_fields)) {
-      fins_table_data <<- RV$fins_data %>%
-        filter(year %in% c(min(input$fins_year): max(input$fins_year)))
-      
-    } else {
-      fins_table_data <<- RV$fins_data %>% 
-        filter(year %in% c(min(input$fins_year): max(input$fins_year))) %>%
-        select(input$fins_fields)
-    }
-    
-    DT::datatable(fins_table_data, options = list(orderClasses = TRUE), filter = 'top')
-  })
-  
+  # observeEvent(input$tabs, {
+  #   if(input$tabs == 'tab_fins'){
+  #     RV$fins_data <<- AdultWeirData
+  #     finsRoC <<- 'raw'   # raw or cleaned?
+  #
+  #     output$selected_fins <- renderText({
+  #       paste0(h2('Showing: Raw FINS Data'))
+  #     })
+  #
+  #     updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
+  #                       selected = NULL)
+  #     updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location)),
+  #                       selected = NULL)
+  #     updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data),
+  #                       selected = NULL)
+  #     updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year),
+  #                       value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
+  #   }
+  # })
+  #   # Clear Fields
+  # observeEvent(input$fins_clear_fields, {
+  #     updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
+  #                       selected = NULL)
+  #     updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location)),
+  #                       selected = NULL)
+  #     updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL)
+  #
+  #     updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year),
+  #                       value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
+  # })
+  #
+  #   # Update data and display which.
+  #   observeEvent(input$fins_raw, {
+  #     RV$fins_data <<- AdultWeirData
+  #     finsRoC <<- 'raw'
+  #
+  #     output$selected_fins <- renderText({
+  #       paste0(h2('Showing: Raw FINS Data'))
+  #     })
+  #   })
+  #
+  #   observeEvent(input$fins_clean, {
+  #     RV$fins_data <<- AdultWeirData_clean
+  #     finsRoC <<- 'clean'
+  #
+  #     output$selected_fins <- renderText({
+  #       paste0(h2('Showing: Cleaned FINS Data'))
+  #     })
+  #   })
+  #
+  #   # FINS Datatable
+  # output$fins_table <- DT::renderDataTable({
+  #
+  #   if(is.null(input$fins_fields)) {
+  #     fins_table_data <<- RV$fins_data %>%
+  #       filter(year %in% c(min(input$fins_year): max(input$fins_year)))
+  #
+  #   } else {
+  #     fins_table_data <<- RV$fins_data %>%
+  #       filter(year %in% c(min(input$fins_year): max(input$fins_year))) %>%
+  #       select(input$fins_fields)
+  #   }
+  #
+  #   DT::datatable(fins_table_data, options = list(orderClasses = TRUE), filter = 'top')
+  # })
+  #
   # FINS Export
+  # output$fins_export <- downloadHandler(
+  #   filename = function() {
+  #     paste(finsRoC,"_fins_data_", Sys.Date(), ".csv", sep='')
+  #   },
+  #   content = function(file) {
+  #     write.csv(fins_table_data, file, row.names = FALSE, na='')
+  #   },
+  #   contentType = "text/csv"
+  # )
+  
+  # Filter FINS data ----
+  # observeEvent(input$fins_filter, {
+  #   RV$fins_data <- AdultWeirData_clean %>%
+  #     filter(if(input$fins_filtertype == 'Facility') facility == input$fins_filter else trap_year == input$fins_filter)
+  # })
+  
+  # FINS EXPORT (temporary until datatable works)
   output$fins_export <- downloadHandler(
     filename = function() {
-      paste0(finsRoC,"_fins_data_", Sys.Date(), ".csv")
+      paste("FINS_", Sys.Date(), ".csv", sep='')
     },
     content = function(file) {
-      write.csv(fins_table_data, file, row.names = FALSE, na='')
+      write.csv(AdultWeirData_clean %>% # apply filter
+                  filter(if(input$fins_filtertype == 'Facility') facility == input$fins_filter else trap_year == input$fins_filter),
+                file, row.names = FALSE, na='')
     },
     contentType = "text/csv"
   )
   
-  # Reports ----
-    # PDF 
-  output$reports <- downloadHandler(
-
-    # filename = 'test.pdf',
-    filename = function(){
-      paste0(gsub(" ","_",input$pdf_reports),
-             "_",
-             format(Sys.time(), "%m_%d_%y_%H%M%S"),
-             ".pdf")
+  output$fins_npt_export <- downloadHandler(
+    filename = function() {
+      if(input$fins_filtertype == 'Facility') {
+        paste("FINS_", gsub(' ','_', input$fins_filter), '_', Sys.Date(), ".csv", sep='')
+      } else {
+        paste(input$fins_filter, '_FINS_all_facilities_', Sys.Date(), ".csv", sep='')
+      }
+      
     },
+    content = function(file) {
+      write.csv(NPTweir, file, row.names = FALSE, na='')
+    },
+    contentType = "text/csv"
+  )
+
+  # Reports (Tab) ----
+  output$pdf_reports <- renderUI({
+
+    report_list <- gsub('_', ' ', gsub('.pdf', '', list.files(path = './pdf/')))
+
+    selectInput('pdf_reports', "Available Reports:", choices = report_list,
+                selected = report_list[1])
+  })
+  
+    # Download Reports (already in PDF)
+  output$report_export <- downloadHandler(
+
+    filename = function() { 
+      paste(gsub(' ', '_', input$pdf_reports), '_', format(Sys.Date(), "%m_%d_%y"), '.pdf', sep='')
+    },  
     
     content = function(file){
-
-            # Dynamic File Path based on input$pdf_reports
-      if(input$pdf_reports == 'Juvenile Summary MY17') {
-        tempReport <- file.path(getwd(), "JUV_Status_Report.Rmd")
-
-        } else {
-          tempReport <- file.path(getwd(), "SGS_Status_Report.Rmd")
+      # build file path
+      report_path <- paste('./pdf/', gsub(' ', '_', input$pdf_reports), '.pdf', sep= '')
       
-          }
-      
-      rmarkdown::render(tempReport, output_file = file, envir = new.env(parent = globalenv()))
-      
+      file.copy(report_path, file)
     }
   )
   
