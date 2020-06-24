@@ -33,6 +33,8 @@ sidebar <- dashboardSidebar(
                menuItemOutput('rd_reports')
                ),
       br(), br(), br(), br(), br(), br(), br(),
+      helpText(HTML(paste('Data Version: ', deploy_time)), style = 'position:absolute; vertical-align:bottom;
+               color:white; left:12px; bottom:5px;'),
       div(class = 'busy',
           img(src="kus_spinner.gif", height= 'auto', width = '100%') # Ty's B.A. custom Spinner
       )
@@ -58,8 +60,7 @@ body <- dashboardBody(
               fluidRow(
                 column(12, 
                        box(status = 'info', width = 12, height = '800px', 
-                           fluidPage(
-                             htmlOutput('map'))
+                           fluidPage(htmlOutput('map'))
                        )
                 )
               )

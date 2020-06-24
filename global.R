@@ -24,6 +24,7 @@ source('./R/summariseAGE.R') # summary page function
 source('./R/cdms_api_keys.R')
 
 # Load Static Data
+load('./data/deploy_time.rda') # update time deployed.
 load('./data/datasets.rda')
 load('./data/SGSRedd.rda') # cleaned with cuyem
 load('./data/SGSCarcass.rda')# cleaned with cuyem
