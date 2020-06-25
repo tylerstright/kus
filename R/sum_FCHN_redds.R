@@ -11,12 +11,9 @@
 #' @return NULL
 
 
-sum_FCHN_redds <- function() {
+sum_FCHN_redds <- function(redd_data) {
   
-  # Get F_CHN Redd data from CDMS
-  redd_df <- getDatasetView(datastoreID = 78, cdms_host = cdms_host)  
-  
-  redd_df2 <- redd_df %>%  
+  redd_df2 <- redd_data %>%  
     filter(WPTType == 'New Redd',
            Species == 'Chinook salmon',
            Run == 'Fall',
@@ -34,7 +31,8 @@ sum_FCHN_redds <- function() {
   fchn_redds_df <- redd_df2 %>%
     group_by(SurveyYear, StreamName, LocationLabel, start_km, end_km) %>%
     summarise(redd_count = sum(Count)) %>%
-    spread(key=SurveyYear, value = redd_count) 
+    spread(key=SurveyYear, value = redd_count) %>%
+    ungroup()
     
   return(fchn_redds_df)
 }

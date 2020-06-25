@@ -23,6 +23,27 @@ source('./R/summariseRST.R') # custom query
 source('./R/summariseAGE.R') # summary page function
 source('./R/cdms_api_keys.R')
 
+# Load Static Data
+load('./data/deploy_time.rda') # update time deployed.
+load('./data/datasets.rda')
+load('./data/SGSRedd.rda') # cleaned with cuyem
+load('./data/SGSCarcass.rda')# cleaned with cuyem
+load('./data/NPTAge.rda')
+load('./data/NPTRST.rda')
+load('./data/NPTJuvSurvival.rda')
+load('./data/NPTSturgeon.rda')
+load('./data/LampreyData.rda')
+load('./data/AdultWeirData.rda')
+load('./data/AdultWeirData_clean.rda') # cleaned with cuyem
+load('./data/NPTweir.rda')
+load('./data/p_weir_df.rda') # Plotly weir summary
+load('./data/SGSsummary.rda')
+load('./data/JUVsummary.rda')
+load('./data/AGEsummary.rda')
+load('./data/FCHNsummary.rda')
+load('./data/RSTcq.rda')
+
+# Login Credentials
 keys <- cdmsKeys()
 cdms_host <- keys[1]
 # cdms_host <- 'http://localhost:80/'  # use this to access local/DEV SQL server
@@ -38,8 +59,7 @@ $("#login").click();
 });
 '
 
-# Set variables ----
-  # Login
+# Set login variables
 login_status <- NULL
 html_code <- NULL
 user_info <- NULL
@@ -51,7 +71,9 @@ plotly_font <<- list(family = 'Balto') # family, size, color
 # establish reactive values
 RV <- reactiveValues(sgs_data = NULL,
                      juv_data = NULL,
-                     query_data = NULL)
+                     query_data = NULL,
+                     fins_data = NULL,
+                     weir_sum = NULL)
 
   # Initial login without restricted permissions
 startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
@@ -61,10 +83,13 @@ user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
 # Custom Query df
   query_names <- c('-Select Custom Query-', 'Fall Chinook Redd Summary', 'RST Summary', 'Redd Summary', 'SGS Summary')
-  
-  query_descriptions <- c('Choose a dataset to see description.', 'Summarized yearly aerial Fall Chinook redd counts per RKM.', 
+
+  query_descriptions <- c('Choose a dataset to see description.', 'Summarized yearly aerial Fall Chinook redd counts per RKM.',
                           'Combined abundance and survival data summaries.', 'Summarized Redd data based on user-selected grouping variables.',
                           'Combined redd and carcass data summarized by population.')
   
-  custom_query_df <- tibble(query_names, query_descriptions)
+  query_df <- c(NA_character_, 'FCHNsummary', 'RSTcq', 'redd_summary_placeholder', 'SGSsummary')
+
+  custom_query_df <- data.frame(query_names, query_descriptions, query_df)
+
   
