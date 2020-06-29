@@ -51,8 +51,8 @@ setwd("C:\\Users\\tylers\\Documents\\R\\kus")
 
   SGSRedd <- clean_reddData(SGSRedd) %>%
       mutate(SpeciesRun = paste(Run, Species))
-  save(SGSRedd, file = "./data/datasets.rda")
-  # save(SGSRedd, file = "C:\\Users\\tylers\\Documents\\R\\kus\\data\\datasets.rda")
+  save(SGSRedd, file = "./data/SGSRedd.rda")
+  # save(SGSRedd, file = "C:\\Users\\tylers\\Documents\\R\\kus\\data\\SGSRedd.rda")
   
   # Carcass
   SGSCarcass <- getDatasetView(79, cdms_host)
@@ -186,7 +186,7 @@ setwd("C:\\Users\\tylers\\Documents\\R\\kus")
   # save(deploy_time, file = "C:\\Users\\tylers\\Documents\\R\\kus\\data\\deploy_time.rda")
   
 
-rsconnect::deployApp(appName = 'TestKus', appDir = "C:/Users/tylers/Documents/R/kus", launch.browser = FALSE, forceUpdate = T)
+rsconnect::deployApp(appName = 'kus-data', appDir = "C:/Users/tylers/Documents/R/kus", launch.browser = FALSE, forceUpdate = T)
 
 
   

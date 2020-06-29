@@ -348,7 +348,7 @@ server <- function(input, output, session) {
       spread(key = disposition, value = n)
 
     weir_totals <- cnt_groups(NPTweir, sex, trap, species, SpeciesRun, sex, origin, age_designation) %>%
-      transmute(TotalCatch = n)
+      rename(TotalCatch = n)
 
     RV$weir_sum <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation'))
     
