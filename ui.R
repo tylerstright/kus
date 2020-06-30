@@ -85,7 +85,7 @@ body <- dashboardBody(
                 uiOutput(outputId = 'sgs_species'),
                 uiOutput(outputId = 'sgs_pop_name')
             ),
-          ox(width = 7, 
+          box(width = 7, 
               img(src='carcass.png', width = '100%', height='auto') 
                 ))
           ),
