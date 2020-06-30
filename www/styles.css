@@ -100,6 +100,16 @@ body {
   color: white;  /* #36454f */
 }
 
+h1{
+  font-family: "Arial White";
+  font-size: 45px;
+  line-height: 32px;
+  font-weight: bold;
+  color: white;
+  margin-top: 0;
+  padding-top: 0;
+}
+
 h2 {
   font-family: "Arial Black";
   font-size: 30px;

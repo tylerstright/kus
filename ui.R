@@ -18,7 +18,14 @@ sidebar <- dashboardSidebar(
     tags$script(src='javascript.js'), # include Javascript file (for custom spinner functionality)
     sidebarMenu(id = 'tabs',
       menuItem('Kus Home', tabName = 'tab_home', icon = icon("home")),
-      menuItem('Documents', tabName = 'tab_documents', icon = icon("file")),
+      menuItem('DFRM Divisions', tabName = 'tab_divisions', startExpanded = TRUE,
+               menuSubItem('Administration', tabName = 'tab_administration'),
+               menuSubItem('Harvest', tabName = 'tab_harvest'),
+               menuSubItem('Production', tabName = 'tab_production'),
+               menuSubItem('Research', tabName = 'tab_research'),
+               menuSubItem('Watershed', tabName = 'tab_watershed'),
+               menuSubItem('Conservation Enforcement', tabName = 'tab_conservation')
+               ),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
                menuSubItem('Weir Collections', tabName = 'tab_weir'),
@@ -26,12 +33,14 @@ sidebar <- dashboardSidebar(
                menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
                menuSubItem('Age Sampling', tabName = 'tab_age')
                ),
+      menuItem('Documents', tabName = 'tab_documents', icon = icon("file")),
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                menuItemOutput('rd_cdms'),
                menuItemOutput('rd_customquery'),
                menuItemOutput('rd_fins'),
                menuItemOutput('rd_reports')
                ),
+      menuItem('Contact Information', tabName = 'tab_contacts'),
       br(), br(), br(), br(), br(), br(), br(),
       helpText(HTML(paste('Data Version: ', deploy_time)), style = 'position:absolute; vertical-align:bottom;
                color:white; left:12px; bottom:5px;'),
@@ -47,36 +56,68 @@ body <- dashboardBody(
     tabItems(
   # KusHome Tab ----
       tabItem(tabName = 'tab_home',
+              br(),
+              fluidRow(
+                column(10, offset = 1,
+                       h1('Department of Fisheries Resources Management'),
+                       style = 'text-align:center;'
+                       )),
+              br(),
               fluidRow(
                 column(8, offset = 2,
-                       box(status = 'info', width=12, background = 'aqua', # ?validStatuses ?validColors
-                           p('The Kus web application is intended to provide near real-time data summaries and
-                              visualizations to Nez Perce Tribal members and general public. This tool supports Department 
-                              of Fisheries Resources Management staff and Snake Basin fisheries management decisions.'),
-                           helpText(HTML('<em>Data available on this application is the property of the Nez Perce Tribe.')),
-                           helpText(HTML('Any use of the data requires proper citation and any misuse of the data will 
-                                         pursued to the full extent of the law.</em>'))
-                           ), style = 'text-align:center;')),
+                       box(status = 'info', width=12, background = 'aqua',
+                           p("The Nez Perce Department of Fisheries Resources Management will protect and restore aquatic resources and habitats. Our mission will be accomplished consistent with the Nimmipuu way of life and beliefs, which have the utmost respect for the Creator, for all species, and for the past, present and future generations to come. Our mission will be consistent with the reserved rights stated within the Nez Perce Tribe's 1855 Treaty."),
+                           ),
+                       style = 'text-align:center;')
+                
+                ),
+              
+          box(width = NULL, solidHeader = TRUE, status = 'primary',
+            title = 'Lower Granite Window Counts',
               fluidRow(
-                column(12, 
-                       box(status = 'info', width = 12, height = '800px'#, 
-                           #fluidPage(htmlOutput('map'))
-                       )
-                )
+                column(3,
+                       valueBoxOutput("windowChinook", width = NULL)
+                       ),
+                column(3,
+                       valueBoxOutput("windowSteelhead", width = NULL)
+                      ),
+                column(3,
+                       valueBoxOutput("windowCoho", width = NULL)
+                      ),
+                column(3,
+                       valueBoxOutput("windowSockeye", width = NULL)
+                      )
+                ),
+              fluidRow(
+                column(12, plotlyOutput('window_plot'))
               )
-      ),
+          )  
+        ),
   
-  # Documents Tab ----
-      tabItem(tabName = 'tab_documents',
-              fluidRow(
-                box(width = 12, status = "info",
-                    h2('CDMS Document Access', style = 'text-align:center;'),
-                    uiOutput(outputId='documents_info'),
-                    DT::dataTableOutput('documents_table')
-                ) 
-              )
-      ),
-
+  tabItem('tab_administration',
+          h2('Administration Information')
+          ),
+  
+  tabItem('tab_harvest',
+          h2('Harvest Information')
+          ),
+  
+  tabItem('tab_production',
+          h2('Production Information')
+          ),
+  
+  tabItem('tab_research',
+          h2('Research Information')
+          ),
+  
+  tabItem('tab_watershed',
+          hr('Watershed Information')
+          ),
+  
+  tabItem('tab_conservation',
+          h2('Conservation Enforcement Information')
+          ),
+  
   # Spawning Ground Survey Summaries Tab ----
   tabItem(tabName = 'tab_sgs',
           fluidRow(
@@ -191,6 +232,18 @@ body <- dashboardBody(
                        )
                        )
               ),
+  
+  # Documents Tab ----
+  tabItem(tabName = 'tab_documents',
+          fluidRow(
+            box(width = 12, status = "info",
+                h2('CDMS Document Access', style = 'text-align:center;'),
+                uiOutput(outputId='documents_info'),
+                DT::dataTableOutput('documents_table')
+            ) 
+          )
+  ),
+  
   # Restricted Data Access Tab ----
     # CDMS Datasets ----
       tabItem(tabName = 'tab_cdms',
@@ -305,7 +358,13 @@ body <- dashboardBody(
                     # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
                     downloadButton('report_export', label = 'Download Report')
                     )
-              ))
+              )
+          ),
+  
+      tabItem('tab_contacts',
+          h2('Contact Information')
+      )
+  
     ) #tabItems
   ) #dashboardBody
 

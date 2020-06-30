@@ -1,6 +1,12 @@
 # Kus Server ----
 server <- function(input, output, session) {
 
+  showModal(modalDialog(
+    title = "Kus Data Use Agreement",
+    'The Kus web application is intended to provide near real-time data summaries and visualizations of Snake River Basin anadroumous fish monitoring activities for Nez Perce Tribal Members, Department of Fisheries Resources Management staff and the general public. The data provided is preliminary and subject to change. Before using or publishing any data provided in this application you must contact NPT Data Management staff to obtain verification, data use limitations, metadata, and the proper citation format.',
+    footer = modalButton('I Agree')
+  ))
+  
   # Create Login / Logout Functionality ----
     # Login
   output$login_link <- renderUI({
@@ -66,9 +72,104 @@ server <- function(input, output, session) {
   })
   
   # Home Tab / Leaflet ----
-  getPage <- function() { return(includeHTML("./www/kus_map.html")) }
   
-  output$map<-renderUI({getPage()})
+  window_df <- queryWindowCnts(dam = 'LWG', 
+                               spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw','fb'),
+                               spawn_yr = year(Sys.Date()),
+                               start_day = '01/01',
+                               end_day = '12/31') %>%
+    gather(key = spp, value = 'Count', -Year, -Date) %>%
+    mutate(species = case_when(
+      grepl('Chinook', spp) ~ 'Chinook',
+      grepl('Coho', spp) ~ 'Coho',
+      grepl('Steelhead', spp) ~ 'Steelhead',
+      grepl('Sockeye', spp) ~ 'Sockeye'
+    )) %>%
+    group_by(Year, Date, species) %>%
+    summarise(Count = sum(Count)) %>%
+    ungroup()
+    
+  
+  output$windowChinook <- renderValueBox({
+    
+    n <- window_df %>%
+      filter(species == 'Chinook') %>%
+      summarise(n = sum(Count)) %>%
+      pull(n)
+    
+    valueBox(
+        value = prettyNum(n, big.mark = ","),
+        color = 'aqua',
+        icon = icon("fish"),
+        subtitle = "Chinook Salmon"
+      )
+    })
+  
+  output$windowSteelhead <- renderValueBox({
+
+    n <- window_df %>%
+      filter(species == 'Steelhead') %>%
+      summarise(n = sum(Count)) %>%
+      pull(n)
+    
+    valueBox(
+      value = prettyNum(n, big.mark = ","),
+      color = 'aqua',
+      icon = icon("fish"),
+      subtitle = "Steelhead"
+    )
+  })
+  
+  output$windowCoho <- renderValueBox({
+
+    n <- window_df %>%
+      filter(species == 'Coho') %>%
+      summarise(n = sum(Count)) %>%
+      pull(n)
+    
+    valueBox(
+      value = prettyNum(n, big.mark = ","),
+      color = 'aqua',
+      icon = icon("fish"),
+      subtitle = "Coho Salmon"
+    )
+  })
+  
+  output$windowSockeye <- renderValueBox({
+
+    n <- window_df %>%
+      filter(species == 'green') %>%
+      summarise(n = sum(Count)) %>%
+      pull(n)
+    
+    valueBox(
+      value = prettyNum(n, big.mark = ","),
+      color = 'aqua',
+      icon = icon("fish"),
+      subtitle = "Sockeye Salmon"
+    )
+  })
+  
+  output$window_plot <- renderPlotly({
+    plot_ly(data = window_df,
+                         x = ~ Date,
+                         y = ~ Count,
+                         name = ~ species,
+                         text = ~ species,
+                         hovertemplate = paste(
+                           '%{text}<br>',
+                           '%{x} %{yaxis.title.text}: %{y}'),
+                         type = 'scatter',
+                         mode = 'lines',
+                         color = ~ species,
+                         colors = viridis_pal(option="D")(length(unique(window_df$species)))
+    ) %>%
+      layout(yaxis = list(title= 'Daily Window Count', titlefont = plotly_font),
+             xaxis = list(title= 'Date', titlefont = plotly_font))
+  })
+  
+  #getPage <- function() { return(includeHTML("./www/kus_map.html")) }
+  #  output$map<-renderUI({getPage()})
   
   # Documents Tab ----
   observeEvent(input$tabs, {
