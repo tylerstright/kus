@@ -59,8 +59,8 @@ body <- dashboardBody(
                            ), style = 'text-align:center;')),
               fluidRow(
                 column(12, 
-                       box(status = 'info', width = 12, height = '800px', 
-                           fluidPage(htmlOutput('map'))
+                       box(status = 'info', width = 12, height = '800px'#, 
+                           #fluidPage(htmlOutput('map'))
                        )
                 )
               )
@@ -85,7 +85,7 @@ body <- dashboardBody(
                 uiOutput(outputId = 'sgs_species'),
                 uiOutput(outputId = 'sgs_pop_name')
             ),
-            box(width = 7, 
+          ox(width = 7, 
               img(src='carcass.png', width = '100%', height='auto') 
                 ))
           ),

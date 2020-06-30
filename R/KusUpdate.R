@@ -41,6 +41,7 @@ setwd("C:\\Users\\tylers\\Documents\\R\\kus")
     select(DatastoreId = Id, DatastoreName = Name, Prefix = TablePrefix) %>%
     filter(!DatastoreId %in% c(81:84, 87:91, 93, 98:99)) %>%
     arrange(DatastoreName)
+  
   save(datasets, file = './data/datasets.rda')
   # save(datasets, file = 'C:\\Users\\tylers\\Documents\\R\\kus\\data\\datasets.rda')
   

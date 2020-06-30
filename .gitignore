@@ -3,4 +3,6 @@
 .RData
 .Ruserdata
 /data
+/pdf
 R/cdms_api_keys.R
+R/KusUpdate.R
