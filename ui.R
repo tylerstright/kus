@@ -64,10 +64,17 @@ body <- dashboardBody(
                    column(10, offset = 1,
                           box(status = 'info', width=12, background = 'aqua',
                               p("The Nez Perce Department of Fisheries Resources Management will protect and restore aquatic resources and habitats. Our mission will be accomplished consistent with the Nimmipuu way of life and beliefs, which have the utmost respect for the Creator, for all species, and for the past, present and future generations to come. Our mission will be consistent with the reserved rights stated within the Nez Perce Tribe's 1855 Treaty."),
-                          ))      
+                          )),
+                   br()
             ),
             column(2,
-                   box(title= 'DFRM_MP Here.')
+                   tags$a(
+                       href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf',
+                       tags$img(src='DFRM Management Plan Cover.jpg',
+                                title = 'Click to view the DFRM Management Plan',
+                                width = 'auto',
+                                height = '180')
+                     )
             )
             
           ),

@@ -72,18 +72,7 @@ server <- function(input, output, session) {
   })
   
   # Home Tab / Leaflet ----
-  
-  # output$DFRM_MP <- renderUI({
-    # tags$a(imageOutput("DFRM Management Plan Cover"), href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf')  
-    # tags$a(
-    #   href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf',
-    #   tags$img(src='DFRM Management Plan Cover.jpg', 
-    #            title = 'DFRM_MP',
-    #            width = '100',
-    #            height = '200')
-    # )
-    # })
-  
+
   window_df <- queryWindowCnts(dam = 'LWG', 
                                spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw','fb'),
                                spawn_yr = year(Sys.Date()),
