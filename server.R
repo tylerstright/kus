@@ -192,6 +192,11 @@ server <- function(input, output, session) {
     proj_info <- getProject(ProjId) # get project summary page info (metadata)
     proj_meta <- proj_info[[18]]
     
+    # proj_locations <- proj_info[[4]] %>%
+    #   distinct(Name, .keep_all = TRUE) %>%
+    #   filter(LocationTypeId %in% c(1123, 1124)) %>% # Weirs and RST
+    #   select(Name, Latitude, Longitude)
+    
     output$research_description <- renderText({
       proj_info[[13]]
     })
