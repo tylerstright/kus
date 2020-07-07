@@ -55,44 +55,44 @@ body <- dashboardBody(
   includeCSS('./www/styles.css'),
     tabItems(
   # KusHome Tab ----
-      tabItem(tabName = 'tab_home',
-              br(),
-              fluidRow(
-                column(10, offset = 1,
-                       h1('Department of Fisheries Resources Management'),
-                       style = 'text-align:center;'
-                       )),
-              br(),
-              fluidRow(
-                column(8, offset = 2,
-                       box(status = 'info', width=12, background = 'aqua',
-                           p("The Nez Perce Department of Fisheries Resources Management will protect and restore aquatic resources and habitats. Our mission will be accomplished consistent with the Nimmipuu way of life and beliefs, which have the utmost respect for the Creator, for all species, and for the past, present and future generations to come. Our mission will be consistent with the reserved rights stated within the Nez Perce Tribe's 1855 Treaty."),
-                           ),
-                       style = 'text-align:center;')
-                
-                ),
-              
+  tabItem(tabName = 'tab_home',
+          br(),
+          fluidRow(
+            column(10, offset = 0,
+                   h1('Department of Fisheries Resources Management', style = 'text-align:center;'),
+                   br(),
+                   column(10, offset = 1,
+                          box(status = 'info', width=12, background = 'aqua',
+                              p("The Nez Perce Department of Fisheries Resources Management will protect and restore aquatic resources and habitats. Our mission will be accomplished consistent with the Nimmipuu way of life and beliefs, which have the utmost respect for the Creator, for all species, and for the past, present and future generations to come. Our mission will be consistent with the reserved rights stated within the Nez Perce Tribe's 1855 Treaty."),
+                          ))      
+            ),
+            column(2,
+                   box(title= 'DFRM_MP Here.')
+            )
+            
+          ),
+          
           box(width = NULL, solidHeader = TRUE, status = 'primary',
-            title = 'Lower Granite Window Counts',
+              title = 'Lower Granite Window Counts',
               fluidRow(
                 column(3,
                        valueBoxOutput("windowChinook", width = NULL)
-                       ),
+                ),
                 column(3,
                        valueBoxOutput("windowSteelhead", width = NULL)
-                      ),
+                ),
                 column(3,
                        valueBoxOutput("windowCoho", width = NULL)
-                      ),
+                ),
                 column(3,
                        valueBoxOutput("windowSockeye", width = NULL)
-                      )
-                ),
+                )
+              ),
               fluidRow(
                 column(12, plotlyOutput('window_plot'))
               )
           )  
-        ),
+  ),
   
   tabItem('tab_administration',
           h2('Administration Information')
