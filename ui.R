@@ -160,7 +160,10 @@ body <- dashboardBody(
           ),
           hr(),
           fluidRow(
-            box(width = 12, plotlyOutput('p_weircatch'))
+            box(width = 12, plotlyOutput('p_weircatch_N'))
+          ),
+          fluidRow(
+            box(width = 12, plotlyOutput('p_weircatch_H'))
           ),
           box(width = 12, 
               title = paste(year(Sys.Date()), 'Weir Collections Summary'),
