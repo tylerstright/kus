@@ -488,7 +488,8 @@ server <- function(input, output, session) {
                  titlefont = plotly_font),
                xaxis= list(title = 'Month/Day',
                            titlefont = plotly_font,
-                           tickangle = -45)) 
+                           tickangle = -45),
+               height = '575') 
 
     })
     # Hatchery Weir Catch Plotly
@@ -521,7 +522,8 @@ server <- function(input, output, session) {
                  titlefont = plotly_font),
                xaxis= list(title = 'Month/Day',
                            titlefont = plotly_font,
-                           tickangle = -45))
+                           tickangle = -45),
+               height = '575')
     })  
     
   })
