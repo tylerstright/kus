@@ -980,7 +980,10 @@ server <- function(input, output, session) {
     # CDMS Dataset EXPORT ----
   output$raw_export <- downloadHandler(
     filename = function() {
-      paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
+      dataset_name <- datasets %>%
+        filter(DatastoreId == isolate(input$datasets)) %>%
+        pull(DatastoreName)
+      paste0(gsub(' ','_', dataset_name),"_raw_", Sys.Date(), ".csv")
     },
     content = function(file) {
       write.csv(cdms_table_data[input[["raw_table_rows_all"]], ], file, row.names = FALSE, na='')
