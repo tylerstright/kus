@@ -407,7 +407,7 @@ server <- function(input, output, session) {
       paste0("NPT_SGS_summary_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(sgs_table_data, file, row.names = FALSE)
+      write.csv(sgs_table_data[input[["sgs_table_rows_all"]], ], file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
@@ -500,7 +500,7 @@ server <- function(input, output, session) {
       paste0("NPT_Weir_summary_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(weir_table_data, file, row.names = FALSE)
+      write.csv(weir_table_data[input[["weir_table_rows_all"]], ], file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
@@ -679,7 +679,7 @@ server <- function(input, output, session) {
       paste0("NPT_Juvenile_summary_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(juv_table_data, file, row.names = FALSE)
+      write.csv(juv_table_data[input[["juv_table_rows_all"]], ], file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
@@ -983,7 +983,7 @@ server <- function(input, output, session) {
       paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(cdms_table_data, file, row.names = FALSE, na='')
+      write.csv(cdms_table_data[input[["raw_table_rows_all"]], ], file, row.names = FALSE, na='')
     },
     contentType = "text/csv"
   )
@@ -1056,7 +1056,7 @@ server <- function(input, output, session) {
       paste0(input$custom_query_menu,"_custom_query_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(custom_table_data, file, row.names = FALSE, na = '')
+      write.csv(custom_table_data[input[["custom_table_rows_all"]], ], file, row.names = FALSE, na = '')
     },
     contentType = "text/csv"
   )
