@@ -419,14 +419,15 @@ server <- function(input, output, session) {
       # list of traps for input
       weir_list <<- AdultWeirData_clean %>%  
         group_by(facility, trap, SpeciesRun) %>%
+        mutate(SpeciesRun = if_else(SpeciesRun %in% c("Spring Chinook", "Summer Chinook"), 'Spring/summer Chinook', SpeciesRun)) %>%
         filter(str_detect(facility, 'NPT'),
-               SpeciesRun %in% c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead')) %>%
+               SpeciesRun %in% c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead')) %>%
         distinct(facility) 
 
       output$weir_species <- renderUI({
         selectInput(inputId= 'weir_species', label= 'Choose Species:', 
-                    choices= c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead'), selectize= FALSE, 
-                    selected = 'Spring Chinook', multiple = FALSE)
+                    choices= c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead'), selectize= FALSE, 
+                    selected = 'Spring/summer Chinook', multiple = FALSE)
       })
     }
   })
@@ -453,33 +454,82 @@ server <- function(input, output, session) {
 
     RV$weir_sum <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation'))
     
-    # plotly on weir select
-    output$p_weircatch <- renderPlotly({
-      
-      p_weir_tmp <- p_weir_df %>%
-        filter(trap == input$weir_trap,
-               SpeciesRun == input$weir_species)
+    # Natural Weir Catch Plotly
+    p_weir_tmp <- p_weir_df %>%
+      arrange(trapped_date) %>%
+      filter(trap == input$weir_trap,
+             SpeciesRun == input$weir_species)
     
-      p_weir <- plot_ly(data = p_weir_tmp,
-                        x = ~monthday,
-                        y = ~n,
-                        type = 'bar',
-                        legendgroup = ~origin,
-                        text = ~origin,
-                        color = ~origin,
-                        colors = viridis_pal(option="D")(length(unique(p_weir_tmp$origin)))
-      ) %>%
+    output$p_weircatch_N <- renderPlotly({
+      p_weir_n <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
+                                                       str_detect(origin, 'Natural')),
+                          x = ~monthday,
+                          y = ~n,
+                          type = 'scatter',
+                          mode = 'lines',
+                          legendgroup = ~legrp,
+                          line = list(color = 'gray'),
+                          color = ~yearorigin,
+                          opacity = 0.5) %>%
+        add_lines(data = p_weir_tmp %>% filter(trap_year == year(Sys.Date()), 
+                                               str_detect(origin, 'Natural')),
+                  x = ~monthday,
+                  y = ~n,
+                  type = 'scatter',
+                  mode = 'lines',
+                  legendgroup = ~legrp,
+                  line = list(color = 'black'),
+                  color = ~yearorigin,
+                  opacity = 1) %>%
         layout(hovermode = 'x',
-               title = list(text = paste(input$weir_trap, 'Catch: Current v. Historic Mean, by Origin'),
+               title = list(text = paste(input$weir_trap, 'Current v. Historic Daily Catch; Natural Origin'),
                             font = plotly_font),
-               yaxis= list(#barmode = 'stack',  # group
+               yaxis= list(
                  title = 'Count',
                  titlefont = plotly_font),
                xaxis= list(title = 'Month/Day',
                            titlefont = plotly_font,
-                           tickangle = -45))
+                           tickangle = -45),
+               height = '575') 
+
     })
+    # Hatchery Weir Catch Plotly
+    output$p_weircatch_H <- renderPlotly({
+      p_weir_h <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
+                                                       str_detect(origin, 'Hatchery')),
+                          x = ~monthday,
+                          y = ~n,
+                          type = 'scatter',
+                          mode = 'lines',
+                          legendgroup = ~legrp,
+                          line = list(color = 'gray'),
+                          color = ~yearorigin,
+                          opacity = 0.5) %>%
+        add_lines(data = p_weir_tmp %>% filter(trap_year == year(Sys.Date()), 
+                                               str_detect(origin, 'Hatchery')),
+                  x = ~monthday,
+                  y = ~n,
+                  type = 'scatter',
+                  mode = 'lines',
+                  legendgroup = ~legrp,
+                  line = list(color = 'black'),
+                  color = ~yearorigin, 
+                  opacity = 1) %>%
+        layout(hovermode = 'x',
+               title = list(text = paste('Lostine River Weir', 'Current v. Historic Daily Catch; Hatchery Origin'),
+                            font = plotly_font),
+               yaxis= list(
+                 title = 'Count',
+                 titlefont = plotly_font),
+               xaxis= list(title = 'Month/Day',
+                           titlefont = plotly_font,
+                           tickangle = -45),
+               height = '575')
+    })  
+    
   })
+  
+
   
   # Weir Collections Summary Data Table
   output$weir_table <- DT::renderDataTable({
