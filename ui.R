@@ -41,7 +41,7 @@ sidebar <- dashboardSidebar(
                menuItemOutput('rd_reports')
                ),
       menuItem('Contact Information', tabName = 'tab_contacts'),
-      br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), 
       helpText(HTML(paste('Data Version: ', deploy_time)), style = 'position:absolute; vertical-align:bottom;
                color:white; left:12px; bottom:5px;'),
       div(class = 'busy',
