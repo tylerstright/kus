@@ -98,18 +98,11 @@ body <- dashboardBody(
               fluidRow(
                 column(12, plotlyOutput('window_plot'))
               )
-          )  
-<<<<<<< HEAD
+          )
   ),
-  
-  tabItem('tab_administration',
-          h2('Administration Information')
-=======
-        ),
   # Administration Tab ----
   tabItem('tab_administration', br(),
           h2('Administration Information', style = 'text-align:center; color:white; font-family: Arial White;')
->>>>>>> ProjectInfo
           ),
   
   # Harvest Tab ----
@@ -119,18 +112,37 @@ body <- dashboardBody(
   
   # Production Tab ----
   tabItem('tab_production', br(),
-          h2('Production Information', style = 'text-align:center; color:white; font-family: Arial White;')
+          h2('Production Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("Production Description Here!")
+                   ))
           ),
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
+              uiOutput(outputId = 'production_select'),
+              h3("Description"),
+              uiOutput('production_description'), br(),br(),
+              h3('Objectives'),
+              uiOutput('production_objectives'), br(),br(),
+              h3('Project Leader'),
+              uiOutput('production_PL'), br(),br(),
+              h3('Staff'),
+              uiOutput('production_staff')
+          )
+  ),
   
   # Research Tab ----
   tabItem('tab_research', br(),
           h2('Research Information', style = 'text-align:center; color:white; font-family: Arial White;'),
           fluidRow(
-            column(6, offset = 3,
-                   box(title = NULL, status = 'info', width = 12,
-                       uiOutput(outputId = 'research_select')))
-          ),
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("Research Description Here!")
+                   ))
+            ),
           box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
+              uiOutput(outputId = 'research_select'),
               h3("Description"),
               uiOutput('research_description'), br(),br(),
               h3('Objectives'),

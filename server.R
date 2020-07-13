@@ -170,6 +170,52 @@ server <- function(input, output, session) {
   #getPage <- function() { return(includeHTML("./www/kus_map.html")) }
   #  output$map<-renderUI({getPage()})
   
+  # Production Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_production'){
+      projects_production <<- getProjects(cdms_host) %>%
+        filter(SubProgram == 'Production')  # filter out unwanted projects ??
+    } 
+    
+    output$production_select <- renderUI({
+      selectInput('production_select', 'Select Project', choices = sort(unique(projects_production$Name)),
+                  selected = 'Snake Basin Steelhead Assessments')
+    })
+    
+  })
+  
+  # Access below document for list of MetadataPropertyId values.
+  # load(file = './data/metadataproperties.rda')  # for list of metadataproperties (#s)
+  observeEvent(input$production_select, {
+    ProjId <- projects_production[match(input$production_select, projects_production$Name), 1] # get ProjectId
+    proj_info <- getProject(ProjId) # get project summary page info (metadata)
+    proj_meta <- proj_info[[18]]
+    
+    # proj_locations <- proj_info[[4]] %>%
+    #   distinct(Name, .keep_all = TRUE) %>%
+    #   filter(LocationTypeId %in% c(1123, 1124)) %>% # Weirs and RST
+    #   select(Name, Latitude, Longitude)
+    
+    output$production_description <- renderText({
+      proj_info[[13]]
+    })
+    
+    output$production_objectives <- renderText({
+      proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+    })
+    
+    output$production_PL <- renderText({
+      # proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+      paste(proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], " (",
+            proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
+    })
+    
+    output$production_staff <- renderText({
+      proj_meta[match(4, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+    })
+    
+  })
+  
   # Research Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_research'){
