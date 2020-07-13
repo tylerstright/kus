@@ -1,0 +1,10 @@
+name: TestKus
+title:
+username:
+account: tstright
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2367832
+bundleId: 3372296
+url: https://tstright.shinyapps.io/TestKus/
+when: 1594308595.74424

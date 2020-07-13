@@ -99,30 +99,57 @@ body <- dashboardBody(
                 column(12, plotlyOutput('window_plot'))
               )
           )  
+<<<<<<< HEAD
   ),
   
   tabItem('tab_administration',
           h2('Administration Information')
+=======
+        ),
+  # Administration Tab ----
+  tabItem('tab_administration', br(),
+          h2('Administration Information', style = 'text-align:center; color:white; font-family: Arial White;')
+>>>>>>> ProjectInfo
           ),
   
-  tabItem('tab_harvest',
-          h2('Harvest Information')
+  # Harvest Tab ----
+  tabItem('tab_harvest', br(),
+          h2('Harvest Information', style = 'text-align:center; color:white; font-family: Arial White;')
           ),
   
-  tabItem('tab_production',
-          h2('Production Information')
+  # Production Tab ----
+  tabItem('tab_production', br(),
+          h2('Production Information', style = 'text-align:center; color:white; font-family: Arial White;')
           ),
   
-  tabItem('tab_research',
-          h2('Research Information')
+  # Research Tab ----
+  tabItem('tab_research', br(),
+          h2('Research Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(6, offset = 3,
+                   box(title = NULL, status = 'info', width = 12,
+                       uiOutput(outputId = 'research_select')))
+          ),
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
+              h3("Description"),
+              uiOutput('research_description'), br(),br(),
+              h3('Objectives'),
+              uiOutput('research_objectives'), br(),br(),
+              h3('Project Leader'),
+              uiOutput('research_PL'), br(),br(),
+              h3('Staff'),
+              uiOutput('research_staff')
+              )
           ),
   
-  tabItem('tab_watershed',
-          hr('Watershed Information')
+  # Watershed Tab ----
+  tabItem('tab_watershed', br(),
+          h2('Watershed Information', style = 'text-align:center; color:white; font-family: Arial White;')
           ),
   
-  tabItem('tab_conservation',
-          h2('Conservation Enforcement Information')
+  # Conservation Enforcement Tab ----
+  tabItem('tab_conservation', br(),
+          h2('Conservation Enforcement Information', style = 'text-align:center; color:white; font-family: Arial White;')
           ),
   
   # Spawning Ground Survey Summaries Tab ----
