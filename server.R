@@ -456,6 +456,7 @@ server <- function(input, output, session) {
     
     # Natural Weir Catch Plotly
     p_weir_tmp <- p_weir_df %>%
+      arrange(trapped_date) %>%
       filter(trap == input$weir_trap,
              SpeciesRun == input$weir_species)
     
