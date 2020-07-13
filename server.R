@@ -72,7 +72,7 @@ server <- function(input, output, session) {
   })
   
   # Home Tab / Leaflet ----
-  
+
   window_df <- queryWindowCnts(dam = 'LWG', 
                                spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw','fb'),
                                spawn_yr = year(Sys.Date()),
