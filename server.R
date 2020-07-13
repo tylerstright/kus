@@ -521,9 +521,23 @@ server <- function(input, output, session) {
                     selected = 'Spring/summer Chinook', multiple = FALSE)
       })
       
+      output$weir_sum_all <- renderDataTable({
+        DT::datatable(weir_sum_all, options = list(orderClasses = TRUE), filter = 'top')
+      })
       
     }
   })
+  
+  # weir_sum_all EXPORT
+  output$weirsum_export <- downloadHandler(
+    filename = function() {
+      paste0(year(Sys.Date()), "_NPT_Weir_summary_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(weir_sum_all[input[["weir_sum_all_rows_all"]], ], file, row.names = FALSE)
+    },
+    contentType = "text/csv"
+  )
   
   observeEvent(input$weir_species, {
     
@@ -535,9 +549,6 @@ server <- function(input, output, session) {
                   selected = 'Lostine River Weir', multiple = FALSE)
     })
     
-    output$weir_sum_all <- renderDataTable({
-      DT::datatable(weir_sum_all, options = list(orderClasses = TRUE), filter = 'top')
-    })
   })
   
   # weir select 

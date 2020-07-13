@@ -139,7 +139,15 @@ body <- dashboardBody(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
                        p("Research Description Here!")
-                   ))
+                   )),
+            column(6, offset = 3,
+           box(title = NULL, width = 12, status = 'info', 
+              h3("Division Director"),
+              p('Jason Vogal  (Email: jasonv@nezperce.org; Phone: 208-843-7415'),
+              br(),
+              h3("Support Specialist"),
+              p('Paulette Smith  (Email: paulettes@nezperce.org; Phone: 208-843-7415')
+              ))
             ),
           box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
               uiOutput(outputId = 'research_select'),
@@ -187,8 +195,8 @@ body <- dashboardBody(
           ),
           box(width = 12, 
               title = 'Tabular Summary Data',
-              fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
-              div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table'))
+              fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File")),
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table')))
           )
   ),
   
@@ -206,7 +214,8 @@ body <- dashboardBody(
           ),
           hr(),
           fluidRow(
-            box(title = paste(year(Sys.Date()), ' Weir Catch Summary', sep = ''), width = 12, 
+            box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary', sep = ''),
+                fluidRow(column(12, align = "center", downloadButton("weirsum_export", label = "Download Summary (.CSV)"))),
                 div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_all')))
           ),
           hr(),
@@ -425,7 +434,7 @@ body <- dashboardBody(
                 h4('Address 3'),
                 h4('Phone?')),
             box(width = 6,
-                h2('Jospeh Field Office'),
+                h2('Joseph Field Office'),
                 h4('500 North Main Street'),
                 h4('Joseph, OR 97846'),
                 h4('P.O.Box 909'),
