@@ -206,6 +206,11 @@ body <- dashboardBody(
           ),
           hr(),
           fluidRow(
+            box(title = paste(year(Sys.Date()), ' Weir Catch Summary', sep = ''), width = 12, 
+                div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_all')))
+          ),
+          hr(),
+          fluidRow(
             box(width = 12, plotlyOutput('p_weircatch_N'), height = '600')
           ),
           fluidRow(
@@ -411,7 +416,35 @@ body <- dashboardBody(
           ),
   
       tabItem('tab_contacts',
-          h2('Contact Information')
+          h1('Contact Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            box(width = 6,
+                h2('Sweetwater Office - Research Division Headquarters'),
+                h4('Address 1'),
+                h4('Address 2'),
+                h4('Address 3'),
+                h4('Phone?')),
+            box(width = 6,
+                h2('Jospeh Field Office'),
+                h4('500 North Main Street'),
+                h4('Joseph, OR 97846'),
+                h4('P.O.Box 909'),
+                h4('Phone?'))
+          ),
+          fluidRow(
+            box(width = 6,
+                h2('McCall Field Office'),
+                h4('14051 Burr Drive'),
+                h4('McCall, ID 83638'),
+                h4('BOX?'),
+                h4('Phone?')),
+            box(width = 6,
+                h2('Orofino Field Office'),
+                h4('Address 1'),
+                h4('Address 2'),
+                h4('Address 3'),
+                h4('Phone?'))
+          )
       )
   
     ) #tabItems

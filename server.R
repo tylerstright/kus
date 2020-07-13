@@ -520,6 +520,8 @@ server <- function(input, output, session) {
                     choices= c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead'), selectize= FALSE, 
                     selected = 'Spring/summer Chinook', multiple = FALSE)
       })
+      
+      
     }
   })
   
@@ -531,6 +533,10 @@ server <- function(input, output, session) {
     output$weir_trap <- renderUI({
       selectInput(inputId= 'weir_trap', label= 'Choose Weir:', choices= sort(unique(weir_trp$trap)), selectize= FALSE, 
                   selected = 'Lostine River Weir', multiple = FALSE)
+    })
+    
+    output$weir_sum_all <- renderDataTable({
+      DT::datatable(weir_sum_all, options = list(orderClasses = TRUE), filter = 'top')
     })
   })
   
