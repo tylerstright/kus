@@ -286,6 +286,17 @@ program and its staff serve a key role.")
   # Weir Collections Summaries Tab ----
   tabItem(tabName = 'tab_weir',
           fluidRow(
+            box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Chinook', sep = ''),
+                fluidRow(column(12, align = "center", downloadButton("weirsumchn_export", label = "Download Summary (.CSV)"))),
+                div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_chn')))
+          ),
+          fluidRow(
+            box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
+                fluidRow(column(12, align = "center", downloadButton("weirsumsth_export", label = "Download Summary (.CSV)"))),
+                div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_sth')))
+          ),
+          hr(),
+          fluidRow(
             column(12,
                    box(title = 'Weir Collection Summaries', status='info', width= 5,
                        uiOutput(outputId = 'weir_species'),
@@ -296,12 +307,7 @@ program and its staff serve a key role.")
                    ))
           ),
           hr(),
-          fluidRow(
-            box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary', sep = ''),
-                fluidRow(column(12, align = "center", downloadButton("weirsum_export", label = "Download Summary (.CSV)"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_all')))
-          ),
-          hr(),
+
           fluidRow(
             box(width = 12, plotlyOutput('p_weircatch_N'), height = '600')
           ),
