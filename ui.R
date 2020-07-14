@@ -41,7 +41,7 @@ sidebar <- dashboardSidebar(
                menuItemOutput('rd_reports')
                ),
       menuItem('Contact Information', tabName = 'tab_contacts'),
-      br(), br(), br(), br(), 
+      br(), br(), 
       helpText(HTML(paste('Data Version: ', deploy_time)), style = 'position:absolute; vertical-align:bottom;
                color:white; left:12px; bottom:5px;'),
       div(class = 'busy',
@@ -125,7 +125,9 @@ body <- dashboardBody(
           fluidRow(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
-                       p("Harvest Description Here!")
+                       p("The Nez Perce Tribe intends to increase and expand the level of harvest or fishing areas for salmon and steelhead at all Nez Perce usual and accustomed areas in the
+Snake Basin in a way that balances conservation needs of the fish with the right to take fish. This can be achieved through a biologically-sound harvest management philosophy 
+and harvest rate schedules keyed to the status and trends in abundance and productivity of the fishery resource. ")
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
@@ -144,7 +146,10 @@ body <- dashboardBody(
           fluidRow(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
-                       p("Production Description Here!")
+                       p("The Nez Perce Tribe continues to protect and enhance abundance of fish through natural production and artificial production in the form of hatcheries. Hatcheries for salmon and steelhead in the Columbia Basin were developed as a necessary mitigation tool to compensate
+for the fishery losses that resulted from the impacts of increased human settlement that began soon after ratification of the Treaty of 1855. Accordingly,
+hatcheries represent a promise to those who have always depended on the salmon for culture, sustenance, and livelihood to replace the fish that are and
+were diminished as a result of human development of salmon habitats. As long as the dams are here, the mitigation responsibility remains.")
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
@@ -174,7 +179,10 @@ body <- dashboardBody(
           fluidRow(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
-                       p("Research Description Here!")
+                       p("The research division is responsible for gathering the data necessary to assess the success of operations in achieving
+                         the biological, physical, and harvest management goals described in the DFRM Management Plan.  Only with consistent research
+                         and diligently recorded data will the DFRM be able to effectively implement an adaptive management strategy.  Adaptive management consists of
+monitoring the results of actions, evaluating their effectiveness, adjusting plans if necessary, and applying new or modified strategies from knowledge gained.")
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
@@ -204,7 +212,12 @@ body <- dashboardBody(
           fluidRow(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
-                       p("Watershed Description Here!")
+                       p("Native fish within the Nez Perce Country depend
+on healthy habitats, healthy watersheds, and healthy ecosystems. At the most fundamental level, both resident and anadromous species require: clean, cold and oxygen-rich flows; adequate stream depths
+to avoid predation and allow seasonal movement. The health of entire watersheds, from ridge-top to ridge-top, is important for fish survival because
+watersheds contain an interconnected web of life. Water that falls as rain or snow flows down slope 
+across the landscape and through the ground before it eventually enters a common stream or other body
+of water. This defines the spatial extent of a watershed.")
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
@@ -223,7 +236,13 @@ body <- dashboardBody(
           fluidRow(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
-                       p("Conservation Description Here!")
+                       p("The Enforcement program enforces the Nez Perce tribal regulations regarding the fish
+and wildlife portion of the Law and Order Code. As a sovereign, the Nez Perce Tribe has the ability and
+responsibility to regulate the activities of its membership and, in general, the activities occurring on
+its lands. Especially with regards to the resource conservation issues surrounding the exercise of fishing rights, the Nez Perce Tribe must have the ability
+to set and enforce its seasons in order to fish without state interference. So it is not only for purposes
+of resource protection, but also for the conducting of its activities as a sovereign that the Enforcement
+program and its staff serve a key role.")
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
@@ -300,7 +319,7 @@ body <- dashboardBody(
   # tabItem(tabName = 'tab_array',
   #         fluidRow(
   #           box(title = 'In-Stream Array Summaries',
-  #               helpText('Sorry! This page is currently under contruction.'))
+  #               helpText('Sorry! This page is currently under construction.'))
   #         )),
           
   # Juvenile Monitoring Summaries Tab ----
@@ -512,7 +531,11 @@ body <- dashboardBody(
                 hr(),
                 h2('Kus Web App Contacts', style = 'color:white'),
                 h4('Clark Watry (Email: clarkw@nezperce.org)', style = 'color:white'),
-                h4('Tyler Stright (Email: tylers@nezperce.org)', style = 'color:white')
+                h4('Tyler Stright (Email: tylers@nezperce.org)', style = 'color:white'),
+          hr(),
+          h2('DFRM Employees', style = 'color:white;'),
+          box(width = 12, 
+          DT::dataTableOutput('cdms_users'))
       )
   
     ) #tabItems

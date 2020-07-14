@@ -44,6 +44,7 @@ load('./data/JUVsummary.rda')
 load('./data/AGEsummary.rda')
 load('./data/FCHNsummary.rda')
 load('./data/RSTcq.rda')
+load('./data/users.rda')
 
 # Login Credentials
 keys <- cdmsKeys()

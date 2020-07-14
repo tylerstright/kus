@@ -1368,4 +1368,11 @@ server <- function(input, output, session) {
     }
   )
   
+  # Contact Information Tab -
+    # CDMS user info
+  output$cdms_users <- DT::renderDataTable({
+    DT::datatable(users, options = list(orderClasses = TRUE), filter = 'top')  
+  })
+  
+  
 } # close Server
