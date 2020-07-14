@@ -102,13 +102,41 @@ body <- dashboardBody(
   ),
   # Administration Tab ----
   tabItem('tab_administration', br(),
-          h2('Administration Information', style = 'text-align:center; color:white; font-family: Arial White;')
-          ),
+          h2('Administration Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("Administration Description Here!")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       p('Dave Johnson  (Email: davej@nezperce.org)'),
+                       br(),
+                       h3("Administrative Specialist"),
+                       p('Michelle Wilson  (Email: michelw@nezperce.org)')
+                   ))
+          )
+  ),
   
   # Harvest Tab ----
   tabItem('tab_harvest', br(),
-          h2('Harvest Information', style = 'text-align:center; color:white; font-family: Arial White;')
-          ),
+          h2('Harvest Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("Harvest Description Here!")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       p('Joe Oatman  (Email: joeo@nezperce.org)'),
+                       # br(),
+                       # h3("Administrative Specialist"),
+                       # p('  (Email: @nezperce.org)')
+                   ))
+          )
+  ),
   
   # Production Tab ----
   tabItem('tab_production', br(),
@@ -117,6 +145,14 @@ body <- dashboardBody(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
                        p("Production Description Here!")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       p('Becky Johnson  (Email: beckyj@nezperce.org)'),
+                       br(),
+                       h3("Administrative Specialist"),
+                       p('Tish Whitman  (Email: tishw@nezperce.org)')
                    ))
           ),
           box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
@@ -141,14 +177,14 @@ body <- dashboardBody(
                        p("Research Description Here!")
                    )),
             column(6, offset = 3,
-           box(title = NULL, width = 12, status = 'info', 
-              h3("Division Director"),
-              p('Jason Vogal  (Email: jasonv@nezperce.org; Phone: 208-843-7415'),
-              br(),
-              h3("Support Specialist"),
-              p('Paulette Smith  (Email: paulettes@nezperce.org; Phone: 208-843-7415')
-              ))
-            ),
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       p('Jason Vogal  (Email: jasonv@nezperce.org)'),
+                       br(),
+                       h3("Administrative Specialist"),
+                       p('Paulette Smith  (Email: paulettes@nezperce.org)')
+                   ))
+          ),
           box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
               uiOutput(outputId = 'research_select'),
               h3("Description"),
@@ -159,18 +195,46 @@ body <- dashboardBody(
               uiOutput('research_PL'), br(),br(),
               h3('Staff'),
               uiOutput('research_staff')
-              )
-          ),
+          )
+  ),
   
   # Watershed Tab ----
   tabItem('tab_watershed', br(),
-          h2('Watershed Information', style = 'text-align:center; color:white; font-family: Arial White;')
-          ),
+          h2('Watershed Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("Watershed Description Here!")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       p('Emmit Taylor  (Email: emmitt@nezperce.org)'),
+                       br(),
+                       h3("Administrative Specialist"),
+                       p('Ermie Whitman  (Email: ermiew@nezperce.org)')
+                   ))
+          )
+  ),
   
   # Conservation Enforcement Tab ----
   tabItem('tab_conservation', br(),
-          h2('Conservation Enforcement Information', style = 'text-align:center; color:white; font-family: Arial White;')
-          ),
+          h2('Conservation Enforcement Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("Conservation Description Here!")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       p('Adam Villavicencio  (Email: adamv@nezperce.org)'),
+                       # br(),
+                       # h3("Administrative Specialist"),
+                       # p('  (Email: @nezperce.org)')
+                   ))
+          )
+  ),
   
   # Spawning Ground Survey Summaries Tab ----
   tabItem(tabName = 'tab_sgs',
@@ -426,34 +490,29 @@ body <- dashboardBody(
   
       tabItem('tab_contacts',
           h1('Contact Information', style = 'text-align:center; color:white; font-family: Arial White;'),
-          fluidRow(
-            box(width = 6,
-                h2('Sweetwater Office - Research Division Headquarters'),
-                h4('Address 1'),
-                h4('Address 2'),
-                h4('Address 3'),
-                h4('Phone?')),
-            box(width = 6,
-                h2('Joseph Field Office'),
-                h4('500 North Main Street'),
-                h4('Joseph, OR 97846'),
-                h4('P.O.Box 909'),
-                h4('Phone?'))
-          ),
-          fluidRow(
-            box(width = 6,
-                h2('McCall Field Office'),
-                h4('14051 Burr Drive'),
-                h4('McCall, ID 83638'),
-                h4('BOX?'),
-                h4('Phone?')),
-            box(width = 6,
-                h2('Orofino Field Office'),
-                h4('Address 1'),
-                h4('Address 2'),
-                h4('Address 3'),
-                h4('Phone?'))
-          )
+                br(),
+                h2('Field Office Contacts', style = 'color:white'),
+                h4('Joseph Field Office: Jim Harbeck  (541) 432-2501', style = 'color:white'),
+                h4('McCall Field Office: Ryan Kinzer  (208) 634-5290', style = 'color:white'),
+                h4('Orofino Field Office: Ryan Kinzer  (208) 634-5290', style = 'color:white'),
+                h4('Sweetwater Office: Bill Arnsburg  (208) 476-7417', style = 'color:white'),
+                hr(),
+                h2('Division Contacts', style = 'color:white'),
+                h4('Administration: Dave Johnson (Email: davej@nezperce.org)', style = 'color:white'),
+                h4('Harvest: Joe Oatman (Email: joeo@nezperce.org)', style = 'color:white'),
+                h4('Production: Becky Johnson (Email: beckyj@nezperce.org)', style = 'color:white'),
+                h4('Research: Jason Vogal (Email: jasonv@nezperce.org)', style = 'color:white'),
+                h4('Conservation Enforcement: Adam Villavicencio (Email: adamv@nezperce.org)', style = 'color:white'),
+                hr(),
+                h2('Data Management Contacts', style = 'color:white'),
+                h4('Clark Watry (Email: clarkw@nezperce.org)', style = 'color:white'),
+                h4('Ryan Kinzer (Email: ryank@nezperce.org)', style = 'color:white'),
+                h4('Samantha Smith (Email: samanthas@nezperce.org)', style = 'color:white'),
+                h4('Tyler Stright (Email: tylers@nezperce.org)', style = 'color:white'),
+                hr(),
+                h2('Kus Web App Contacts', style = 'color:white'),
+                h4('Clark Watry (Email: clarkw@nezperce.org)', style = 'color:white'),
+                h4('Tyler Stright (Email: tylers@nezperce.org)', style = 'color:white')
       )
   
     ) #tabItems
