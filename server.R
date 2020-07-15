@@ -508,12 +508,11 @@ server <- function(input, output, session) {
     if(input$tabs == 'tab_weir'){
       
       # list of traps for input
-      weir_list <<- AdultWeirData_clean %>%  
-        group_by(facility, trap, SpeciesRun) %>%
-        mutate(SpeciesRun = if_else(SpeciesRun %in% c("Spring Chinook", "Summer Chinook"), 'Spring/summer Chinook', SpeciesRun)) %>%
-        filter(str_detect(facility, 'NPT'),
-               SpeciesRun %in% c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead')) %>%
-        distinct(facility) 
+      weir_list <<- p_weir_df %>%  
+        group_by(trap, SpeciesRun) %>%
+        filter(SpeciesRun %in% c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead')) %>%
+        distinct(trap) 
+
 
       output$weir_species <- renderUI({
         selectInput(inputId= 'weir_species', label= 'Choose Species:', 
@@ -588,7 +587,7 @@ server <- function(input, output, session) {
              SpeciesRun == input$weir_species)
     
     output$p_weircatch_N <- renderPlotly({
-      p_weir_n <- plot_ly(data = p_weir_tmp %>% filter(trap_year %in% c((year(Sys.Date())-5):(year(Sys.Date())-1)),
+      p_weir_n <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
                                                        str_detect(origin, 'Natural')),
                           x = ~monthday,
                           y = ~n,
@@ -622,7 +621,7 @@ server <- function(input, output, session) {
     })
     # Hatchery Weir Catch Plotly
     output$p_weircatch_H <- renderPlotly({
-      p_weir_h <- plot_ly(data = p_weir_tmp %>% filter(trap_year %in% c((year(Sys.Date())-5):(year(Sys.Date())-1)),
+      p_weir_h <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
                                                        str_detect(origin, 'Hatchery')),
                           x = ~monthday,
                           y = ~n,
