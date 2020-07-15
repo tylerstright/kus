@@ -98,13 +98,7 @@ body <- dashboardBody(
               fluidRow(
                 column(12, plotlyOutput('window_plot'))
               )
-          ),
-          # helpText(HTML("<em> The data available in this application is updated daily and is representative of what was stored in the Nez Perce Tribe's Centralized Database
-          #          Management System at the time indicated by the Data Version, displayed in the bottom left corner.</em>"), 
-          #          style = 'color:white; text-align:center;')
-          helpText("The data available in this application is updated daily and is representative of what was stored in the Nez Perce Tribe's Centralized Database
-                   Management System at the time indicated by the Data Version, displayed in the bottom left corner.", 
-                   style = 'color:white; text-align:center; font-style: italic; font-size:15px;')
+          )
   ),
   # Administration Tab ----
   tabItem('tab_administration', br(),
@@ -112,15 +106,22 @@ body <- dashboardBody(
           fluidRow(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
-                       p("Administration Description Here!")
+                       p("Administration Description Here.")
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Dave Johnson  (davej@nezperce.org)'),
-                       br(),
+                       fluidRow(
+                         column(4, p('Dave Johnson')),
+                         column(4, p('(208) 843-7320 Ext: 3736')),
+                         column(4, p('davej@nezperce.org'))
+                       ),
                        h3("Administrative Specialist"),
-                       p('Michelle Wilson  (michelw@nezperce.org)')
+                       fluidRow(
+                         column(4, p('Michelle Wilson')),
+                         column(4, p('(208) 843-7320 Ext: 3763')),
+                         column(4, p('michelw@nezperce.org'))
+                       )
                    ))
           )
   ),
@@ -138,10 +139,11 @@ and harvest rate schedules keyed to the status and trends in abundance and produ
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Joe Oatman  (joeo@nezperce.org)'),
-                       # br(),
-                       # h3("Administrative Specialist"),
-                       # p('  (@nezperce.org)')
+                       fluidRow(
+                         column(4, p('Joe Oatman')),
+                         column(4, p('(208) 843-7320 Ext: 3730')),
+                         column(4, p('joeo@nezperce.org'))
+                       )
                    ))
           )
   ),
@@ -160,10 +162,17 @@ were diminished as a result of human development of salmon habitats. As long as 
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Becky Johnson  (beckyj@nezperce.org)'),
-                       br(),
+                       fluidRow(
+                         column(4, p('Becky Johnson')),
+                         column(4, p('(208) 843-7320 Ext: 4629')),
+                         column(4, p('beckyj@nezperce.org'))
+                       ),
                        h3("Administrative Specialist"),
-                       p('Tish Whitman  (tishw@nezperce.org)')
+                       fluidRow(
+                         column(4, p('Tish Whitman')),
+                         column(4, p('(208) 843-7320 Ext: 4634')),
+                         column(4, p('tishw@nezperce.org'))
+                       )
                    ))
           ),
           box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
@@ -193,10 +202,17 @@ monitoring the results of actions, evaluating their effectiveness, adjusting pla
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Jason Vogal  (jasonv@nezperce.org)'),
-                       br(),
+                       fluidRow(
+                         column(4, p('Jason Vogal')),
+                         column(4, p('(208) 843-7145 Ext: 3602')),
+                         column(4, p('jasonv@nezperce.org'))
+                       ),
                        h3("Administrative Specialist"),
-                       p('Paulette Smith  (paulettes@nezperce.org)')
+                       fluidRow(
+                         column(4, p('Paulette Smith')),
+                         column(4, p('(208) 843-7145 Ext: 3556')),
+                         column(4, p('paulettes@nezperce.org'))
+                       )
                    ))
           ),
           box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
@@ -228,10 +244,17 @@ of water. This defines the spatial extent of a watershed.")
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Emmit Taylor  (emmitt@nezperce.org)'),
-                       br(),
+                       fluidRow(
+                         column(4, p('Emmit Taylor')),
+                         column(4, p('(208) 843-7144 Ext: 3544')),
+                         column(4, p('emmitt@nezperce.org'))
+                       ),
                        h3("Administrative Specialist"),
-                       p('Ermie Whitman  (ermiew@nezperce.org)')
+                       fluidRow(
+                         column(4, p('Ermie Whitman')),
+                         column(4, p('(208) 843-7144 Ext: 3525')),
+                         column(4, p('ermiew@nezperce.org'))
+                       )
                    ))
           )
   ),
@@ -253,10 +276,11 @@ program and its staff serve a key role.")
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Adam Villavicencio  (adamv@nezperce.org)'),
-                       # br(),
-                       # h3("Administrative Specialist"),
-                       # p('  (@nezperce.org)')
+                       fluidRow(
+                         column(4, p('Adam Villavicencio')),
+                         column(4, p('(208) 843-7143 Ext: 3528')),
+                         column(4, p('adamv@nezperce.org'))
+                       )
                    ))
           )
   ),
@@ -525,53 +549,78 @@ program and its staff serve a key role.")
                 br(),
                 h2('Field Office Contacts', style = 'color:white'),
           fluidRow(
-            column(2, 
+            column(3, 
                    h4('Joseph Field Office:', style = 'color:white'),
                    h4('McCall Field Office:', style = 'color:white'),
                    h4('Orofino Field Office:', style = 'color:white'),
                    h4('Sweetwater Office:', style = 'color:white')),
-            column(2, 
+            column(3, 
                    h4('Jim Harbeck', style = 'color:white'),
                    h4('Ryan Kinzer', style = 'color:white'),
                    h4('Bill Arnsburg', style = 'color:white'),
                    h4('Jason Vogal', style = 'color:white')),
-            column(2, 
-                   h4('(541) 432-2501', style = 'color:white'),
-                   h4('(208) 634-5290', style = 'color:white'),
-                   h4('(208) 634-5290', style = 'color:white'),
-                   h4('(208) 476-7417', style = 'color:white'))
+            column(3, 
+                   h4('(541) 432-2501  Ext: 3771', style = 'color:white'),
+                   h4('(208) 634-5290  Ext: 3312', style = 'color:white'),
+                   h4('(208) 476-7417  Ext: 3578', style = 'color:white'),
+                   h4('(208) 843-7145  Ext: 3602', style = 'color:white')),
+            column(3, 
+                   h4('jimh@nezperce.org', style = 'color:white'),
+                   h4('ryank@nezperce.org', style = 'color:white'),
+                   h4('billa@nezperce.org', style = 'color:white'),
+                   h4('jasonv@nezperce.org', style = 'color:white'))
           ),
           hr(), 
           h2('Division Contacts', style = 'color:white'),
           fluidRow(
-            column(2, 
+            column(3, 
                    h4('Administration:', style = 'color:white'),
                    h4('Harvest:', style = 'color:white'),
                    h4('Production:', style = 'color:white'),
                    h4('Research:', style = 'color:white'),
+                   h4('Watershed:', style = 'color:white'),
                    h4('Conservation Enforcement:', style = 'color:white')),
-            column(2, 
+            column(3, 
                    h4('Dave Johnson', style = 'color:white'),
                    h4('Joe Oatman', style = 'color:white'),
                    h4('Becky Johnson', style = 'color:white'),
                    h4('Jason Vogal', style = 'color:white'),
+                   h4('Emmit Taylor', style = 'color:white'),
                    h4('Adam Villavicencio', style = 'color:white')),
-            column(2, 
+            column(3, 
+                   h4('(208) 843-7320  Ext: 3736', style = 'color:white'),
+                   h4('(208) 843-7320  Ext: 3730', style = 'color:white'),
+                   h4('(208) 843-7320  Ext: 4629', style = 'color:white'),
+                   h4('(208) 843-7145  Ext: 3602', style = 'color:white'),
+                   h4('(208) 843-7144  Ext: 3544', style = 'color:white'),
+                   h4('(208) 843-7143  Ext: 3528', style = 'color:white')),
+            column(3, 
                    h4('davej@nezperce.org', style = 'color:white'),
                    h4('joeo@nezperce.org', style = 'color:white'),
                    h4('beckyj@nezperce.org', style = 'color:white'),
                    h4('jasonv@nezperce.org', style = 'color:white'),
+                   h4('emmitt@nezperce.org', style = 'color:white'),
                    h4('adamv@nezperce.org', style = 'color:white'))
           ),
           hr(),
           h2('Data Management Contacts', style = 'color:white'),
           fluidRow(
-            column(2, 
+            column(3, 
+                   h4('Data Steward:', style = 'color:white'),
+                   h4('Research Scientist:', style = 'color:white'),
+                   h4('Data Management Biologist:', style = 'color:white'),
+                   h4('Data Management Biologist:', style = 'color:white')),
+            column(3, 
                    h4('Clark Watry', style = 'color:white'),
                    h4('Ryan Kinzer', style = 'color:white'),
                    h4('Samantha Smith', style = 'color:white'),
                    h4('Tyler Stright', style = 'color:white')),
-            column(2, 
+            column(3, 
+                   h4('(208) 843-7145  Ext: 3549', style = 'color:white'),
+                   h4('(208) 634-5290  Ext: 3312', style = 'color:white'),
+                   h4('(208) 843-7145  Ext: 4717', style = 'color:white'),
+                   h4('(208) 634-5290  Ext: 3314', style = 'color:white')),
+            column(3, 
                    h4('clarkw@nezperce.org', style = 'color:white'),
                    h4('ryank@nezperce.org', style = 'color:white'),
                    h4('samanthas@nezperce.org', style = 'color:white'),
@@ -580,11 +629,13 @@ program and its staff serve a key role.")
           hr(),
           h2('Kus Web App Contacts', style = 'color:white'),
           fluidRow(
-            column(2, 
-                   # h4('Clark Watry', style = 'color:white'),
+            column(3, 
+                   h4('Kus Developer:', style = 'color:white')),
+            column(3, 
                    h4('Tyler Stright', style = 'color:white')),
-            column(2, 
-                   # h4('clarkw@nezperce.org', style = 'color:white'),
+            column(3, 
+                   h4('(208) 634-5290  Ext: 3314', style = 'color:white')),
+            column(3, 
                    h4('tylers@nezperce.org', style = 'color:white'))
           ),
           hr(),

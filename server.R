@@ -4,6 +4,8 @@ server <- function(input, output, session) {
   showModal(modalDialog(
     title = "Kus Data Use Agreement",
     'The Kus web application is intended to provide near real-time data summaries and visualizations of Snake River Basin anadroumous fish monitoring activities for Nez Perce Tribal Members, Department of Fisheries Resources Management staff and the general public. The data provided is preliminary and subject to change. Before using or publishing any data provided in this application you must contact NPT Data Management staff to obtain verification, data use limitations, metadata, and the proper citation format.',
+    hr(),
+    "The data available in this application is updated daily and is representative of what was stored in the Nez Perce Tribe's Centralized Database Management System at the time indicated by the Data Version, displayed in the bottom left corner.",
     footer = modalButton('I Agree')
   ))
   
