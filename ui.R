@@ -41,7 +41,7 @@ sidebar <- dashboardSidebar(
                menuItemOutput('rd_reports')
                ),
       menuItem('Contact Information', tabName = 'tab_contacts'),
-      br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), 
       helpText(HTML(paste('Data Version: ', deploy_time)), style = 'position:absolute; vertical-align:bottom;
                color:white; left:12px; bottom:5px;'),
       div(class = 'busy',
@@ -55,78 +55,245 @@ body <- dashboardBody(
   includeCSS('./www/styles.css'),
     tabItems(
   # KusHome Tab ----
-      tabItem(tabName = 'tab_home',
-              br(),
-              fluidRow(
-                column(10, offset = 1,
-                       h1('Department of Fisheries Resources Management'),
-                       style = 'text-align:center;'
-                       )),
-              br(),
-              fluidRow(
-                column(8, offset = 2,
-                       box(status = 'info', width=12, background = 'aqua',
-                           p("The Nez Perce Department of Fisheries Resources Management will protect and restore aquatic resources and habitats. Our mission will be accomplished consistent with the Nimmipuu way of life and beliefs, which have the utmost respect for the Creator, for all species, and for the past, present and future generations to come. Our mission will be consistent with the reserved rights stated within the Nez Perce Tribe's 1855 Treaty."),
-                           ),
-                       style = 'text-align:center;')
-                
-                ),
-              
+  tabItem(tabName = 'tab_home',
+          br(),
+          fluidRow(
+            column(10, offset = 0,
+                   h1('Department of Fisheries Resources Management', style = 'text-align:center;'),
+                   br(),
+                   column(10, offset = 1,
+                          box(status = 'info', width=12, background = 'aqua',
+                              p("The Nez Perce Department of Fisheries Resources Management will protect and restore aquatic resources and habitats. Our mission will be accomplished consistent with the Nimmipuu way of life and beliefs, which have the utmost respect for the Creator, for all species, and for the past, present and future generations to come. Our mission will be consistent with the reserved rights stated within the Nez Perce Tribe's 1855 Treaty."),
+                          )),
+                   br()
+            ),
+            column(2,
+                   tags$a(
+                       href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf',
+                       tags$img(src='DFRM Management Plan Cover.jpg',
+                                title = 'Click to view the DFRM Management Plan',
+                                width = 'auto',
+                                height = '180')
+                     )
+            )
+            
+          ),
+          
           box(width = NULL, solidHeader = TRUE, status = 'primary',
-            title = 'Lower Granite Window Counts',
+              title = 'Lower Granite Window Counts',
               fluidRow(
                 column(3,
                        valueBoxOutput("windowChinook", width = NULL)
-                       ),
+                ),
                 column(3,
                        valueBoxOutput("windowSteelhead", width = NULL)
-                      ),
+                ),
                 column(3,
                        valueBoxOutput("windowCoho", width = NULL)
-                      ),
+                ),
                 column(3,
                        valueBoxOutput("windowSockeye", width = NULL)
-                      )
-                ),
+                )
+              ),
               fluidRow(
                 column(12, plotlyOutput('window_plot'))
               )
-          )  
-        ),
+          )
+  ),
+  # Administration Tab ----
+  tabItem('tab_administration', br(),
+          h2('Administration Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("Administration Description Here.")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       fluidRow(
+                         column(4, p('Dave Johnson')),
+                         column(4, p('(208) 843-7320 Ext: 3736')),
+                         column(4, p('davej@nezperce.org'))
+                       ),
+                       h3("Administrative Specialist"),
+                       fluidRow(
+                         column(4, p('Michelle Wilson')),
+                         column(4, p('(208) 843-7320 Ext: 3763')),
+                         column(4, p('michelw@nezperce.org'))
+                       )
+                   ))
+          )
+  ),
   
-  tabItem('tab_administration',
-          h2('Administration Information')
-          ),
+  # Harvest Tab ----
+  tabItem('tab_harvest', br(),
+          h2('Harvest Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("The Nez Perce Tribe intends to increase and expand the level of harvest or fishing areas for salmon and steelhead at all Nez Perce usual and accustomed areas in the
+Snake Basin in a way that balances conservation needs of the fish with the right to take fish. This can be achieved through a biologically-sound harvest management philosophy 
+and harvest rate schedules keyed to the status and trends in abundance and productivity of the fishery resource. ")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       fluidRow(
+                         column(4, p('Joe Oatman')),
+                         column(4, p('(208) 843-7320 Ext: 3730')),
+                         column(4, p('joeo@nezperce.org'))
+                       )
+                   ))
+          )
+  ),
   
-  tabItem('tab_harvest',
-          h2('Harvest Information')
+  # Production Tab ----
+  tabItem('tab_production', br(),
+          h2('Production Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("The Nez Perce Tribe continues to protect and enhance abundance of fish through natural production and artificial production in the form of hatcheries. Hatcheries for salmon and steelhead in the Columbia Basin were developed as a necessary mitigation tool to compensate
+for the fishery losses that resulted from the impacts of increased human settlement that began soon after ratification of the Treaty of 1855. Accordingly,
+hatcheries represent a promise to those who have always depended on the salmon for culture, sustenance, and livelihood to replace the fish that are and
+were diminished as a result of human development of salmon habitats. As long as the dams are here, the mitigation responsibility remains.")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       fluidRow(
+                         column(4, p('Becky Johnson')),
+                         column(4, p('(208) 843-7320 Ext: 4629')),
+                         column(4, p('beckyj@nezperce.org'))
+                       ),
+                       h3("Administrative Specialist"),
+                       fluidRow(
+                         column(4, p('Tish Whitman')),
+                         column(4, p('(208) 843-7320 Ext: 4634')),
+                         column(4, p('tishw@nezperce.org'))
+                       )
+                   ))
           ),
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
+              uiOutput(outputId = 'production_select'),
+              h3("Description"),
+              uiOutput('production_description'), br(),
+              h3('Objectives'),
+              uiOutput('production_objectives'), br(),
+              h3('Project Leader'),
+              uiOutput('production_PL'), br(),
+              h3('Staff'),
+              uiOutput('production_staff')
+          )
+  ),
   
-  tabItem('tab_production',
-          h2('Production Information')
+  # Research Tab ----
+  tabItem('tab_research', br(),
+          h2('Research Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("The research division is responsible for gathering the data necessary to assess the success of operations in achieving
+                         the biological, physical, and harvest management goals described in the DFRM Management Plan.  Only with consistent research
+                         and diligently recorded data will the DFRM be able to effectively implement an adaptive management strategy.  Adaptive management consists of
+monitoring the results of actions, evaluating their effectiveness, adjusting plans if necessary, and applying new or modified strategies from knowledge gained.")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       fluidRow(
+                         column(4, p('Jason Vogal')),
+                         column(4, p('(208) 843-7145 Ext: 3602')),
+                         column(4, p('jasonv@nezperce.org'))
+                       ),
+                       h3("Administrative Specialist"),
+                       fluidRow(
+                         column(4, p('Paulette Smith')),
+                         column(4, p('(208) 843-7145 Ext: 3556')),
+                         column(4, p('paulettes@nezperce.org'))
+                       )
+                   ))
           ),
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
+              uiOutput(outputId = 'research_select'),
+              h3("Description"),
+              uiOutput('research_description'), br(),
+              h3('Objectives'),
+              uiOutput('research_objectives'), br(),
+              h3('Project Leader'),
+              uiOutput('research_PL'), br(),
+              h3('Staff'),
+              uiOutput('research_staff')
+          )
+  ),
   
-  tabItem('tab_research',
-          h2('Research Information')
-          ),
+  # Watershed Tab ----
+  tabItem('tab_watershed', br(),
+          h2('Watershed Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("Native fish within the Nez Perce Country depend
+on healthy habitats, healthy watersheds, and healthy ecosystems. At the most fundamental level, both resident and anadromous species require: clean, cold and oxygen-rich flows; adequate stream depths
+to avoid predation and allow seasonal movement. The health of entire watersheds, from ridge-top to ridge-top, is important for fish survival because
+watersheds contain an interconnected web of life. Water that falls as rain or snow flows down slope 
+across the landscape and through the ground before it eventually enters a common stream or other body
+of water. This defines the spatial extent of a watershed.")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       fluidRow(
+                         column(4, p('Emmit Taylor')),
+                         column(4, p('(208) 843-7144 Ext: 3544')),
+                         column(4, p('emmitt@nezperce.org'))
+                       ),
+                       h3("Administrative Specialist"),
+                       fluidRow(
+                         column(4, p('Ermie Whitman')),
+                         column(4, p('(208) 843-7144 Ext: 3525')),
+                         column(4, p('ermiew@nezperce.org'))
+                       )
+                   ))
+          )
+  ),
   
-  tabItem('tab_watershed',
-          hr('Watershed Information')
-          ),
-  
-  tabItem('tab_conservation',
-          h2('Conservation Enforcement Information')
-          ),
+  # Conservation Enforcement Tab ----
+  tabItem('tab_conservation', br(),
+          h2('Conservation Enforcement Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+          fluidRow(
+            column(10, offset = 1,
+                   box(status = 'info', width=12, background = 'aqua',
+                       p("The Enforcement program enforces the Nez Perce tribal regulations regarding the fish
+and wildlife portion of the Law and Order Code. As a sovereign, the Nez Perce Tribe has the ability and
+responsibility to regulate the activities of its membership and, in general, the activities occurring on
+its lands. Especially with regards to the resource conservation issues surrounding the exercise of fishing rights, the Nez Perce Tribe must have the ability
+to set and enforce its seasons in order to fish without state interference. So it is not only for purposes
+of resource protection, but also for the conducting of its activities as a sovereign that the Enforcement
+program and its staff serve a key role.")
+                   )),
+            column(6, offset = 3,
+                   box(title = NULL, width = 12, status = 'info', 
+                       h3("Division Director"),
+                       fluidRow(
+                         column(4, p('Adam Villavicencio')),
+                         column(4, p('(208) 843-7143 Ext: 3528')),
+                         column(4, p('adamv@nezperce.org'))
+                       )
+                   ))
+          )
+  ),
   
   # Spawning Ground Survey Summaries Tab ----
   tabItem(tabName = 'tab_sgs',
           fluidRow(
             column(12,
-            box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
+            box(title = 'Spawning Ground Survey Summaries', status='info', width= 5, #height = '260',
                 uiOutput(outputId = 'sgs_species'),
                 uiOutput(outputId = 'sgs_pop_name')
             ),
-          box(width = 7, 
+          box(width = 7, #height = '260',
               img(src='carcass.png', width = '100%', height='auto') 
                 ))
           ),
@@ -149,9 +316,20 @@ body <- dashboardBody(
   # Weir Collections Summaries Tab ----
   tabItem(tabName = 'tab_weir',
           fluidRow(
+            box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Chinook', sep = ''),
+                fluidRow(column(12, align = "center", downloadButton("weirsumchn_export", label = "Download Summary (.CSV)"))),
+                div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_chn')))
+          ),
+          fluidRow(
+            box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
+                fluidRow(column(12, align = "center", downloadButton("weirsumsth_export", label = "Download Summary (.CSV)"))),
+                div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_sth')))
+          ),
+          hr(),
+          fluidRow(
             column(12,
                    box(title = 'Weir Collection Summaries', status='info', width= 5,
-                       uiOutput(outputId = 'weir_species'),
+                       uiOutput(outputId = 'weir_species'), br(),
                        uiOutput(outputId = 'weir_trap')
                    ),
                    box(width = 7, 
@@ -159,11 +337,15 @@ body <- dashboardBody(
                    ))
           ),
           hr(),
+
           fluidRow(
-            box(width = 12, plotlyOutput('p_weircatch'))
+            box(width = 12, plotlyOutput('p_weircatch_N'), height = '600')
+          ),
+          fluidRow(
+            box(width = 12, plotlyOutput('p_weircatch_H'), height = '600')
           ),
           box(width = 12, 
-              title = paste(year(Sys.Date()), 'Weir Collections Summary'),
+              title = paste(year(Sys.Date()), 'Weir Disposition Summary'),
               fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_table'))
           )
@@ -173,7 +355,7 @@ body <- dashboardBody(
   # tabItem(tabName = 'tab_array',
   #         fluidRow(
   #           box(title = 'In-Stream Array Summaries',
-  #               helpText('Sorry! This page is currently under contruction.'))
+  #               helpText('Sorry! This page is currently under construction.'))
   #         )),
           
   # Juvenile Monitoring Summaries Tab ----
@@ -346,7 +528,7 @@ body <- dashboardBody(
               fluidRow(
                 box(width = 12,
                     h2('Reports!', style = 'text-align: center;'),
-                    h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. similar graphs and tables of information),
+                    h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
                        we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
                     h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
                     )
@@ -362,7 +544,104 @@ body <- dashboardBody(
           ),
   
       tabItem('tab_contacts',
-          h2('Contact Information')
+              br(),
+          h1('Contact Information', style = 'text-align:center; color:white; font-family: Arial White;'),
+                br(),
+                h2('Field Office Contacts', style = 'color:white'),
+          fluidRow(
+            column(3, 
+                   h4('Joseph Field Office:', style = 'color:white'),
+                   h4('McCall Field Office:', style = 'color:white'),
+                   h4('Orofino Field Office:', style = 'color:white'),
+                   h4('Sweetwater Office:', style = 'color:white')),
+            column(3, 
+                   h4('Jim Harbeck', style = 'color:white'),
+                   h4('Ryan Kinzer', style = 'color:white'),
+                   h4('Bill Arnsburg', style = 'color:white'),
+                   h4('Jason Vogal', style = 'color:white')),
+            column(3, 
+                   h4('(541) 432-2501  Ext: 3771', style = 'color:white'),
+                   h4('(208) 634-5290  Ext: 3312', style = 'color:white'),
+                   h4('(208) 476-7417  Ext: 3578', style = 'color:white'),
+                   h4('(208) 843-7145  Ext: 3602', style = 'color:white')),
+            column(3, 
+                   h4('jimh@nezperce.org', style = 'color:white'),
+                   h4('ryank@nezperce.org', style = 'color:white'),
+                   h4('billa@nezperce.org', style = 'color:white'),
+                   h4('jasonv@nezperce.org', style = 'color:white'))
+          ),
+          hr(), 
+          h2('Division Contacts', style = 'color:white'),
+          fluidRow(
+            column(3, 
+                   h4('Administration:', style = 'color:white'),
+                   h4('Harvest:', style = 'color:white'),
+                   h4('Production:', style = 'color:white'),
+                   h4('Research:', style = 'color:white'),
+                   h4('Watershed:', style = 'color:white'),
+                   h4('Conservation Enforcement:', style = 'color:white')),
+            column(3, 
+                   h4('Dave Johnson', style = 'color:white'),
+                   h4('Joe Oatman', style = 'color:white'),
+                   h4('Becky Johnson', style = 'color:white'),
+                   h4('Jason Vogal', style = 'color:white'),
+                   h4('Emmit Taylor', style = 'color:white'),
+                   h4('Adam Villavicencio', style = 'color:white')),
+            column(3, 
+                   h4('(208) 843-7320  Ext: 3736', style = 'color:white'),
+                   h4('(208) 843-7320  Ext: 3730', style = 'color:white'),
+                   h4('(208) 843-7320  Ext: 4629', style = 'color:white'),
+                   h4('(208) 843-7145  Ext: 3602', style = 'color:white'),
+                   h4('(208) 843-7144  Ext: 3544', style = 'color:white'),
+                   h4('(208) 843-7143  Ext: 3528', style = 'color:white')),
+            column(3, 
+                   h4('davej@nezperce.org', style = 'color:white'),
+                   h4('joeo@nezperce.org', style = 'color:white'),
+                   h4('beckyj@nezperce.org', style = 'color:white'),
+                   h4('jasonv@nezperce.org', style = 'color:white'),
+                   h4('emmitt@nezperce.org', style = 'color:white'),
+                   h4('adamv@nezperce.org', style = 'color:white'))
+          ),
+          hr(),
+          h2('Data Management Contacts', style = 'color:white'),
+          fluidRow(
+            column(3, 
+                   h4('Data Steward:', style = 'color:white'),
+                   h4('Research Scientist:', style = 'color:white'),
+                   h4('Data Management Biologist:', style = 'color:white'),
+                   h4('Data Management Biologist:', style = 'color:white')),
+            column(3, 
+                   h4('Clark Watry', style = 'color:white'),
+                   h4('Ryan Kinzer', style = 'color:white'),
+                   h4('Samantha Smith', style = 'color:white'),
+                   h4('Tyler Stright', style = 'color:white')),
+            column(3, 
+                   h4('(208) 843-7145  Ext: 3549', style = 'color:white'),
+                   h4('(208) 634-5290  Ext: 3312', style = 'color:white'),
+                   h4('(208) 843-7145  Ext: 4717', style = 'color:white'),
+                   h4('(208) 634-5290  Ext: 3314', style = 'color:white')),
+            column(3, 
+                   h4('clarkw@nezperce.org', style = 'color:white'),
+                   h4('ryank@nezperce.org', style = 'color:white'),
+                   h4('samanthas@nezperce.org', style = 'color:white'),
+                   h4('tylers@nezperce.org', style = 'color:white'))
+          ),
+          hr(),
+          h2('Kus Web App Contacts', style = 'color:white'),
+          fluidRow(
+            column(3, 
+                   h4('Kus Developer:', style = 'color:white')),
+            column(3, 
+                   h4('Tyler Stright', style = 'color:white')),
+            column(3, 
+                   h4('(208) 634-5290  Ext: 3314', style = 'color:white')),
+            column(3, 
+                   h4('tylers@nezperce.org', style = 'color:white'))
+          ),
+          hr(),
+          h2('DFRM Employees', style = 'color:white;'),
+          box(width = 12, 
+          DT::dataTableOutput('cdms_users'))
       )
   
     ) #tabItems

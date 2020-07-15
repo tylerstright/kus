@@ -4,6 +4,8 @@ server <- function(input, output, session) {
   showModal(modalDialog(
     title = "Kus Data Use Agreement",
     'The Kus web application is intended to provide near real-time data summaries and visualizations of Snake River Basin anadroumous fish monitoring activities for Nez Perce Tribal Members, Department of Fisheries Resources Management staff and the general public. The data provided is preliminary and subject to change. Before using or publishing any data provided in this application you must contact NPT Data Management staff to obtain verification, data use limitations, metadata, and the proper citation format.',
+    hr(),
+    "The data available in this application is updated daily and is representative of what was stored in the Nez Perce Tribe's Centralized Database Management System at the time indicated by the Data Version, displayed in the bottom left corner.",
     footer = modalButton('I Agree')
   ))
   
@@ -71,8 +73,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # Home Tab / Leaflet ----
-  
+  # Home Tab ----
   window_df <- queryWindowCnts(dam = 'LWG', 
                                spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw','fb'),
                                spawn_yr = year(Sys.Date()),
@@ -170,6 +171,98 @@ server <- function(input, output, session) {
   
   #getPage <- function() { return(includeHTML("./www/kus_map.html")) }
   #  output$map<-renderUI({getPage()})
+  
+  # Production Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_production'){
+      projects_production <<- getProjects(cdms_host) %>%
+        filter(SubProgram == 'Production')  # filter out unwanted projects ??
+    } 
+    
+    output$production_select <- renderUI({
+      selectInput('production_select', 'Select Project', choices = sort(unique(projects_production$Name)),
+                  selected = 'Snake Basin Steelhead Assessments')
+    })
+    
+  })
+  
+  # Access below document for list of MetadataPropertyId values.
+  # load(file = './data/metadataproperties.rda')  # for list of metadataproperties (#s)
+  observeEvent(input$production_select, {
+    ProjId <- projects_production[match(input$production_select, projects_production$Name), 1] # get ProjectId
+    proj_info <- getProject(ProjId) # get project summary page info (metadata)
+    proj_meta <- proj_info[[18]]
+    
+    # proj_locations <- proj_info[[4]] %>%
+    #   distinct(Name, .keep_all = TRUE) %>%
+    #   filter(LocationTypeId %in% c(1123, 1124)) %>% # Weirs and RST
+    #   select(Name, Latitude, Longitude)
+    
+    output$production_description <- renderText({
+      proj_info[[13]]
+    })
+    
+    output$production_objectives <- renderText({
+      proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+    })
+    
+    output$production_PL <- renderText({
+      # proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+      paste(proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], " (",
+            proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
+    })
+    
+    output$production_staff <- renderText({
+      proj_meta[match(4, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+    })
+    
+  })
+  
+  # Research Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_research'){
+      projects_research <<- getProjects(cdms_host) %>%
+        filter(SubProgram == 'Research')  # filter out unwanted projects ??
+    } 
+    
+    output$research_select <- renderUI({
+      selectInput('research_select', 'Select Project', choices = sort(unique(projects_research$Name)),
+                  selected = 'Snake Basin Steelhead Assessments')
+    })
+
+  })
+
+  # Access below document for list of MetadataPropertyId values.
+    # load(file = './data/metadataproperties.rda')  # for list of metadataproperties (#s)
+  observeEvent(input$research_select, {
+    ProjId <- projects_research[match(input$research_select, projects_research$Name), 1] # get ProjectId
+    proj_info <- getProject(ProjId) # get project summary page info (metadata)
+    proj_meta <- proj_info[[18]]
+    
+    # proj_locations <- proj_info[[4]] %>%
+    #   distinct(Name, .keep_all = TRUE) %>%
+    #   filter(LocationTypeId %in% c(1123, 1124)) %>% # Weirs and RST
+    #   select(Name, Latitude, Longitude)
+    
+    output$research_description <- renderText({
+      proj_info[[13]]
+    })
+    
+    output$research_objectives <- renderText({
+      proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+    })
+    
+    output$research_PL <- renderText({
+      # proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+      paste(proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], " (",
+            proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
+    })
+    
+    output$research_staff <- renderText({
+      proj_meta[match(4, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
+    })
+    
+  })
   
   # Documents Tab ----
   observeEvent(input$tabs, {
@@ -407,7 +500,7 @@ server <- function(input, output, session) {
       paste0("NPT_SGS_summary_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(sgs_table_data, file, row.names = FALSE)
+      write.csv(sgs_table_data[input[["sgs_table_rows_all"]], ], file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
@@ -417,19 +510,54 @@ server <- function(input, output, session) {
     if(input$tabs == 'tab_weir'){
       
       # list of traps for input
-      weir_list <<- AdultWeirData_clean %>%  
-        group_by(facility, trap, SpeciesRun) %>%
-        filter(str_detect(facility, 'NPT'),
-               SpeciesRun %in% c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead')) %>%
-        distinct(facility) 
+      weir_list <<- p_weir_df %>%  
+        group_by(trap, SpeciesRun) %>%
+        filter(SpeciesRun %in% c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead')) %>%
+        distinct(trap) 
+
 
       output$weir_species <- renderUI({
         selectInput(inputId= 'weir_species', label= 'Choose Species:', 
-                    choices= c('Fall Chinook', 'Spring Chinook', 'Summer Chinook', 'Summer Steelhead'), selectize= FALSE, 
-                    selected = 'Spring Chinook', multiple = FALSE)
+                    choices= c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead'), selectize= FALSE, 
+                    selected = 'Spring/summer Chinook', multiple = FALSE)
       })
+      
+      output$weir_sum_chn <- renderDataTable({
+        chn_tmp <<- weir_sum_all %>% filter(Species == 'Chinook')
+        
+        DT::datatable(chn_tmp, options = list(orderClasses = TRUE))
+      })
+      
+      output$weir_sum_sth <- renderDataTable({
+        sth_tmp <<- weir_sum_all %>% filter(Species == 'Steelhead')
+        
+        DT::datatable(sth_tmp, options = list(orderClasses = TRUE))
+      })
+      
     }
   })
+  
+  # weir_sum_chn EXPORT
+  output$weirsumchn_export <- downloadHandler(
+    filename = function() {
+      paste0(year(Sys.Date()), "_NPT_Weir_Chinook_summary_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(chn_tmp, file, row.names = FALSE)
+    },
+    contentType = "text/csv"
+  )
+  
+  # weir_sum_sth EXPORT
+  output$weirsumsth_export <- downloadHandler(
+    filename = function() {
+      paste0(year(Sys.Date()), "_NPT_Weir_Steelhead_summary_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      write.csv(sth_tmp, file, row.names = FALSE)
+    },
+    contentType = "text/csv"
+  )
   
   observeEvent(input$weir_species, {
     
@@ -440,6 +568,7 @@ server <- function(input, output, session) {
       selectInput(inputId= 'weir_trap', label= 'Choose Weir:', choices= sort(unique(weir_trp$trap)), selectize= FALSE, 
                   selected = 'Lostine River Weir', multiple = FALSE)
     })
+    
   })
   
   # weir select 
@@ -453,33 +582,82 @@ server <- function(input, output, session) {
 
     RV$weir_sum <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation'))
     
-    # plotly on weir select
-    output$p_weircatch <- renderPlotly({
-      
-      p_weir_tmp <- p_weir_df %>%
-        filter(trap == input$weir_trap,
-               SpeciesRun == input$weir_species)
+    # Natural Weir Catch Plotly
+    p_weir_tmp <- p_weir_df %>%
+      arrange(trapped_date) %>%
+      filter(trap == input$weir_trap,
+             SpeciesRun == input$weir_species)
     
-      p_weir <- plot_ly(data = p_weir_tmp,
-                        x = ~monthday,
-                        y = ~n,
-                        type = 'bar',
-                        legendgroup = ~origin,
-                        text = ~origin,
-                        color = ~origin,
-                        colors = viridis_pal(option="D")(length(unique(p_weir_tmp$origin)))
-      ) %>%
+    output$p_weircatch_N <- renderPlotly({
+      p_weir_n <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
+                                                       str_detect(origin, 'Natural')),
+                          x = ~monthday,
+                          y = ~n,
+                          type = 'scatter',
+                          mode = 'lines',
+                          legendgroup = ~legrp,
+                          line = list(color = 'gray'),
+                          color = ~yearorigin,
+                          opacity = 0.5) %>%
+        add_lines(data = p_weir_tmp %>% filter(trap_year == year(Sys.Date()), 
+                                               str_detect(origin, 'Natural')),
+                  x = ~monthday,
+                  y = ~n,
+                  type = 'scatter',
+                  mode = 'lines',
+                  legendgroup = ~legrp,
+                  line = list(color = 'black'),
+                  color = ~yearorigin,
+                  opacity = 1) %>%
         layout(hovermode = 'x',
-               title = list(text = paste(input$weir_trap, 'Catch: Current v. Historic Mean, by Origin'),
+               title = list(text = paste(input$weir_trap, 'Current v. Historic Daily Catch; Natural Origin'),
                             font = plotly_font),
-               yaxis= list(#barmode = 'stack',  # group
+               yaxis= list(
                  title = 'Count',
                  titlefont = plotly_font),
                xaxis= list(title = 'Month/Day',
                            titlefont = plotly_font,
-                           tickangle = -45))
+                           tickangle = -45),
+               height = '575') 
+
     })
+    # Hatchery Weir Catch Plotly
+    output$p_weircatch_H <- renderPlotly({
+      p_weir_h <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
+                                                       str_detect(origin, 'Hatchery')),
+                          x = ~monthday,
+                          y = ~n,
+                          type = 'scatter',
+                          mode = 'lines',
+                          legendgroup = ~legrp,
+                          line = list(color = 'gray'),
+                          color = ~yearorigin,
+                          opacity = 0.5) %>%
+        add_lines(data = p_weir_tmp %>% filter(trap_year == year(Sys.Date()), 
+                                               str_detect(origin, 'Hatchery')),
+                  x = ~monthday,
+                  y = ~n,
+                  type = 'scatter',
+                  mode = 'lines',
+                  legendgroup = ~legrp,
+                  line = list(color = 'black'),
+                  color = ~yearorigin, 
+                  opacity = 1) %>%
+        layout(hovermode = 'x',
+               title = list(text = paste('Lostine River Weir', 'Current v. Historic Daily Catch; Hatchery Origin'),
+                            font = plotly_font),
+               yaxis= list(
+                 title = 'Count',
+                 titlefont = plotly_font),
+               xaxis= list(title = 'Month/Day',
+                           titlefont = plotly_font,
+                           tickangle = -45),
+               height = '575')
+    })  
+    
   })
+  
+
   
   # Weir Collections Summary Data Table
   output$weir_table <- DT::renderDataTable({
@@ -500,7 +678,7 @@ server <- function(input, output, session) {
       paste0("NPT_Weir_summary_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(weir_table_data, file, row.names = FALSE)
+      write.csv(weir_table_data[input[["weir_table_rows_all"]], ], file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
@@ -679,7 +857,7 @@ server <- function(input, output, session) {
       paste0("NPT_Juvenile_summary_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(juv_table_data, file, row.names = FALSE)
+      write.csv(juv_table_data[input[["juv_table_rows_all"]], ], file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
@@ -980,10 +1158,13 @@ server <- function(input, output, session) {
     # CDMS Dataset EXPORT ----
   output$raw_export <- downloadHandler(
     filename = function() {
-      paste0(input$datasets,"_raw_data_", Sys.Date(), ".csv")
+      dataset_name <- datasets %>%
+        filter(DatastoreId == isolate(input$datasets)) %>%
+        pull(DatastoreName)
+      paste0(gsub(' ','_', dataset_name),"_raw_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(cdms_table_data, file, row.names = FALSE, na='')
+      write.csv(cdms_table_data[input[["raw_table_rows_all"]], ], file, row.names = FALSE, na='')
     },
     contentType = "text/csv"
   )
@@ -1056,7 +1237,7 @@ server <- function(input, output, session) {
       paste0(input$custom_query_menu,"_custom_query_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(custom_table_data, file, row.names = FALSE, na = '')
+      write.csv(custom_table_data[input[["custom_table_rows_all"]], ], file, row.names = FALSE, na = '')
     },
     contentType = "text/csv"
   )
@@ -1206,5 +1387,12 @@ server <- function(input, output, session) {
       file.copy(report_path, file)
     }
   )
+  
+  # Contact Information Tab -
+    # CDMS user info
+  output$cdms_users <- DT::renderDataTable({
+    DT::datatable(users, options = list(orderClasses = TRUE), filter = 'top')  
+  })
+  
   
 } # close Server
