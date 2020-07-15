@@ -278,8 +278,8 @@ program and its staff serve a key role.")
           ),
           box(width = 12, 
               title = 'Tabular Summary Data',
-              fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File")),
-              div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table')))
+              fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
+              div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table'))
           )
   ),
   
