@@ -111,10 +111,10 @@ body <- dashboardBody(
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Dave Johnson  (Email: davej@nezperce.org)'),
+                       p('Dave Johnson  (davej@nezperce.org)'),
                        br(),
                        h3("Administrative Specialist"),
-                       p('Michelle Wilson  (Email: michelw@nezperce.org)')
+                       p('Michelle Wilson  (michelw@nezperce.org)')
                    ))
           )
   ),
@@ -132,10 +132,10 @@ and harvest rate schedules keyed to the status and trends in abundance and produ
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Joe Oatman  (Email: joeo@nezperce.org)'),
+                       p('Joe Oatman  (joeo@nezperce.org)'),
                        # br(),
                        # h3("Administrative Specialist"),
-                       # p('  (Email: @nezperce.org)')
+                       # p('  (@nezperce.org)')
                    ))
           )
   ),
@@ -154,20 +154,20 @@ were diminished as a result of human development of salmon habitats. As long as 
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Becky Johnson  (Email: beckyj@nezperce.org)'),
+                       p('Becky Johnson  (beckyj@nezperce.org)'),
                        br(),
                        h3("Administrative Specialist"),
-                       p('Tish Whitman  (Email: tishw@nezperce.org)')
+                       p('Tish Whitman  (tishw@nezperce.org)')
                    ))
           ),
           box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
               uiOutput(outputId = 'production_select'),
               h3("Description"),
-              uiOutput('production_description'), br(),br(),
+              uiOutput('production_description'), br(),
               h3('Objectives'),
-              uiOutput('production_objectives'), br(),br(),
+              uiOutput('production_objectives'), br(),
               h3('Project Leader'),
-              uiOutput('production_PL'), br(),br(),
+              uiOutput('production_PL'), br(),
               h3('Staff'),
               uiOutput('production_staff')
           )
@@ -187,20 +187,20 @@ monitoring the results of actions, evaluating their effectiveness, adjusting pla
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Jason Vogal  (Email: jasonv@nezperce.org)'),
+                       p('Jason Vogal  (jasonv@nezperce.org)'),
                        br(),
                        h3("Administrative Specialist"),
-                       p('Paulette Smith  (Email: paulettes@nezperce.org)')
+                       p('Paulette Smith  (paulettes@nezperce.org)')
                    ))
           ),
           box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
               uiOutput(outputId = 'research_select'),
               h3("Description"),
-              uiOutput('research_description'), br(),br(),
+              uiOutput('research_description'), br(),
               h3('Objectives'),
-              uiOutput('research_objectives'), br(),br(),
+              uiOutput('research_objectives'), br(),
               h3('Project Leader'),
-              uiOutput('research_PL'), br(),br(),
+              uiOutput('research_PL'), br(),
               h3('Staff'),
               uiOutput('research_staff')
           )
@@ -222,10 +222,10 @@ of water. This defines the spatial extent of a watershed.")
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Emmit Taylor  (Email: emmitt@nezperce.org)'),
+                       p('Emmit Taylor  (emmitt@nezperce.org)'),
                        br(),
                        h3("Administrative Specialist"),
-                       p('Ermie Whitman  (Email: ermiew@nezperce.org)')
+                       p('Ermie Whitman  (ermiew@nezperce.org)')
                    ))
           )
   ),
@@ -247,10 +247,10 @@ program and its staff serve a key role.")
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
-                       p('Adam Villavicencio  (Email: adamv@nezperce.org)'),
+                       p('Adam Villavicencio  (adamv@nezperce.org)'),
                        # br(),
                        # h3("Administrative Specialist"),
-                       # p('  (Email: @nezperce.org)')
+                       # p('  (@nezperce.org)')
                    ))
           )
   ),
@@ -259,11 +259,11 @@ program and its staff serve a key role.")
   tabItem(tabName = 'tab_sgs',
           fluidRow(
             column(12,
-            box(title = 'Spawning Ground Survey Summaries', status='info', width= 5,
+            box(title = 'Spawning Ground Survey Summaries', status='info', width= 5, #height = '260',
                 uiOutput(outputId = 'sgs_species'),
                 uiOutput(outputId = 'sgs_pop_name')
             ),
-          box(width = 7, 
+          box(width = 7, #height = '260',
               img(src='carcass.png', width = '100%', height='auto') 
                 ))
           ),
@@ -299,7 +299,7 @@ program and its staff serve a key role.")
           fluidRow(
             column(12,
                    box(title = 'Weir Collection Summaries', status='info', width= 5,
-                       uiOutput(outputId = 'weir_species'),
+                       uiOutput(outputId = 'weir_species'), br(),
                        uiOutput(outputId = 'weir_trap')
                    ),
                    box(width = 7, 
@@ -315,7 +315,7 @@ program and its staff serve a key role.")
             box(width = 12, plotlyOutput('p_weircatch_H'), height = '600')
           ),
           box(width = 12, 
-              title = paste(year(Sys.Date()), 'Weir Collections Summary'),
+              title = paste(year(Sys.Date()), 'Weir Disposition Summary'),
               fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_table'))
           )
@@ -498,7 +498,7 @@ program and its staff serve a key role.")
               fluidRow(
                 box(width = 12,
                     h2('Reports!', style = 'text-align: center;'),
-                    h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. similar graphs and tables of information),
+                    h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
                        we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
                     h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
                     )
@@ -514,6 +514,7 @@ program and its staff serve a key role.")
           ),
   
       tabItem('tab_contacts',
+              br(),
           h1('Contact Information', style = 'text-align:center; color:white; font-family: Arial White;'),
                 br(),
                 h2('Field Office Contacts', style = 'color:white'),
@@ -523,21 +524,21 @@ program and its staff serve a key role.")
                 h4('Sweetwater Office: Bill Arnsburg  (208) 476-7417', style = 'color:white'),
                 hr(),
                 h2('Division Contacts', style = 'color:white'),
-                h4('Administration: Dave Johnson (Email: davej@nezperce.org)', style = 'color:white'),
-                h4('Harvest: Joe Oatman (Email: joeo@nezperce.org)', style = 'color:white'),
-                h4('Production: Becky Johnson (Email: beckyj@nezperce.org)', style = 'color:white'),
-                h4('Research: Jason Vogal (Email: jasonv@nezperce.org)', style = 'color:white'),
-                h4('Conservation Enforcement: Adam Villavicencio (Email: adamv@nezperce.org)', style = 'color:white'),
+                h4('Administration: Dave Johnson (davej@nezperce.org)', style = 'color:white'),
+                h4('Harvest: Joe Oatman (joeo@nezperce.org)', style = 'color:white'),
+                h4('Production: Becky Johnson (beckyj@nezperce.org)', style = 'color:white'),
+                h4('Research: Jason Vogal (jasonv@nezperce.org)', style = 'color:white'),
+                h4('Conservation Enforcement: Adam Villavicencio (adamv@nezperce.org)', style = 'color:white'),
                 hr(),
                 h2('Data Management Contacts', style = 'color:white'),
-                h4('Clark Watry (Email: clarkw@nezperce.org)', style = 'color:white'),
-                h4('Ryan Kinzer (Email: ryank@nezperce.org)', style = 'color:white'),
-                h4('Samantha Smith (Email: samanthas@nezperce.org)', style = 'color:white'),
-                h4('Tyler Stright (Email: tylers@nezperce.org)', style = 'color:white'),
+                h4('Clark Watry (clarkw@nezperce.org)', style = 'color:white'),
+                h4('Ryan Kinzer (ryank@nezperce.org)', style = 'color:white'),
+                h4('Samantha Smith (samanthas@nezperce.org)', style = 'color:white'),
+                h4('Tyler Stright (tylers@nezperce.org)', style = 'color:white'),
                 hr(),
                 h2('Kus Web App Contacts', style = 'color:white'),
-                h4('Clark Watry (Email: clarkw@nezperce.org)', style = 'color:white'),
-                h4('Tyler Stright (Email: tylers@nezperce.org)', style = 'color:white'),
+                h4('Clark Watry (clarkw@nezperce.org)', style = 'color:white'),
+                h4('Tyler Stright (tylers@nezperce.org)', style = 'color:white'),
           hr(),
           h2('DFRM Employees', style = 'color:white;'),
           box(width = 12, 

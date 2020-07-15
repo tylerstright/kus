@@ -588,7 +588,7 @@ server <- function(input, output, session) {
              SpeciesRun == input$weir_species)
     
     output$p_weircatch_N <- renderPlotly({
-      p_weir_n <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
+      p_weir_n <- plot_ly(data = p_weir_tmp %>% filter(trap_year %in% c((year(Sys.Date())-5):(year(Sys.Date())-1)),
                                                        str_detect(origin, 'Natural')),
                           x = ~monthday,
                           y = ~n,
@@ -622,7 +622,7 @@ server <- function(input, output, session) {
     })
     # Hatchery Weir Catch Plotly
     output$p_weircatch_H <- renderPlotly({
-      p_weir_h <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
+      p_weir_h <- plot_ly(data = p_weir_tmp %>% filter(trap_year %in% c((year(Sys.Date())-5):(year(Sys.Date())-1)),
                                                        str_detect(origin, 'Hatchery')),
                           x = ~monthday,
                           y = ~n,
