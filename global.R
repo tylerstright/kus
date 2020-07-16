@@ -37,7 +37,8 @@ load('./data/LampreyData.rda')
 load('./data/AdultWeirData.rda')
 load('./data/AdultWeirData_clean.rda') # cleaned with cuyem
 load('./data/NPTweir.rda')
-load('./data/p_weir_df.rda') # Plotly weir summary
+load('./data/p_weir_df.rda') # plotly weir summary
+load('./data/weir_props.rda') # weir proportions
 load('./data/weir_sum_all.rda')
 load('./data/SGSsummary.rda')
 load('./data/JUVsummary.rda')
