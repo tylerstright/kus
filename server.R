@@ -658,7 +658,7 @@ server <- function(input, output, session) {
   })
   
   
-  # Weir Collections Summary Data Table
+  # Weir Disposition Summary Data Table
   output$weir_table <- DT::renderDataTable({
 
     shiny::validate(
@@ -671,10 +671,10 @@ server <- function(input, output, session) {
     DT::datatable(weir_table_data, options = list(orderClasses = TRUE), filter = 'top')
   })
   
-  # Weir Collections Summary EXPORT
+  # Weir Disposition Summary EXPORT
   output$weir_export <- downloadHandler(
     filename = function() {
-      paste0("NPT_Weir_summary_data_", Sys.Date(), ".csv")
+      paste0("NPT_weir_disposition_summary_", Sys.Date(), ".csv")
     },
     content = function(file) {
       write.csv(weir_table_data[input[["weir_table_rows_all"]], ], file, row.names = FALSE)
