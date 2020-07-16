@@ -88,7 +88,8 @@ server <- function(input, output, session) {
     )) %>%
     group_by(Year, Date, species) %>%
     summarise(Count = sum(Count)) %>%
-    ungroup()
+    ungroup() %>%
+    filter(Date < Sys.Date()) # this isn't perfect. I'm not sure when 'yesterdays' count is added.
     
   
   output$windowChinook <- renderValueBox({
@@ -327,7 +328,7 @@ server <- function(input, output, session) {
     } # closes 'if'
   })
 
-  # Selected File Info ----
+  # Selected File Info
   observeEvent(input$doc_choice, {
     if(input$doc_choice == '') { NULL } else {
       docRecord <<- which(grepl(input$doc_choice, cdms_doc_data$Title))
@@ -339,7 +340,7 @@ server <- function(input, output, session) {
     }
   })
 
- # Document Download ----
+  # Document Download
   output$document_export <- downloadHandler(
         filename = function() {
           paste0(docName)  # FileName as it exists on the server.
@@ -512,7 +513,7 @@ server <- function(input, output, session) {
       # list of traps for input
       weir_list <<- p_weir_df %>%  
         group_by(trap, SpeciesRun) %>%
-        filter(SpeciesRun %in% c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead')) %>%
+        filter(SpeciesRun %in% c('Spring/summer Chinook', 'Summer Steelhead')) %>%
         distinct(trap) 
 
 
@@ -537,28 +538,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # weir_sum_chn EXPORT
-  output$weirsumchn_export <- downloadHandler(
-    filename = function() {
-      paste0(year(Sys.Date()), "_NPT_Weir_Chinook_summary_", Sys.Date(), ".csv")
-    },
-    content = function(file) {
-      write.csv(chn_tmp, file, row.names = FALSE)
-    },
-    contentType = "text/csv"
-  )
-  
-  # weir_sum_sth EXPORT
-  output$weirsumsth_export <- downloadHandler(
-    filename = function() {
-      paste0(year(Sys.Date()), "_NPT_Weir_Steelhead_summary_", Sys.Date(), ".csv")
-    },
-    content = function(file) {
-      write.csv(sth_tmp, file, row.names = FALSE)
-    },
-    contentType = "text/csv"
-  )
-  
+
   observeEvent(input$weir_species, {
     
     weir_trp <- weir_list %>%
@@ -582,84 +562,103 @@ server <- function(input, output, session) {
 
     RV$weir_sum <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation'))
     
-    # Natural Weir Catch Plotly
-    p_weir_tmp <- p_weir_df %>%
-      arrange(trapped_date) %>%
-      filter(trap == input$weir_trap,
-             SpeciesRun == input$weir_species)
+    # for weir catch plot
+    tmp_p_weir_df <- p_weir_df %>%
+      filter(SpeciesRun == input$weir_species,
+             trap == input$weir_trap)
     
-    output$p_weircatch_N <- renderPlotly({
-      p_weir_n <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
-                                                       str_detect(origin, 'Natural')),
-                          x = ~monthday,
-                          y = ~n,
-                          type = 'scatter',
-                          mode = 'lines',
-                          legendgroup = ~legrp,
-                          line = list(color = 'gray'),
-                          color = ~yearorigin,
-                          opacity = 0.5) %>%
-        add_lines(data = p_weir_tmp %>% filter(trap_year == year(Sys.Date()), 
-                                               str_detect(origin, 'Natural')),
-                  x = ~monthday,
-                  y = ~n,
-                  type = 'scatter',
-                  mode = 'lines',
-                  legendgroup = ~legrp,
-                  line = list(color = 'black'),
-                  color = ~yearorigin,
-                  opacity = 1) %>%
-        layout(hovermode = 'x',
-               title = list(text = paste(input$weir_trap, 'Current v. Historic Daily Catch; Natural Origin'),
-                            font = plotly_font),
-               yaxis= list(
-                 title = 'Count',
-                 titlefont = plotly_font),
-               xaxis= list(title = 'Month/Day',
-                           titlefont = plotly_font,
-                           tickangle = -45),
-               height = '575') 
-
+    
+    output$weir_year <- renderUI({
+      selectInput(inputId = 'weir_year', label = 'Choose Year:', choices = unique(sort(tmp_p_weir_df$trap_year)), 
+                  selected = max(tmp_p_weir_df$trap_year))
     })
-    # Hatchery Weir Catch Plotly
-    output$p_weircatch_H <- renderPlotly({
-      p_weir_h <- plot_ly(data = p_weir_tmp %>% filter(trap_year != year(Sys.Date()),
-                                                       str_detect(origin, 'Hatchery')),
-                          x = ~monthday,
-                          y = ~n,
-                          type = 'scatter',
-                          mode = 'lines',
-                          legendgroup = ~legrp,
-                          line = list(color = 'gray'),
-                          color = ~yearorigin,
-                          opacity = 0.5) %>%
-        add_lines(data = p_weir_tmp %>% filter(trap_year == year(Sys.Date()), 
-                                               str_detect(origin, 'Hatchery')),
-                  x = ~monthday,
-                  y = ~n,
-                  type = 'scatter',
-                  mode = 'lines',
-                  legendgroup = ~legrp,
-                  line = list(color = 'black'),
-                  color = ~yearorigin, 
-                  opacity = 1) %>%
+    
+    })
+  
+
+    
+    # Weir Catch PLOT
+  observeEvent(input$weir_year, {
+    
+    output$p_weircatch <- renderPlotly({
+      
+      weir_filtered <- p_weir_df %>%
+        filter(SpeciesRun == input$weir_species,
+               trap == input$weir_trap,
+               trap_year == input$weir_year)
+
+      plot_ly(data = weir_filtered,
+              x = ~trapped_date,
+              y = ~DailyCatch,
+              type = 'bar',
+              marker = list(line = list(width=0.8, color = 'rgb(0,0,0)')), # outline of bars
+              legendgroup = ~origin,
+              color = ~origin,
+              colors = viridis_pal(option="D")(length(unique(weir_filtered$origin)))) %>%
         layout(hovermode = 'x',
-               title = list(text = paste('Lostine River Weir', 'Current v. Historic Daily Catch; Hatchery Origin'),
+               barmode = 'stack',
+               # bargap = .3,
+               title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Daily Catch, by Origin'),
                             font = plotly_font),
                yaxis= list(
-                 title = 'Count',
+                 title = 'Daily Catch',
                  titlefont = plotly_font),
-               xaxis= list(title = 'Month/Day',
-                           titlefont = plotly_font,
-                           tickangle = -45),
-               height = '575')
-    })  
-    
+               xaxis= list(title = 'Date',
+                           type = 'date',
+                           tickformat = '%m/%d/%y',
+                           nticks = nrow(weir_filtered)/2,
+                           tickangle = -45,
+                           titlefont = plotly_font
+               ))
+    })
   })
   
-
+  # Weir Proportions Table and Plot
   
-  # Weir Collections Summary Data Table
+  output$weir_props_table <- renderDataTable({
+    
+    weir_props_filtered <- weir_props %>%
+      filter(SpeciesRun == input$weir_species,
+             trap == input$weir_trap,
+             trap_year == input$weir_year) 
+    
+    DT::datatable(weir_props_filtered, options = list(orderClasses = TRUE))
+
+  })
+  
+  output$p_weir_props <- renderPlotly({
+    
+    weir_props_filtered <- weir_props %>%
+      filter(SpeciesRun == input$weir_species,
+             trap == input$weir_trap,
+             trap_year == input$weir_year)
+    
+    plot_ly(data = weir_props_filtered,
+            x = ~Statistic,
+            y = ~n,
+            type = 'bar',
+            marker = list(line = list(width=1, color = 'rgb(0,0,0)')), # outline of bars
+            color = ~Statistic,
+            colors = viridis_pal(option="D")(length(unique(weir_props_filtered$Statistic))),
+            showlegend = FALSE) %>%
+      add_text(text=~n, hoverinfo='none', textposition = 'top', showlegend = FALSE,
+               textfont=list(size=15, color="black")) %>%
+      layout(hovermode = 'x',
+             title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Catch Statistics'),
+                          font = plotly_font),
+             yaxis= list(
+               title = 'Percent of Total (%)',
+               tickformat = "%",
+               range = c(0,1.05),
+               titlefont = plotly_font),
+             xaxis= list(title = '',
+                         tickangle = -45,
+                         titlefont = plotly_font
+             ))
+  })
+  
+  
+  # Weir Disposition Summary Data Table
   output$weir_table <- DT::renderDataTable({
 
     shiny::validate(
@@ -672,10 +671,10 @@ server <- function(input, output, session) {
     DT::datatable(weir_table_data, options = list(orderClasses = TRUE), filter = 'top')
   })
   
-  # Weir Collections Summary EXPORT
+  # Weir Disposition Summary EXPORT
   output$weir_export <- downloadHandler(
     filename = function() {
-      paste0("NPT_Weir_summary_data_", Sys.Date(), ".csv")
+      paste0("NPT_weir_disposition_summary_", Sys.Date(), ".csv")
     },
     content = function(file) {
       write.csv(weir_table_data[input[["weir_table_rows_all"]], ], file, row.names = FALSE)

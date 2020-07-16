@@ -317,20 +317,19 @@ program and its staff serve a key role.")
   tabItem(tabName = 'tab_weir',
           fluidRow(
             box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Chinook', sep = ''),
-                fluidRow(column(12, align = "center", downloadButton("weirsumchn_export", label = "Download Summary (.CSV)"))),
                 div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_chn')))
           ),
           fluidRow(
             box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
-                fluidRow(column(12, align = "center", downloadButton("weirsumsth_export", label = "Download Summary (.CSV)"))),
                 div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_sth')))
           ),
           hr(),
           fluidRow(
             column(12,
                    box(title = 'Weir Collection Summaries', status='info', width= 5,
-                       uiOutput(outputId = 'weir_species'), br(),
-                       uiOutput(outputId = 'weir_trap')
+                       uiOutput(outputId = 'weir_species'), 
+                       uiOutput(outputId = 'weir_trap'),
+                       uiOutput(outputId = 'weir_year')
                    ),
                    box(width = 7, 
                        img(src='jcweir.jpg', width = '100%', height='auto') 
@@ -339,11 +338,16 @@ program and its staff serve a key role.")
           hr(),
 
           fluidRow(
-            box(width = 12, plotlyOutput('p_weircatch_N'), height = '600')
+            box(width = 12, plotlyOutput('p_weircatch'))
           ),
+          hr(),
           fluidRow(
-            box(width = 12, plotlyOutput('p_weircatch_H'), height = '600')
+            box(width = 6,
+                dataTableOutput('weir_props_table')),
+            box(width = 6,
+                plotlyOutput('p_weir_props'))
           ),
+          hr(),
           box(width = 12, 
               title = paste(year(Sys.Date()), 'Weir Disposition Summary'),
               fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
