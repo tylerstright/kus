@@ -752,8 +752,7 @@ server <- function(input, output, session) {
                            title = 'Abundance',
                            titlefont = plotly_font),
                xaxis= list(title = 'Migratory Year',
-                           titlefont = plotly_font)
-               )
+                           titlefont = plotly_font))
     })
     
     # Natural Juvenile Survival - Smolts
