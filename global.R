@@ -65,16 +65,4 @@ startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
 html_code <- status_code(startup_status)
 user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
 
-
-# Custom Query df
-  query_names <- c('-Select Custom Query-', 'Fall Chinook Redd Summary', 'RST Summary', 'Redd Summary', 'SGS Summary')
-
-  query_descriptions <- c('Choose a dataset to see description.', 'Summarized yearly aerial Fall Chinook redd counts per RKM.',
-                          'Combined abundance and survival data summaries.', 'Summarized Redd data based on user-selected grouping variables.',
-                          'Combined redd and carcass data summarized by population.')
-  
-  query_df <- c(NA_character_, 'FCHNsummary', 'RSTcq', 'redd_summary_placeholder', 'SGSsummary')
-
-  custom_query_df <- data.frame(query_names, query_descriptions, query_df)
-
   
