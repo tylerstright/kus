@@ -170,9 +170,6 @@ server <- function(input, output, session) {
              xaxis = list(title= 'Date', titlefont = plotly_font))
   })
   
-  #getPage <- function() { return(includeHTML("./www/kus_map.html")) }
-  #  output$map<-renderUI({getPage()})
-  
   # Production Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_production'){

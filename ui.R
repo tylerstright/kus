@@ -203,7 +203,7 @@ monitoring the results of actions, evaluating their effectiveness, adjusting pla
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
                        fluidRow(
-                         column(4, p('Jason Vogal')),
+                         column(4, p('Jason Vogel')),
                          column(4, p('(208) 843-7145 Ext: 3602')),
                          column(4, p('jasonv@nezperce.org'))
                        ),
@@ -245,7 +245,7 @@ of water. This defines the spatial extent of a watershed.")
                    box(title = NULL, width = 12, status = 'info', 
                        h3("Division Director"),
                        fluidRow(
-                         column(4, p('Emmit Taylor')),
+                         column(4, p('Emmit Taylor Jr.')),
                          column(4, p('(208) 843-7144 Ext: 3544')),
                          column(4, p('emmitt@nezperce.org'))
                        ),
@@ -561,8 +561,8 @@ program and its staff serve a key role.")
             column(3, 
                    h4('Jim Harbeck', style = 'color:white'),
                    h4('Ryan Kinzer', style = 'color:white'),
-                   h4('Bill Arnsburg', style = 'color:white'),
-                   h4('Jason Vogal', style = 'color:white')),
+                   h4('Bill Arnsberg', style = 'color:white'),
+                   h4('Jason Vogel', style = 'color:white')),
             column(3, 
                    h4('(541) 432-2501  Ext: 3771', style = 'color:white'),
                    h4('(208) 634-5290  Ext: 3312', style = 'color:white'),
@@ -588,8 +588,8 @@ program and its staff serve a key role.")
                    h4('Dave Johnson', style = 'color:white'),
                    h4('Joe Oatman', style = 'color:white'),
                    h4('Becky Johnson', style = 'color:white'),
-                   h4('Jason Vogal', style = 'color:white'),
-                   h4('Emmit Taylor', style = 'color:white'),
+                   h4('Jason Vogel', style = 'color:white'),
+                   h4('Emmit Taylor Jr.', style = 'color:white'),
                    h4('Adam Villavicencio', style = 'color:white')),
             column(3, 
                    h4('(208) 843-7320  Ext: 3736', style = 'color:white'),
