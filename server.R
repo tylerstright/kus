@@ -170,9 +170,6 @@ server <- function(input, output, session) {
              xaxis = list(title= 'Date', titlefont = plotly_font))
   })
   
-  #getPage <- function() { return(includeHTML("./www/kus_map.html")) }
-  #  output$map<-renderUI({getPage()})
-  
   # Production Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_production'){
@@ -755,8 +752,7 @@ server <- function(input, output, session) {
                            title = 'Abundance',
                            titlefont = plotly_font),
                xaxis= list(title = 'Migratory Year',
-                           titlefont = plotly_font)
-               )
+                           titlefont = plotly_font))
     })
     
     # Natural Juvenile Survival - Smolts
