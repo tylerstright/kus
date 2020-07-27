@@ -25,27 +25,8 @@ source('./R/queryWindowCnts.R')
 source('./R/cdms_api_keys.R')
 
 # Load Static Data
-load('./data/deploy_time.rda') # update time deployed.
-load('./data/datasets.rda')
-load('./data/SGSRedd.rda') # cleaned with cuyem
-load('./data/SGSCarcass.rda')# cleaned with cuyem
-load('./data/NPTAge.rda')
-load('./data/NPTRST.rda')
-load('./data/NPTJuvSurvival.rda')
-load('./data/NPTSturgeon.rda')
-load('./data/LampreyData.rda')
-load('./data/AdultWeirData.rda')
-load('./data/AdultWeirData_clean.rda') # cleaned with cuyem
-load('./data/NPTweir.rda')
-load('./data/p_weir_df.rda') # plotly weir summary
-load('./data/weir_props.rda') # weir proportions
-load('./data/weir_sum_all.rda')
-load('./data/SGSsummary.rda')
-load('./data/JUVsummary.rda')
-load('./data/AGEsummary.rda')
-load('./data/FCHNsummary.rda')
-load('./data/RSTcq.rda')
-load('./data/users.rda')
+load('./data/kus_data.rda')
+
 
 # Login Credentials
 keys <- cdmsKeys()
