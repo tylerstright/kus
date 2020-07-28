@@ -8,11 +8,9 @@ library(lubridate)
 library(plotly)
 library(shinyjs)
 library(viridis)
-library(markdown)
 library(DT)
-library(kableExtra) # Markdown reports
 
-# GitHub
+# GitHub packages
 library(cdmsR)
 library(cuyem)
 
@@ -26,7 +24,6 @@ source('./R/cdms_api_keys.R')
 
 # Load Static Data
 load('./data/kus_data.rda')
-
 
 # Login Credentials
 keys <- cdmsKeys()

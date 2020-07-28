@@ -8,8 +8,12 @@ author: |
     | Fisheries Research Division
     | Lapwai, ID 83540
 date: '`r format(Sys.time(), "%d %B, %Y")`'
+header-includes:
+  - \usepackage{pdflscape}
+  - \usepackage{booktabs}
+  - \usepackage{float}
 output: pdf_document
-# always_allow_html: true
+always_allow_html: true
 ---
 
 ```{r Rmd Setup, include=FALSE}
