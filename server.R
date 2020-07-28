@@ -1165,13 +1165,12 @@ server <- function(input, output, session) {
   )
   
   # Custom Queries (CUSTOM!) --------------------------------------------------
-  
-  # Dynamic Description for Custom Queries
-  output$query_description <- renderText({
-    # match Query with Description and paste value
-    q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
-    paste0("Description: ", q_description)
-  })
+      # Dynamic Description for Custom Queries
+      output$query_description <- renderText({
+        # match Query with Description and paste value
+        q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
+        paste0("Description: ", q_description)
+      })
 
   # Redd Summary Grouping Variables
   observeEvent(input$custom_query_menu, {

@@ -469,7 +469,7 @@ program and its staff serve a key role.")
                     h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;'),
                     hr(),
                     fluidRow(column(6, 
-                                    selectInput('custom_query_menu', label = NULL, choices = query_names, selected = '-Select Custom Query-'),
+                                    selectInput('custom_query_menu', label = NULL, choices = custom_query_df$query_names, selected = '-Select Custom Query-'),
                                     uiOutput('query_description', style = 'text-align:center;'),
                                     br(),
                                     uiOutput('custom_query_grouping', label = NULL),
