@@ -8,11 +8,14 @@ author: |
     | Fisheries Research Division
     | Lapwai, ID 83540
 date: '`r format(Sys.time(), "%d %B, %Y")`'
+header-includes:
+  - \usepackage{pdflscape}
+  - \usepackage{booktabs}
 output: pdf_document
 always_allow_html: true
 ---
 ```{r Rmd-Setup, include=FALSE}
-options(knitr.kable.NA = '') # removes NA values from kable (applies to all)
+options(knitr.kable.NA = '', knitr.table.format = 'latex') # removes NA values from kable (applies to all)
 # library(cdmsR)
 library(knitr)
 library(kableExtra) 
@@ -23,8 +26,10 @@ library(lubridate)
 source('./R/summariseRST.R')
 
 # Load Static Data
-load('./data/JUVsummary.rda')
-
+# load('./data/JUVsummary.rda')
+if(!exists("JUVsummary")) {
+load('./data/kus_data.rda') 
+  }
 ```
 
 ```{r CDMS-Login, include = FALSE}
@@ -84,7 +89,7 @@ nvh_surv <- ASE_df %>%
 kable(nat_ASE, caption = 'Migratory year 2017 abundance, survival to Lower Granite Dam, and smolt equivalent estimates for natural origin fish interrogated at Rotary Screw Traps maintained by the Nez Perce Tribe Department of Fisheries Resource Management.', booktabs = TRUE) %>%
   kable_styling(latex_options = 'scale_down') %>%
   landscape() %>%
-  add_footnote(label = 'Blank fields indicate missing data.') 
+  add_footnote(label = 'Blank fields indicate missing data.')
 ```
 
 ```{r Table-2:Hatchery-Survivals, echo=FALSE}

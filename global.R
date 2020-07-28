@@ -8,11 +8,9 @@ library(lubridate)
 library(plotly)
 library(shinyjs)
 library(viridis)
-library(markdown)
 library(DT)
-library(kableExtra) # Markdown reports
 
-# GitHub
+# GitHub packages
 library(cdmsR)
 library(cuyem)
 
@@ -25,27 +23,7 @@ source('./R/queryWindowCnts.R')
 source('./R/cdms_api_keys.R')
 
 # Load Static Data
-load('./data/deploy_time.rda') # update time deployed.
-load('./data/datasets.rda')
-load('./data/SGSRedd.rda') # cleaned with cuyem
-load('./data/SGSCarcass.rda')# cleaned with cuyem
-load('./data/NPTAge.rda')
-load('./data/NPTRST.rda')
-load('./data/NPTJuvSurvival.rda')
-load('./data/NPTSturgeon.rda')
-load('./data/LampreyData.rda')
-load('./data/AdultWeirData.rda')
-load('./data/AdultWeirData_clean.rda') # cleaned with cuyem
-load('./data/NPTweir.rda')
-load('./data/p_weir_df.rda') # plotly weir summary
-load('./data/weir_props.rda') # weir proportions
-load('./data/weir_sum_all.rda')
-load('./data/SGSsummary.rda')
-load('./data/JUVsummary.rda')
-load('./data/AGEsummary.rda')
-load('./data/FCHNsummary.rda')
-load('./data/RSTcq.rda')
-load('./data/users.rda')
+load('./data/kus_data.rda')
 
 # Login Credentials
 keys <- cdmsKeys()
@@ -83,17 +61,5 @@ RV <- reactiveValues(sgs_data = NULL,
 startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
 html_code <- status_code(startup_status)
 user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
-
-
-# Custom Query df
-  query_names <- c('-Select Custom Query-', 'Fall Chinook Redd Summary', 'RST Summary', 'Redd Summary', 'SGS Summary')
-
-  query_descriptions <- c('Choose a dataset to see description.', 'Summarized yearly aerial Fall Chinook redd counts per RKM.',
-                          'Combined abundance and survival data summaries.', 'Summarized Redd data based on user-selected grouping variables.',
-                          'Combined redd and carcass data summarized by population.')
-  
-  query_df <- c(NA_character_, 'FCHNsummary', 'RSTcq', 'redd_summary_placeholder', 'SGSsummary')
-
-  custom_query_df <- data.frame(query_names, query_descriptions, query_df)
 
   

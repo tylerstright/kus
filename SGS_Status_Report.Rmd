@@ -8,12 +8,16 @@ author: |
     | Fisheries Research Division
     | Lapwai, ID 83540
 date: '`r format(Sys.time(), "%d %B, %Y")`'
+header-includes:
+  - \usepackage{pdflscape}
+  - \usepackage{booktabs}
+  - \usepackage{float}
 output: pdf_document
-# always_allow_html: true
+always_allow_html: true
 ---
 
 ```{r Rmd Setup, include=FALSE}
-options(knitr.kable.NA = '') # removes NA values from kable (applies to all)
+options(knitr.kable.NA = '', knitr.table.format = 'latex') # removes NA values from kable (applies to all)
 # library(cdmsR)
 library(knitr)
 library(kableExtra) 
@@ -23,8 +27,11 @@ library(lubridate)
 # source('./R/cdms_api_keys.R')
 
 # Load Static data
-load('./data/SGSRedd.rda')
-load('./data/SGSCarcass.rda')
+# load('./data/SGSRedd.rda')
+# load('./data/SGSCarcass.rda')
+if(!exists("SGSRedd") & !exists("SGSCarcass")) {
+load('./data/kus_data.rda') 
+  }
 ```
 
 ```{r CDMS Login, include = FALSE}

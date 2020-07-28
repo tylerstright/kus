@@ -96,7 +96,7 @@ server <- function(input, output, session) {
     
     n <- window_df %>%
       filter(species == 'Chinook') %>%
-      summarise(n = sum(Count)) %>%
+      summarise(n = sum(Count, na.rm = TRUE)) %>%
       pull(n)
     
     valueBox(
@@ -111,7 +111,7 @@ server <- function(input, output, session) {
 
     n <- window_df %>%
       filter(species == 'Steelhead') %>%
-      summarise(n = sum(Count)) %>%
+      summarise(n = sum(Count, na.rm = TRUE)) %>%
       pull(n)
     
     valueBox(
@@ -126,7 +126,7 @@ server <- function(input, output, session) {
 
     n <- window_df %>%
       filter(species == 'Coho') %>%
-      summarise(n = sum(Count)) %>%
+      summarise(n = sum(Count, na.rm = TRUE)) %>%
       pull(n)
     
     valueBox(
@@ -140,8 +140,8 @@ server <- function(input, output, session) {
   output$windowSockeye <- renderValueBox({
 
     n <- window_df %>%
-      filter(species == 'green') %>%
-      summarise(n = sum(Count)) %>%
+      filter(species == 'Sockeye') %>%
+      summarise(n = sum(Count, na.rm = TRUE)) %>%
       pull(n)
     
     valueBox(
@@ -1165,13 +1165,12 @@ server <- function(input, output, session) {
   )
   
   # Custom Queries (CUSTOM!) --------------------------------------------------
-  
-  # Dynamic Description for Custom Queries
-  output$query_description <- renderText({
-    # match Query with Description and paste value
-    q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
-    paste0("Description: ", q_description)
-  })
+      # Dynamic Description for Custom Queries
+      output$query_description <- renderText({
+        # match Query with Description and paste value
+        q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
+        paste0("Description: ", q_description)
+      })
 
   # Redd Summary Grouping Variables
   observeEvent(input$custom_query_menu, {
