@@ -96,7 +96,7 @@ server <- function(input, output, session) {
     
     n <- window_df %>%
       filter(species == 'Chinook') %>%
-      summarise(n = sum(Count)) %>%
+      summarise(n = sum(Count, na.rm = TRUE)) %>%
       pull(n)
     
     valueBox(
@@ -111,7 +111,7 @@ server <- function(input, output, session) {
 
     n <- window_df %>%
       filter(species == 'Steelhead') %>%
-      summarise(n = sum(Count)) %>%
+      summarise(n = sum(Count, na.rm = TRUE)) %>%
       pull(n)
     
     valueBox(
@@ -126,7 +126,7 @@ server <- function(input, output, session) {
 
     n <- window_df %>%
       filter(species == 'Coho') %>%
-      summarise(n = sum(Count)) %>%
+      summarise(n = sum(Count, na.rm = TRUE)) %>%
       pull(n)
     
     valueBox(
@@ -140,8 +140,8 @@ server <- function(input, output, session) {
   output$windowSockeye <- renderValueBox({
 
     n <- window_df %>%
-      filter(species == 'green') %>%
-      summarise(n = sum(Count)) %>%
+      filter(species == 'Sockeye') %>%
+      summarise(n = sum(Count, na.rm = TRUE)) %>%
       pull(n)
     
     valueBox(
