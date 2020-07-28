@@ -15,7 +15,7 @@ output: pdf_document
 always_allow_html: true
 ---
 ```{r Rmd-Setup, include=FALSE}
-options(knitr.kable.NA = '') # removes NA values from kable (applies to all)
+options(knitr.kable.NA = '', knitr.table.format = 'latex') # removes NA values from kable (applies to all)
 # library(cdmsR)
 library(knitr)
 library(kableExtra) 
@@ -26,8 +26,10 @@ library(lubridate)
 source('./R/summariseRST.R')
 
 # Load Static Data
-load('./data/JUVsummary.rda')
-
+# load('./data/JUVsummary.rda')
+if(!exists("JUVsummary")) {
+load('./data/kus_data.rda') 
+  }
 ```
 
 ```{r CDMS-Login, include = FALSE}
