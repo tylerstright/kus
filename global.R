@@ -16,9 +16,8 @@ library(cuyem)
 
 # Source
 source('./R/sum_FCHN_redds.R') # custom query
-source('./R/summariseSGS.R') # custom query
 source('./R/summariseRST.R') # custom query
-source('./R/summariseAGE.R') # summary page function
+# source('./R/summariseAGE.R') # summary page function - off until we fix dataset
 source('./R/queryWindowCnts.R')
 source('./R/cdms_api_keys.R')
 
