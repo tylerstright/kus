@@ -30,8 +30,8 @@ sidebar <- dashboardSidebar(
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
                menuSubItem('Weir Collections', tabName = 'tab_weir'),
                # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
-               menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
-               menuSubItem('Age Sampling', tabName = 'tab_age')
+               menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')#,
+               # menuSubItem('Age Sampling', tabName = 'tab_age')
                ),
       menuItem('Documents', tabName = 'tab_documents', icon = icon("file")),
       menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
@@ -308,7 +308,7 @@ program and its staff serve a key role.")
           ),
           box(width = 12, 
               title = 'Tabular Summary Data',
-              fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
+              # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table'))
           )
   ),
@@ -350,7 +350,7 @@ program and its staff serve a key role.")
           hr(),
           box(width = 12, 
               title = paste(year(Sys.Date()), 'Weir Disposition Summary'),
-              fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
+              # fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_table'))
           )
   ),
@@ -387,37 +387,37 @@ program and its staff serve a key role.")
           ),
 
           box(width = 12, title = 'Tabular Summary Data',
-              fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
+              # fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
               div(style = 'overflow-x: scroll;', DT::dataTableOutput('juv_table'))
               )
           ),
           
   # Age Sampling Tab ----
-      tabItem(tabName = 'tab_age',
-              fluidRow(
-                column(12,
-                box(title = 'Age Data Summary', status='info', width= 5,
-                    uiOutput(outputId = 'age_species'),
-                    uiOutput(outputId = 'age_pop_name')
-                    ),
-                box(width = 7, 
-                    img(src='scale.png', width = '100%', height='auto') 
-                    ))
-                ),
-              hr(),
-              fluidRow(
-                column(6,
-                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_total')))),
-                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_ocean')))), 
-                       box(width= 12, fluidRow(column(12, plotlyOutput('n_age_stream'))))
-                       ),
-                column(6,
-                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_total')))),
-                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_ocean')))),
-                       box(width= 12, fluidRow(column(12, plotlyOutput('h_age_stream'))))
-                       )
-                       )
-              ),
+      # tabItem(tabName = 'tab_age',
+      #         fluidRow(
+      #           column(12,
+      #           box(title = 'Age Data Summary', status='info', width= 5,
+      #               uiOutput(outputId = 'age_species'),
+      #               uiOutput(outputId = 'age_pop_name')
+      #               ),
+      #           box(width = 7, 
+      #               img(src='scale.png', width = '100%', height='auto') 
+      #               ))
+      #           ),
+      #         hr(),
+      #         fluidRow(
+      #           column(6,
+      #                  box(width= 12, fluidRow(column(12, plotlyOutput('n_age_total')))),
+      #                  box(width= 12, fluidRow(column(12, plotlyOutput('n_age_ocean')))), 
+      #                  box(width= 12, fluidRow(column(12, plotlyOutput('n_age_stream'))))
+      #                  ),
+      #           column(6,
+      #                  box(width= 12, fluidRow(column(12, plotlyOutput('h_age_total')))),
+      #                  box(width= 12, fluidRow(column(12, plotlyOutput('h_age_ocean')))),
+      #                  box(width= 12, fluidRow(column(12, plotlyOutput('h_age_stream'))))
+      #                  )
+      #                  )
+      #         ),
   
   # Documents Tab ----
   tabItem(tabName = 'tab_documents',
