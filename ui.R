@@ -24,7 +24,7 @@ sidebar <- dashboardSidebar(
                menuSubItem('Production', tabName = 'tab_production'),
                menuSubItem('Research', tabName = 'tab_research'),
                menuSubItem('Watershed', tabName = 'tab_watershed'),
-               menuSubItem('Conservation Enforcement', tabName = 'tab_conservation')
+               menuSubItem('Conservation Enforcement', tabName = 'tab_enforcement')
                ),
       menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
@@ -109,7 +109,7 @@ body <- dashboardBody(
                        p("Administration Description Here.")
                    )),
             column(6, offset = 3,
-                   box(title = NULL, width = 12, status = 'info', 
+                   box(title = NULL, width = 12, status = 'info',
                        h3("Division Director"),
                        fluidRow(
                          column(4, p('Dave Johnson')),
@@ -123,9 +123,28 @@ body <- dashboardBody(
                          column(4, p('michelw@nezperce.org'))
                        )
                    ))
-          )
+          )#,
+          # box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
+          #     uiOutput(outputId = 'administration_select'),
+          #     h3("Description"),
+          #     uiOutput('administration_description'), br(),
+          #     h3('Goal Statement'),
+          #     uiOutput('administration_goal'), br(),
+          #     h3('Objectives'),
+          #     uiOutput('administration_objectives'), br(),
+          #     h3('Project Leader'),
+          #     uiOutput('administration_PL'), br(),
+          #     h3('Staff'),
+          #     uiOutput('administration_staff'), br(),
+          #     h3('Contracting Agencies'),
+          #     uiOutput('administration_contractors'), br(),
+          #     h3('Project Number(s)'),
+          #     uiOutput('administration_projectnumber'), br(),
+          #     h3('Basin/Sub-basin'),
+          #     uiOutput('administration_basin')
+          # )
   ),
-  
+
   # Harvest Tab ----
   tabItem('tab_harvest', br(),
           h2('Harvest Information', style = 'text-align:center; color:white; font-family: Arial White;'),
@@ -133,11 +152,11 @@ body <- dashboardBody(
             column(10, offset = 1,
                    box(status = 'info', width=12, background = 'aqua',
                        p("The Nez Perce Tribe intends to increase and expand the level of harvest or fishing areas for salmon and steelhead at all Nez Perce usual and accustomed areas in the
-Snake Basin in a way that balances conservation needs of the fish with the right to take fish. This can be achieved through a biologically-sound harvest management philosophy 
+Snake Basin in a way that balances conservation needs of the fish with the right to take fish. This can be achieved through a biologically-sound harvest management philosophy
 and harvest rate schedules keyed to the status and trends in abundance and productivity of the fishery resource. ")
                    )),
             column(6, offset = 3,
-                   box(title = NULL, width = 12, status = 'info', 
+                   box(title = NULL, width = 12, status = 'info',
                        h3("Division Director"),
                        fluidRow(
                          column(4, p('Joe Oatman')),
@@ -145,9 +164,28 @@ and harvest rate schedules keyed to the status and trends in abundance and produ
                          column(4, p('joeo@nezperce.org'))
                        )
                    ))
+          ),
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
+              uiOutput(outputId = 'harvest_select'),
+              h3("Description"),
+              uiOutput('harvest_description'), br(),
+              h3('Goal Statement'),
+              uiOutput('harvest_goal'), br(),
+              h3('Objectives'),
+              uiOutput('harvest_objectives'), br(),
+              h3('Project Leader'),
+              uiOutput('harvest_PL'), br(),
+              h3('Staff'),
+              uiOutput('harvest_staff'), br(),
+              h3('Contracting Agencies'),
+              uiOutput('harvest_contractors'), br(),
+              h3('Project Number(s)'),
+              uiOutput('harvest_projectnumber'), br(),
+              h3('Basin/Sub-basin'),
+              uiOutput('harvest_basin')
           )
   ),
-  
+
   # Production Tab ----
   tabItem('tab_production', br(),
           h2('Production Information', style = 'text-align:center; color:white; font-family: Arial White;'),
@@ -160,7 +198,7 @@ hatcheries represent a promise to those who have always depended on the salmon f
 were diminished as a result of human development of salmon habitats. As long as the dams are here, the mitigation responsibility remains.")
                    )),
             column(6, offset = 3,
-                   box(title = NULL, width = 12, status = 'info', 
+                   box(title = NULL, width = 12, status = 'info',
                        h3("Division Director"),
                        fluidRow(
                          column(4, p('Becky Johnson')),
@@ -175,19 +213,27 @@ were diminished as a result of human development of salmon habitats. As long as 
                        )
                    ))
           ),
-          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
               uiOutput(outputId = 'production_select'),
               h3("Description"),
               uiOutput('production_description'), br(),
+              h3('Goal Statement'),
+              uiOutput('production_goal'), br(),
               h3('Objectives'),
               uiOutput('production_objectives'), br(),
               h3('Project Leader'),
               uiOutput('production_PL'), br(),
               h3('Staff'),
-              uiOutput('production_staff')
+              uiOutput('production_staff'), br(),
+              h3('Contracting Agencies'),
+              uiOutput('production_contractors'), br(),
+              h3('Project Number(s)'),
+              uiOutput('production_projectnumber'), br(),
+              h3('Basin/Sub-basin'),
+              uiOutput('production_basin')
           )
   ),
-  
+
   # Research Tab ----
   tabItem('tab_research', br(),
           h2('Research Information', style = 'text-align:center; color:white; font-family: Arial White;'),
@@ -200,7 +246,7 @@ were diminished as a result of human development of salmon habitats. As long as 
 monitoring the results of actions, evaluating their effectiveness, adjusting plans if necessary, and applying new or modified strategies from knowledge gained.")
                    )),
             column(6, offset = 3,
-                   box(title = NULL, width = 12, status = 'info', 
+                   box(title = NULL, width = 12, status = 'info',
                        h3("Division Director"),
                        fluidRow(
                          column(4, p('Jason Vogel')),
@@ -215,19 +261,27 @@ monitoring the results of actions, evaluating their effectiveness, adjusting pla
                        )
                    ))
           ),
-          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info', 
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
               uiOutput(outputId = 'research_select'),
               h3("Description"),
               uiOutput('research_description'), br(),
+              h3('Goal Statement'),
+              uiOutput('research_goal'), br(),
               h3('Objectives'),
               uiOutput('research_objectives'), br(),
               h3('Project Leader'),
               uiOutput('research_PL'), br(),
               h3('Staff'),
-              uiOutput('research_staff')
+              uiOutput('research_staff'), br(),
+              h3('Contracting Agencies'),
+              uiOutput('research_contractors'), br(),
+              h3('Project Number(s)'),
+              uiOutput('research_projectnumber'), br(),
+              h3('Basin/Sub-basin'),
+              uiOutput('research_basin')
           )
   ),
-  
+
   # Watershed Tab ----
   tabItem('tab_watershed', br(),
           h2('Watershed Information', style = 'text-align:center; color:white; font-family: Arial White;'),
@@ -237,12 +291,12 @@ monitoring the results of actions, evaluating their effectiveness, adjusting pla
                        p("Native fish within the Nez Perce Country depend
 on healthy habitats, healthy watersheds, and healthy ecosystems. At the most fundamental level, both resident and anadromous species require: clean, cold and oxygen-rich flows; adequate stream depths
 to avoid predation and allow seasonal movement. The health of entire watersheds, from ridge-top to ridge-top, is important for fish survival because
-watersheds contain an interconnected web of life. Water that falls as rain or snow flows down slope 
+watersheds contain an interconnected web of life. Water that falls as rain or snow flows down slope
 across the landscape and through the ground before it eventually enters a common stream or other body
 of water. This defines the spatial extent of a watershed.")
                    )),
             column(6, offset = 3,
-                   box(title = NULL, width = 12, status = 'info', 
+                   box(title = NULL, width = 12, status = 'info',
                        h3("Division Director"),
                        fluidRow(
                          column(4, p('Emmit Taylor Jr.')),
@@ -256,11 +310,30 @@ of water. This defines the spatial extent of a watershed.")
                          column(4, p('ermiew@nezperce.org'))
                        )
                    ))
+          ),
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
+              uiOutput(outputId = 'watershed_select'),
+              h3("Description"),
+              uiOutput('watershed_description'), br(),
+              h3('Goal Statement'),
+              uiOutput('watershed_goal'), br(),
+              h3('Objectives'),
+              uiOutput('watershed_objectives'), br(),
+              h3('Project Leader'),
+              uiOutput('watershed_PL'), br(),
+              h3('Staff'),
+              uiOutput('watershed_staff'), br(),
+              h3('Contracting Agencies'),
+              uiOutput('watershed_contractors'), br(),
+              h3('Project Number(s)'),
+              uiOutput('watershed_projectnumber'), br(),
+              h3('Basin/Sub-basin'),
+              uiOutput('watershed_basin')
           )
   ),
   
   # Conservation Enforcement Tab ----
-  tabItem('tab_conservation', br(),
+  tabItem(tabName = 'tab_enforcement', br(),
           h2('Conservation Enforcement Information', style = 'text-align:center; color:white; font-family: Arial White;'),
           fluidRow(
             column(10, offset = 1,
@@ -282,6 +355,25 @@ program and its staff serve a key role.")
                          column(4, p('adamv@nezperce.org'))
                        )
                    ))
+          ),
+          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
+              uiOutput(outputId = 'enforcement_select'),
+              h3("Description"),
+              uiOutput('enforcement_description'), br(),
+              h3('Goal Statement'),
+              uiOutput('enforcement_goal'), br(),
+              h3('Objectives'),
+              uiOutput('enforcement_objectives'), br(),
+              h3('Project Leader'),
+              uiOutput('enforcement_PL'), br(),
+              h3('Staff'),
+              uiOutput('enforcement_staff'), br(),
+              h3('Contracting Agencies'),
+              uiOutput('enforcement_contractors'), br(),
+              h3('Project Number(s)'),
+              uiOutput('enforcement_projectnumber'), br(),
+              h3('Basin/Sub-basin'),
+              uiOutput('enforcement_basin')
           )
   ),
   

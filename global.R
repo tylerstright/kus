@@ -60,5 +60,3 @@ RV <- reactiveValues(sgs_data = NULL,
 startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)
 html_code <- status_code(startup_status)
 user_info <- httr::content(startup_status, "parsed", encoding = "UTF-8")[[3]]
-
-  
