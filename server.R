@@ -185,17 +185,11 @@ server <- function(input, output, session) {
   })
   
   # Access below document for list of MetadataPropertyId values.
-  # load(file = './data/metadataproperties.rda')  # for list of metadataproperties (#s)
   observeEvent(input$production_select, {
     ProjId <- projects_production[match(input$production_select, projects_production$Name), 1] # get ProjectId
     proj_info <- getProject(ProjId) # get project summary page info (metadata)
     proj_meta <- proj_info[[18]]
-    
-    # proj_locations <- proj_info[[4]] %>%
-    #   distinct(Name, .keep_all = TRUE) %>%
-    #   filter(LocationTypeId %in% c(1123, 1124)) %>% # Weirs and RST
-    #   select(Name, Latitude, Longitude)
-    
+
     output$production_description <- renderText({
       proj_info[[13]]
     })
@@ -205,8 +199,7 @@ server <- function(input, output, session) {
     })
     
     output$production_PL <- renderText({
-      # proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-      paste(proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], " (",
+      paste(proj_info[["Owner"]][["Fullname"]], " (",
             proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
     })
     
@@ -231,16 +224,10 @@ server <- function(input, output, session) {
   })
 
   # Access below document for list of MetadataPropertyId values.
-    # load(file = './data/metadataproperties.rda')  # for list of metadataproperties (#s)
   observeEvent(input$research_select, {
     ProjId <- projects_research[match(input$research_select, projects_research$Name), 1] # get ProjectId
     proj_info <- getProject(ProjId) # get project summary page info (metadata)
     proj_meta <- proj_info[[18]]
-    
-    # proj_locations <- proj_info[[4]] %>%
-    #   distinct(Name, .keep_all = TRUE) %>%
-    #   filter(LocationTypeId %in% c(1123, 1124)) %>% # Weirs and RST
-    #   select(Name, Latitude, Longitude)
     
     output$research_description <- renderText({
       proj_info[[13]]
@@ -251,13 +238,8 @@ server <- function(input, output, session) {
     })
     
     output$research_PL <- renderText({
-      # proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-      paste(proj_meta[match(43, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], " (",
+      paste(proj_info[["Owner"]][["Fullname"]], " (",
             proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
-    })
-    
-    output$research_staff <- renderText({
-      proj_meta[match(4, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
     })
     
   })
