@@ -506,6 +506,7 @@ server <- function(input, output, session) {
     if(input$tabs == 'tab_documents'){
       # build files_table
       files <- getAllFiles(cdms_host) %>%
+        filter(SharingLevel == 3) %>% # 3='Share to web' // 1=CDMS Only
         select(ProjectId, Fullname, Name, Title, Description, Link, FileType)
 
       projects <- getProjects(cdms_host) %>%
