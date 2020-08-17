@@ -571,7 +571,8 @@ server <- function(input, output, session) {
                    ),
             column(2, offset = 5,
                    # downloadButton("document_export", label = "Download Document", width = '100%')
-                   actionButton('document_access', label = 'Access Selected Document', width = "100%")
+                   # actionButton('document_access', label = 'Access Selected Document', width = "100%")
+                   uiOutput("document_link")
                    )
           ), hr()
         )
@@ -606,13 +607,17 @@ server <- function(input, output, session) {
       docName <<- cdms_doc_data$FileName[docRecord]
       docURL <<- paste0('http:',docLink)
       docPath <<- paste0('../',docName)
+      
+      output$document_link <- renderUI({
+        tags$li(tags$a("Access Selected Document", href = docURL, target = '_blank'), class = 'dropdown')
+      })
     }
   })
 
   # Document Access
-  observeEvent(input$document_access, {
-   browseURL(docURL)
-  })
+  # observeEvent(input$document_access, {
+  #  a(docURL, target ='_blank')
+  # })
   
   # Document Download
   # output$document_export <- downloadHandler(
@@ -620,7 +625,7 @@ server <- function(input, output, session) {
   #         paste0(docName)  # FileName as it exists on the server.
   #       },
   #       content = function(file) {
-  #         
+  # 
   #         GET(docURL, write_disk(file))
   #      },
   #       contentType = NULL
