@@ -570,7 +570,8 @@ server <- function(input, output, session) {
                                          choices = c('', unique(documents_df$Title)), selected = '')
                    ),
             column(2, offset = 5,
-                   downloadButton("document_export", label = "Download Document", width = '100%')
+                   # downloadButton("document_export", label = "Download Document", width = '100%')
+                   actionButton('document_access', label = 'Access Selected Document', width = "100%")
                    )
           ), hr()
         )
@@ -608,17 +609,22 @@ server <- function(input, output, session) {
     }
   })
 
+  # Document Access
+  observeEvent(input$document_access, {
+   browseURL(docURL)
+  })
+  
   # Document Download
-  output$document_export <- downloadHandler(
-        filename = function() {
-          paste0(docName)  # FileName as it exists on the server.
-        },
-        content = function(file) {
-          
-          GET(docURL, write_disk(file))
-       },
-        contentType = NULL
-  )
+  # output$document_export <- downloadHandler(
+  #       filename = function() {
+  #         paste0(docName)  # FileName as it exists on the server.
+  #       },
+  #       content = function(file) {
+  #         
+  #         GET(docURL, write_disk(file))
+  #      },
+  #       contentType = NULL
+  # )
 
   # Spawning Ground Surveys Summaries Tab ----
   observeEvent(input$tabs, {
