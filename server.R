@@ -188,6 +188,11 @@ server <- function(input, output, session) {
   #   ProjId <- projects_administration[match(input$administration_select, projects_administration$Name), 1] # get ProjectId
   #   proj_info <- getProject(ProjId) # get project summary page info
   #   proj_meta <- proj_info[["Metadata"]]
+  # proj_staff <- proj_info[["Editors"]] 
+  # if(length(proj_staff)==0){NULL}else{
+  #   proj_staff <- proj_staff %>%
+  #     mutate(Description = paste0("(", str_trim(Description), ")"),
+  #            staff = paste(Fullname, Description))}
   #   
   #   output$administration_description <- renderText({
   #     paste(proj_info[["Description"]])
@@ -208,7 +213,7 @@ server <- function(input, output, session) {
   #   })
   #   
   #   output$administration_staff <- renderText({
-  #     paste(as.character(proj_info[["Editors"]][["Fullname"]]), sep = ' ', collapse = ', ')
+  #     if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
   #   })
   #   
   #   output$administration_contractors <- renderText({
@@ -243,6 +248,11 @@ server <- function(input, output, session) {
     ProjId <- projects_harvest[match(input$harvest_select, projects_harvest$Name), 1] # get ProjectId
     proj_info <- getProject(ProjId) # get project summary page info
     proj_meta <- proj_info[["Metadata"]]
+    proj_staff <- proj_info[["Editors"]] 
+    if(length(proj_staff)==0){NULL}else{
+      proj_staff <- proj_staff %>%
+        mutate(Description = paste0("(", str_trim(Description), ")"),
+               staff = paste(Fullname, Description))}
     
     output$harvest_description <- renderText({
       paste(proj_info[["Description"]])
@@ -263,7 +273,7 @@ server <- function(input, output, session) {
     })
     
     output$harvest_staff <- renderText({
-      paste(as.character(proj_info[["Editors"]][["Fullname"]]), sep = ' ', collapse = ', ')
+      if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
     })
     
     output$harvest_contractors <- renderText({
@@ -298,6 +308,11 @@ server <- function(input, output, session) {
     ProjId <- projects_production[match(input$production_select, projects_production$Name), 1] # get ProjectId
     proj_info <- getProject(ProjId) # get project summary page info
     proj_meta <- proj_info[["Metadata"]]
+    proj_staff <- proj_info[["Editors"]] 
+    if(length(proj_staff)==0){NULL}else{
+      proj_staff <- proj_staff %>%
+        mutate(Description = paste0("(", str_trim(Description), ")"),
+               staff = paste(Fullname, Description))}
 
     output$production_description <- renderText({
       paste(proj_info[["Description"]])
@@ -318,7 +333,7 @@ server <- function(input, output, session) {
     })
     
     output$production_staff <- renderText({
-      paste(as.character(proj_info[["Editors"]][["Fullname"]]), sep = ' ', collapse = ', ')
+      if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
     })
     
     output$production_contractors <- renderText({
@@ -354,6 +369,11 @@ server <- function(input, output, session) {
     ProjId <- projects_research[match(input$research_select, projects_research$Name), 1] # get ProjectId
     proj_info <- getProject(ProjId) # get project summary page info
     proj_meta <- proj_info[["Metadata"]]
+    proj_staff <- proj_info[["Editors"]] 
+    if(length(proj_staff)==0){NULL}else{
+      proj_staff <- proj_staff %>%
+        mutate(Description = paste0("(", str_trim(Description), ")"),
+               staff = paste(Fullname, Description))}
     
     output$research_description <- renderText({
       paste(proj_info[["Description"]])
@@ -374,7 +394,7 @@ server <- function(input, output, session) {
     })
     
     output$research_staff <- renderText({
-      paste(as.character(proj_info[["Editors"]][["Fullname"]]), sep = ' ', collapse = ', ')
+      if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
     })
     
     output$research_contractors <- renderText({
@@ -409,6 +429,11 @@ server <- function(input, output, session) {
     ProjId <- projects_watershed[match(input$watershed_select, projects_watershed$Name), 1] # get ProjectId
     proj_info <- getProject(ProjId) # get project summary page info
     proj_meta <- proj_info[["Metadata"]]
+    proj_staff <- proj_info[["Editors"]] 
+    if(length(proj_staff)==0){NULL}else{
+      proj_staff <- proj_staff %>%
+        mutate(Description = paste0("(", str_trim(Description), ")"),
+               staff = paste(Fullname, Description))}
     
     output$watershed_description <- renderText({
       paste(proj_info[["Description"]])
@@ -429,7 +454,7 @@ server <- function(input, output, session) {
     })
     
     output$watershed_staff <- renderText({
-      paste(as.character(proj_info[["Editors"]][["Fullname"]]), sep = ' ', collapse = ', ')
+      if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
     })
     
     output$watershed_contractors <- renderText({
@@ -464,6 +489,11 @@ server <- function(input, output, session) {
     ProjId <- projects_enforcement[match(input$enforcement_select, projects_enforcement$Name), 1] # get ProjectId
     proj_info <- getProject(ProjId) # get project summary page info
     proj_meta <- proj_info[["Metadata"]]
+    proj_staff <- proj_info[["Editors"]] 
+    if(length(proj_staff)==0){NULL}else{
+      proj_staff <- proj_staff %>%
+        mutate(Description = paste0("(", str_trim(Description), ")"),
+               staff = paste(Fullname, Description))}
     
     output$enforcement_description <- renderText({
       paste(proj_info[["Description"]])
@@ -484,7 +514,8 @@ server <- function(input, output, session) {
     })
     
     output$enforcement_staff <- renderText({
-      paste(as.character(proj_info[["Editors"]][["Fullname"]]), sep = ' ', collapse = ', ')
+      if(length(proj_staff)==0){paste('NA')}else{
+      paste(proj_staff$staff, sep = ' ', collapse= ', ')}
     })
     
     output$enforcement_contractors <- renderText({
@@ -506,6 +537,7 @@ server <- function(input, output, session) {
     if(input$tabs == 'tab_documents'){
       # build files_table
       files <- getAllFiles(cdms_host) %>%
+        filter(SharingLevel == 3) %>% # 3='Share to web' // 1=CDMS Only
         select(ProjectId, Fullname, Name, Title, Description, Link, FileType)
 
       projects <- getProjects(cdms_host) %>%
@@ -571,8 +603,13 @@ server <- function(input, output, session) {
       docType <<- cdms_doc_data$FileType[docRecord]
       docLink <<- cdms_doc_data$Link[docRecord]
       docName <<- cdms_doc_data$FileName[docRecord]
-      docURL <<- paste0('http:',docLink)
+      docURL <<- paste0('https:',docLink)
+      docURL <<- gsub(' ', '%20', docURL)
       docPath <<- paste0('../',docName)
+      
+      output$document_link <- renderUI({
+        tags$li(tags$a("Access Selected Document", href = docURL, target = '_blank', auth = cookie), class = 'dropdown')
+      })
     }
   })
 
@@ -582,7 +619,7 @@ server <- function(input, output, session) {
           paste0(docName)  # FileName as it exists on the server.
         },
         content = function(file) {
-          
+
           GET(docURL, write_disk(file))
        },
         contentType = NULL

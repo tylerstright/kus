@@ -69,7 +69,8 @@ body <- dashboardBody(
             ),
             column(2,
                    tags$a(
-                       href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf',
+                       href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf', 
+                       target = '_blank',
                        tags$img(src='DFRM Management Plan Cover.jpg',
                                 title = 'Click to view the DFRM Management Plan',
                                 width = 'auto',
