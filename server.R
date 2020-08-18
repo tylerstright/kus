@@ -570,9 +570,7 @@ server <- function(input, output, session) {
                                          choices = c('', unique(documents_df$Title)), selected = '')
                    ),
             column(2, offset = 5,
-                   # downloadButton("document_export", label = "Download Document", width = '100%')
-                   # actionButton('document_access', label = 'Access Selected Document', width = "100%")
-                   uiOutput("document_link")
+                   downloadButton("document_export", label = "Download Document", width = '100%')
                    )
           ), hr()
         )
@@ -605,31 +603,27 @@ server <- function(input, output, session) {
       docType <<- cdms_doc_data$FileType[docRecord]
       docLink <<- cdms_doc_data$Link[docRecord]
       docName <<- cdms_doc_data$FileName[docRecord]
-      docURL <<- paste0('http:',docLink)
+      docURL <<- paste0('https:',docLink)
+      docURL <<- gsub(' ', '%20', docURL)
       docPath <<- paste0('../',docName)
       
       output$document_link <- renderUI({
-        tags$li(tags$a("Access Selected Document", href = docURL, target = '_blank'), class = 'dropdown')
+        tags$li(tags$a("Access Selected Document", href = docURL, target = '_blank', auth = cookie), class = 'dropdown')
       })
     }
   })
 
-  # Document Access
-  # observeEvent(input$document_access, {
-  #  a(docURL, target ='_blank')
-  # })
-  
   # Document Download
-  # output$document_export <- downloadHandler(
-  #       filename = function() {
-  #         paste0(docName)  # FileName as it exists on the server.
-  #       },
-  #       content = function(file) {
-  # 
-  #         GET(docURL, write_disk(file))
-  #      },
-  #       contentType = NULL
-  # )
+  output$document_export <- downloadHandler(
+        filename = function() {
+          paste0(docName)  # FileName as it exists on the server.
+        },
+        content = function(file) {
+
+          GET(docURL, write_disk(file))
+       },
+        contentType = NULL
+  )
 
   # Spawning Ground Surveys Summaries Tab ----
   observeEvent(input$tabs, {
