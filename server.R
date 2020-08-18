@@ -173,365 +173,64 @@ server <- function(input, output, session) {
   # Administration Tab ----
   # observeEvent(input$tabs, {
   #   if(input$tabs == 'tab_administration'){
-  #     projects_administration <<- getProjects(cdms_host) %>%
-  #       filter(SubProgram == 'Administration')  # filter out unwanted projects
-  #   } 
-  #   
-  #   output$administration_select <- renderUI({
-  #     selectInput('administration_select', 'Select Project', choices = sort(unique(projects_administration$Name)),
-  #                 selected = 'Snake Basin Steelhead Assessments')
-  #   })
-  #   
-  # })
+  #     projects_list <<- getProjects(cdms_host) %>%
+  #       filter(SubProgram == 'Administration')
   # 
-  # observeEvent(input$administration_select, {
-  #   ProjId <- projects_administration[match(input$administration_select, projects_administration$Name), 1] # get ProjectId
-  #   proj_info <- getProject(ProjId) # get project summary page info
-  #   proj_meta <- proj_info[["Metadata"]]
-  # proj_staff <- proj_info[["Editors"]] 
-  # if(length(proj_staff)==0){NULL}else{
-  #   proj_staff <- proj_staff %>%
-  #     mutate(Description = paste0("(", str_trim(Description), ")"),
-  #            staff = paste(Fullname, Description))}
-  #   
-  #   output$administration_description <- renderText({
-  #     paste(proj_info[["Description"]])
-  #   })
-  #   
-  #   output$administration_goal <- renderText({
-  #     proj_meta[match(9, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-  #   })
-  #   
-  #   output$administration_objectives <- renderText({
-  #     proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-  #   })
-  #   
-  #   output$administration_PL <- renderText({
-  #     paste(proj_info[["Owner"]][["Fullname"]], " (",
-  #           proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], "; ",
-  #           proj_meta[match(44, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
-  #   })
-  #   
-  #   output$administration_staff <- renderText({
-  #     if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
-  #   })
-  #   
-  #   output$administration_contractors <- renderText({
-  #     paste(gsub(',', ', ', gsub("[^a-zA-Z0-9 ,]", "", proj_meta[match(48, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])))
-  #   })
-  #   
-  #   output$administration_projectnumber <- renderText({
-  #     paste(proj_meta[match(47, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])
-  #   })
-  #   
-  #   output$administration_basin <- renderText({
-  #     paste(gsub("[^a-zA-Z0-9 ,]", "",proj_meta[match(7, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]))
-  #   })
-  #   
+  #     divInfoServer(id='administration', projects_list)
+  #   } 
   # })
   
   # Harvest Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_harvest'){
-      projects_harvest <<- getProjects(cdms_host) %>%
-        filter(SubProgram == 'Harvest')  # filter out unwanted projects
+      projects_list <<- getProjects(cdms_host) %>%
+        filter(SubProgram == 'Harvest')
+      
+      divInfoServer(id='harvest', projects_list)
     } 
-    
-    output$harvest_select <- renderUI({
-      selectInput('harvest_select', 'Select Project', choices = sort(unique(projects_harvest$Name)),
-                  selected = 'Snake Basin Steelhead Assessments')
-    })
-    
-  })
-  
-  observeEvent(input$harvest_select, {
-    ProjId <- projects_harvest[match(input$harvest_select, projects_harvest$Name), 1] # get ProjectId
-    proj_info <- getProject(ProjId) # get project summary page info
-    proj_meta <- proj_info[["Metadata"]]
-    proj_staff <- proj_info[["Editors"]] 
-    if(length(proj_staff)==0){NULL}else{
-      proj_staff <- proj_staff %>%
-        mutate(Description = paste0("(", str_trim(Description), ")"),
-               staff = paste(Fullname, Description))}
-    
-    output$harvest_description <- renderText({
-      paste(proj_info[["Description"]])
-    })
-    
-    output$harvest_goal <- renderText({
-      proj_meta[match(9, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$harvest_objectives <- renderText({
-      proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$harvest_PL <- renderText({
-      paste(proj_info[["Owner"]][["Fullname"]], " (",
-            proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], "; ",
-            proj_meta[match(44, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
-    })
-    
-    output$harvest_staff <- renderText({
-      if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
-    })
-    
-    output$harvest_contractors <- renderText({
-      paste(gsub(',', ', ', gsub("[^a-zA-Z0-9 ,]", "", proj_meta[match(48, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])))
-    })
-    
-    output$harvest_projectnumber <- renderText({
-      paste(proj_meta[match(47, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])
-    })
-    
-    output$harvest_basin <- renderText({
-      paste(gsub("[^a-zA-Z0-9 ,]", "",proj_meta[match(7, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]))
-    })
-    
   })
   
   # Production Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_production'){
-      projects_production <<- getProjects(cdms_host) %>%
-        filter(SubProgram == 'Production')  # filter out unwanted projects ??
+      projects_list <<- getProjects(cdms_host) %>%
+        filter(SubProgram == 'Production')
+      
+      divInfoServer(id='production', projects_list)
     } 
-    
-    output$production_select <- renderUI({
-      selectInput('production_select', 'Select Project', choices = sort(unique(projects_production$Name)),
-                  selected = 'Snake Basin Steelhead Assessments')
-    })
-    
   })
-  
-  observeEvent(input$production_select, {
-    ProjId <- projects_production[match(input$production_select, projects_production$Name), 1] # get ProjectId
-    proj_info <- getProject(ProjId) # get project summary page info
-    proj_meta <- proj_info[["Metadata"]]
-    proj_staff <- proj_info[["Editors"]] 
-    if(length(proj_staff)==0){NULL}else{
-      proj_staff <- proj_staff %>%
-        mutate(Description = paste0("(", str_trim(Description), ")"),
-               staff = paste(Fullname, Description))}
 
-    output$production_description <- renderText({
-      paste(proj_info[["Description"]])
-    })
-    
-    output$production_goal <- renderText({
-      proj_meta[match(9, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$production_objectives <- renderText({
-      proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$production_PL <- renderText({
-      paste(proj_info[["Owner"]][["Fullname"]], " (",
-            proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], "; ",
-            proj_meta[match(44, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
-    })
-    
-    output$production_staff <- renderText({
-      if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
-    })
-    
-    output$production_contractors <- renderText({
-      paste(gsub(',', ', ', gsub("[^a-zA-Z0-9 ,]", "", proj_meta[match(48, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])))
-    })
-    
-    output$production_projectnumber <- renderText({
-      paste(proj_meta[match(47, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])
-    })
-    
-    output$production_basin <- renderText({
-      paste(gsub("[^a-zA-Z0-9 ,]", "",proj_meta[match(7, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]))
-    })
-    
-  })
-  
   # Research Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_research'){
-      projects_research <<- getProjects(cdms_host) %>%
+      projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Research',
-               !Id %in% c(11057, 11068, 11071))  # filter out unwanted projects
+               !Id %in% c(11057, 11068, 11071))
+      
+      divInfoServer(id='research', projects_list)
     } 
-    
-    output$research_select <- renderUI({
-      selectInput('research_select', 'Select Project', choices = sort(unique(projects_research$Name)),
-                  selected = 'Snake Basin Steelhead Assessments')
-    })
-
   })
 
-  observeEvent(input$research_select, {
-    ProjId <- projects_research[match(input$research_select, projects_research$Name), 1] # get ProjectId
-    proj_info <- getProject(ProjId) # get project summary page info
-    proj_meta <- proj_info[["Metadata"]]
-    proj_staff <- proj_info[["Editors"]] 
-    if(length(proj_staff)==0){NULL}else{
-      proj_staff <- proj_staff %>%
-        mutate(Description = paste0("(", str_trim(Description), ")"),
-               staff = paste(Fullname, Description))}
-    
-    output$research_description <- renderText({
-      paste(proj_info[["Description"]])
-    })
-    
-    output$research_goal <- renderText({
-      proj_meta[match(9, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$research_objectives <- renderText({
-      proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$research_PL <- renderText({
-      paste(proj_info[["Owner"]][["Fullname"]], " (",
-            proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], "; ",
-            proj_meta[match(44, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
-    })
-    
-    output$research_staff <- renderText({
-      if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
-    })
-    
-    output$research_contractors <- renderText({
-      paste(gsub(',', ', ', gsub("[^a-zA-Z0-9 ,]", "", proj_meta[match(48, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])))
-    })
-    
-    output$research_projectnumber <- renderText({
-      paste(proj_meta[match(47, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])
-    })
-    
-    output$research_basin <- renderText({
-      paste(gsub("[^a-zA-Z0-9 ,]", "",proj_meta[match(7, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]))
-    })
-    
-  })
-  
   # Watershed Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_watershed'){
-      projects_watershed <<- getProjects(cdms_host) %>%
-        filter(SubProgram == 'Watershed')  # filter out unwanted projects
+      projects_list <<- getProjects(cdms_host) %>%
+        filter(SubProgram == 'Watershed')
+      
+      divInfoServer(id='watershed', projects_list)
     } 
-    
-    output$watershed_select <- renderUI({
-      selectInput('watershed_select', 'Select Project', choices = sort(unique(projects_watershed$Name)),
-                  selected = 'Snake Basin Steelhead Assessments')
-    })
-    
-  })
-  
-  observeEvent(input$watershed_select, {
-    ProjId <- projects_watershed[match(input$watershed_select, projects_watershed$Name), 1] # get ProjectId
-    proj_info <- getProject(ProjId) # get project summary page info
-    proj_meta <- proj_info[["Metadata"]]
-    proj_staff <- proj_info[["Editors"]] 
-    if(length(proj_staff)==0){NULL}else{
-      proj_staff <- proj_staff %>%
-        mutate(Description = paste0("(", str_trim(Description), ")"),
-               staff = paste(Fullname, Description))}
-    
-    output$watershed_description <- renderText({
-      paste(proj_info[["Description"]])
-    })
-    
-    output$watershed_goal <- renderText({
-      proj_meta[match(9, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$watershed_objectives <- renderText({
-      proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$watershed_PL <- renderText({
-      paste(proj_info[["Owner"]][["Fullname"]], " (",
-            proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], "; ",
-            proj_meta[match(44, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
-    })
-    
-    output$watershed_staff <- renderText({
-      if(length(proj_staff)==0){paste('NA')}else{       paste(proj_staff$staff, sep = ' ', collapse= ', ')}
-    })
-    
-    output$watershed_contractors <- renderText({
-      paste(gsub(',', ', ', gsub("[^a-zA-Z0-9 ,]", "", proj_meta[match(48, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])))
-    })
-    
-    output$watershed_projectnumber <- renderText({
-      paste(proj_meta[match(47, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])
-    })
-    
-    output$watershed_basin <- renderText({
-      paste(gsub("[^a-zA-Z0-9 ,]", "",proj_meta[match(7, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]))
-    })
-    
   })
   
   # (Conservation) Enforcement Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_enforcement'){
-      projects_enforcement <<- getProjects(cdms_host) %>%
-        filter(SubProgram == 'Enforcement')  # filter out unwanted projects
+      projects_list <<- getProjects(cdms_host) %>%
+        filter(SubProgram == 'Enforcement') 
+      
+      divInfoServer(id='enforcement', projects_list)
     } 
-    
-    output$enforcement_select <- renderUI({
-      selectInput('enforcement_select', 'Select Project', choices = sort(unique(projects_enforcement$Name)),
-                  selected = 'Snake Basin Steelhead Assessments')
-    })
-    
   })
-  
-  observeEvent(input$enforcement_select, {
-    ProjId <- projects_enforcement[match(input$enforcement_select, projects_enforcement$Name), 1] # get ProjectId
-    proj_info <- getProject(ProjId) # get project summary page info
-    proj_meta <- proj_info[["Metadata"]]
-    proj_staff <- proj_info[["Editors"]] 
-    if(length(proj_staff)==0){NULL}else{
-      proj_staff <- proj_staff %>%
-        mutate(Description = paste0("(", str_trim(Description), ")"),
-               staff = paste(Fullname, Description))}
-    
-    output$enforcement_description <- renderText({
-      paste(proj_info[["Description"]])
-    })
-    
-    output$enforcement_goal <- renderText({
-      proj_meta[match(9, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$enforcement_objectives <- renderText({
-      proj_meta[match(20, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]
-    })
-    
-    output$enforcement_PL <- renderText({
-      paste(proj_info[["Owner"]][["Fullname"]], " (",
-            proj_meta[match(45, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], "; ",
-            proj_meta[match(44, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')], ")", sep = '')
-    })
-    
-    output$enforcement_staff <- renderText({
-      if(length(proj_staff)==0){paste('NA')}else{
-      paste(proj_staff$staff, sep = ' ', collapse= ', ')}
-    })
-    
-    output$enforcement_contractors <- renderText({
-      paste(gsub(',', ', ', gsub("[^a-zA-Z0-9 ,]", "", proj_meta[match(48, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])))
-    })
-    
-    output$enforcement_projectnumber <- renderText({
-      paste(proj_meta[match(47, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')])
-    })
-    
-    output$enforcement_basin <- renderText({
-      paste(gsub("[^a-zA-Z0-9 ,]", "",proj_meta[match(7, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]))
-    })
-    
-  })
-  
+
   # Documents Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_documents'){
