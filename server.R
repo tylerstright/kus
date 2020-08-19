@@ -1149,7 +1149,7 @@ server <- function(input, output, session) {
 
   # Redd Summary Grouping Variables
   observeEvent(input$custom_query_menu, {
-    if(!input$custom_query_menu %in% c('Redd Summary', 'SGS Summary')) {
+    if(input$custom_query_menu != 'SGS Summary') {
       output$custom_query_grouping <- renderUI({ NULL }) # dont show grouping inputs if not on Redd/SGS summary
       } else {
         output$custom_query_grouping <- renderUI({
@@ -1165,14 +1165,13 @@ server <- function(input, output, session) {
   observeEvent(input$custom_submit, {
     if(input$custom_query_menu == '-Select Custom Query-') { NULL
       } else {
-        if(input$custom_query_menu %in% c('Redd Summary', 'SGS Summary')) {
+        if(input$custom_query_menu == 'SGS Summary') {
           tmp_grouping <- input$custom_grouping
           
           if(is.null(tmp_grouping)) {
-            if(input$custom_query_menu == 'Redd Summary') {RV$cq_data <<- sum_Redds(SGSRedd)} else {RV$cq_data <<-get_SGSests(SGSRedd, SGSCarcass)}
+            RV$cq_data <<-get_SGSests(SGSRedd, SGSCarcass)
           } else {
-            if(input$custom_query_menu == 'Redd Summary') {RV$cq_data <<- sum_Redds(SGSRedd, !!!rlang::parse_exprs(tmp_grouping))} 
-            else {RV$cq_data <<-get_SGSests(SGSRedd, SGSCarcass, !!!rlang::parse_exprs(tmp_grouping))}
+            RV$cq_data <<-get_SGSests(SGSRedd, SGSCarcass, !!!rlang::parse_exprs(tmp_grouping))
           }
         } else {
       RV$cq_data <<- get(x=custom_query_df[match(input$custom_query_menu, custom_query_df$query_names), 3])
