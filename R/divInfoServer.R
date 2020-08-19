@@ -59,6 +59,13 @@ divInfoServer <- function(id, projects_list_) {
         })
         
         # Picture
+        proj_pics <- getAllFiles() %>%
+          filter(FileType == 'Image', 
+                 SharingLevel == 3,
+                 ProjectId == ProjId)
+        pic_url <- paste('https:',gsub(' ', '%20', proj_pics[1,"Link"]),sep = '') # "https://npt-cdms.nezperce.org/services/uploads/P/11052/67cm%20female%204yr%20old%20(4).JPG"
+        pic_url <<- gsub('\\\\', '/', pic_url)
+        
         output$picture <- renderUI({
           tags$img(src=pic_url) # CSS will control photo sizes.
         })

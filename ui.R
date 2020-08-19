@@ -73,7 +73,7 @@ body <- dashboardBody(
                        target = '_blank',
                        tags$img(src='DFRM Management Plan Cover.jpg',
                                 title = 'Click to view the DFRM Management Plan',
-                                style = 'width:80% !important; padding-bottom:20px')
+                                style = 'width:80% !important; padding-bottom:10%')
                      )
             )
             
