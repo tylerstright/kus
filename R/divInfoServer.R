@@ -58,6 +58,11 @@ divInfoServer <- function(id, projects_list_) {
           paste(gsub("[^a-zA-Z0-9 ,]", "",proj_meta[match(7, proj_meta$MetadataPropertyId), which(colnames(proj_meta)=='Values')]))
         })
         
+        # Picture
+        output$picture <- renderUI({
+          tags$img(src=pic_url) # CSS will control photo sizes.
+        })
+        
       })
       
       return()

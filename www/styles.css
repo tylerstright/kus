@@ -159,3 +159,6 @@ p {font-family: "Arial Narrow";
   height:400px !important;
   width:400px !important;
 }
+
+img {max-width: 100%; mox-height: 100%; width: 100%; height: auto;}
+/* images will expand to width of container */

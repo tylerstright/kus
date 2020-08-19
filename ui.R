@@ -2,7 +2,7 @@
 
 # DashboardHeader ----
 header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),  # Title shown on browser tab located in dashboardPage()
-                          tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, height = '40px'), 
+                          tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, style = 'height:40px !important; width:auto !important;'), 
                                   class = 'dropdown', style = 'position: fixed; left:40px; padding-top:6px'),
                           tags$li(tags$a("PITPH Web App", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank', class='navlinks'),
                                   class = 'dropdown'),
@@ -73,8 +73,7 @@ body <- dashboardBody(
                        target = '_blank',
                        tags$img(src='DFRM Management Plan Cover.jpg',
                                 title = 'Click to view the DFRM Management Plan',
-                                width = 'auto',
-                                height = '180')
+                                style = 'width:80% !important; padding-bottom:20px')
                      )
             )
             
