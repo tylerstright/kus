@@ -2,7 +2,7 @@
 
 # DashboardHeader ----
 header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),  # Title shown on browser tab located in dashboardPage()
-                          tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, height = '40px'), 
+                          tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, style = 'height:40px !important; width:auto !important;'), 
                                   class = 'dropdown', style = 'position: fixed; left:40px; padding-top:6px'),
                           tags$li(tags$a("PITPH Web App", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank', class='navlinks'),
                                   class = 'dropdown'),
@@ -73,8 +73,7 @@ body <- dashboardBody(
                        target = '_blank',
                        tags$img(src='DFRM Management Plan Cover.jpg',
                                 title = 'Click to view the DFRM Management Plan',
-                                width = 'auto',
-                                height = '180')
+                                style = 'width:80% !important; padding-bottom:10%')
                      )
             )
             
@@ -124,26 +123,8 @@ body <- dashboardBody(
                          column(4, p('michelw@nezperce.org'))
                        )
                    ))
-          )#,
-          # box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
-          #     uiOutput(outputId = 'administration_select'),
-          #     h3("Description"),
-          #     uiOutput('administration_description'), br(),
-          #     h3('Goal Statement'),
-          #     uiOutput('administration_goal'), br(),
-          #     h3('Objectives'),
-          #     uiOutput('administration_objectives'), br(),
-          #     h3('Project Leader'),
-          #     uiOutput('administration_PL'), br(),
-          #     h3('Staff'),
-          #     uiOutput('administration_staff'), br(),
-          #     h3('Contracting Agencies'),
-          #     uiOutput('administration_contractors'), br(),
-          #     h3('Project Number(s)'),
-          #     uiOutput('administration_projectnumber'), br(),
-          #     h3('Basin/Sub-basin'),
-          #     uiOutput('administration_basin')
-          # )
+          ),
+          divInfoUI(id='administration')
   ),
 
   # Harvest Tab ----
@@ -166,25 +147,7 @@ and harvest rate schedules keyed to the status and trends in abundance and produ
                        )
                    ))
           ),
-          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
-              uiOutput(outputId = 'harvest_select'),
-              h3("Description"),
-              uiOutput('harvest_description'), br(),
-              h3('Goal Statement'),
-              uiOutput('harvest_goal'), br(),
-              h3('Objectives'),
-              uiOutput('harvest_objectives'), br(),
-              h3('Project Leader'),
-              uiOutput('harvest_PL'), br(),
-              h3('Staff'),
-              uiOutput('harvest_staff'), br(),
-              h3('Contracting Agencies'),
-              uiOutput('harvest_contractors'), br(),
-              h3('Project Number(s)'),
-              uiOutput('harvest_projectnumber'), br(),
-              h3('Basin/Sub-basin'),
-              uiOutput('harvest_basin')
-          )
+          divInfoUI(id='harvest')
   ),
 
   # Production Tab ----
@@ -214,25 +177,7 @@ were diminished as a result of human development of salmon habitats. As long as 
                        )
                    ))
           ),
-          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
-              uiOutput(outputId = 'production_select'),
-              h3("Description"),
-              uiOutput('production_description'), br(),
-              h3('Goal Statement'),
-              uiOutput('production_goal'), br(),
-              h3('Objectives'),
-              uiOutput('production_objectives'), br(),
-              h3('Project Leader'),
-              uiOutput('production_PL'), br(),
-              h3('Staff'),
-              uiOutput('production_staff'), br(),
-              h3('Contracting Agencies'),
-              uiOutput('production_contractors'), br(),
-              h3('Project Number(s)'),
-              uiOutput('production_projectnumber'), br(),
-              h3('Basin/Sub-basin'),
-              uiOutput('production_basin')
-          )
+          divInfoUI(id='production')
   ),
 
   # Research Tab ----
@@ -262,25 +207,7 @@ monitoring the results of actions, evaluating their effectiveness, adjusting pla
                        )
                    ))
           ),
-          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
-              uiOutput(outputId = 'research_select'),
-              h3("Description"),
-              uiOutput('research_description'), br(),
-              h3('Goal Statement'),
-              uiOutput('research_goal'), br(),
-              h3('Objectives'),
-              uiOutput('research_objectives'), br(),
-              h3('Project Leader'),
-              uiOutput('research_PL'), br(),
-              h3('Staff'),
-              uiOutput('research_staff'), br(),
-              h3('Contracting Agencies'),
-              uiOutput('research_contractors'), br(),
-              h3('Project Number(s)'),
-              uiOutput('research_projectnumber'), br(),
-              h3('Basin/Sub-basin'),
-              uiOutput('research_basin')
-          )
+          divInfoUI(id='research')
   ),
 
   # Watershed Tab ----
@@ -312,25 +239,7 @@ of water. This defines the spatial extent of a watershed.")
                        )
                    ))
           ),
-          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
-              uiOutput(outputId = 'watershed_select'),
-              h3("Description"),
-              uiOutput('watershed_description'), br(),
-              h3('Goal Statement'),
-              uiOutput('watershed_goal'), br(),
-              h3('Objectives'),
-              uiOutput('watershed_objectives'), br(),
-              h3('Project Leader'),
-              uiOutput('watershed_PL'), br(),
-              h3('Staff'),
-              uiOutput('watershed_staff'), br(),
-              h3('Contracting Agencies'),
-              uiOutput('watershed_contractors'), br(),
-              h3('Project Number(s)'),
-              uiOutput('watershed_projectnumber'), br(),
-              h3('Basin/Sub-basin'),
-              uiOutput('watershed_basin')
-          )
+          divInfoUI(id='watershed')
   ),
   
   # Conservation Enforcement Tab ----
@@ -357,25 +266,7 @@ program and its staff serve a key role.")
                        )
                    ))
           ),
-          box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
-              uiOutput(outputId = 'enforcement_select'),
-              h3("Description"),
-              uiOutput('enforcement_description'), br(),
-              h3('Goal Statement'),
-              uiOutput('enforcement_goal'), br(),
-              h3('Objectives'),
-              uiOutput('enforcement_objectives'), br(),
-              h3('Project Leader'),
-              uiOutput('enforcement_PL'), br(),
-              h3('Staff'),
-              uiOutput('enforcement_staff'), br(),
-              h3('Contracting Agencies'),
-              uiOutput('enforcement_contractors'), br(),
-              h3('Project Number(s)'),
-              uiOutput('enforcement_projectnumber'), br(),
-              h3('Basin/Sub-basin'),
-              uiOutput('enforcement_basin')
-          )
+          divInfoUI(id='enforcement')
   ),
   
   # Spawning Ground Survey Summaries Tab ----

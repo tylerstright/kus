@@ -5,16 +5,6 @@ p = creates a TAG
 #ID = creates an ID
 */
 
-/*
-#sgs_spinner {height:30px;}
-#juv_spinner {height:30px;}
-#age_spinner {height:30px;}
-#datasets_spinner {height:30px;}
-#query_spinner {height:30px;}
-#reports_spinner {height:30px;}
-*/
-
-
 /* .box-info {
   background-color:green;    /* changes the color behind titles (.box-title)
 } 
@@ -159,3 +149,6 @@ p {font-family: "Arial Narrow";
   height:400px !important;
   width:400px !important;
 }
+
+img {max-width: 100%; width: 100%; height: auto;}
+/* images will expand to width of container */

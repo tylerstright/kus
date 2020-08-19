@@ -14,6 +14,10 @@ library(DT)
 library(cdmsR)
 library(cuyem)
 
+# Modules
+source('./R/divInfoUI.R')
+source('./R/divInfoServer.R')
+
 # Source
 source('./R/sum_FCHN_redds.R') # custom query
 source('./R/summariseRST.R') # custom query
