@@ -110,18 +110,8 @@ body <- dashboardBody(
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info',
-                       h3("Division Director"),
-                       fluidRow(
-                         column(4, p('Dave Johnson')),
-                         column(4, p('(208) 843-7320 Ext: 3736')),
-                         column(4, p('davej@nezperce.org'))
-                       ),
-                       h3("Administrative Specialist"),
-                       fluidRow(
-                         column(4, p('Michelle Wilson')),
-                         column(4, p('(208) 843-7320 Ext: 3763')),
-                         column(4, p('michelw@nezperce.org'))
-                       )
+                       employeeInfoUI('administration_director'),
+                       employeeInfoUI('administration_assistant')
                    ))
           ),
           divInfoUI(id='administration')
@@ -139,12 +129,7 @@ and harvest rate schedules keyed to the status and trends in abundance and produ
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info',
-                       h3("Division Director"),
-                       fluidRow(
-                         column(4, p('Joe Oatman')),
-                         column(4, p('(208) 843-7320 Ext: 3730')),
-                         column(4, p('joeo@nezperce.org'))
-                       )
+                       employeeInfoUI('harvest_director')
                    ))
           ),
           divInfoUI(id='harvest')
@@ -163,18 +148,8 @@ were diminished as a result of human development of salmon habitats. As long as 
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info',
-                       h3("Division Director"),
-                       fluidRow(
-                         column(4, p('Becky Johnson')),
-                         column(4, p('(208) 843-7320 Ext: 4629')),
-                         column(4, p('beckyj@nezperce.org'))
-                       ),
-                       h3("Administrative Specialist"),
-                       fluidRow(
-                         column(4, p('Tish Whitman')),
-                         column(4, p('(208) 843-7320 Ext: 4634')),
-                         column(4, p('tishw@nezperce.org'))
-                       )
+                       employeeInfoUI('production_director'),
+                       employeeInfoUI('production_assistant')
                    ))
           ),
           divInfoUI(id='production')
@@ -193,18 +168,8 @@ monitoring the results of actions, evaluating their effectiveness, adjusting pla
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info',
-                       h3("Division Director"),
-                       fluidRow(
-                         column(4, p('Jason Vogel')),
-                         column(4, p('(208) 843-7145 Ext: 3602')),
-                         column(4, p('jasonv@nezperce.org'))
-                       ),
-                       h3("Administrative Specialist"),
-                       fluidRow(
-                         column(4, p('Paulette Smith')),
-                         column(4, p('(208) 843-7145 Ext: 3556')),
-                         column(4, p('paulettes@nezperce.org'))
-                       )
+                       employeeInfoUI('research_director'),
+                       employeeInfoUI('research_assistant')
                    ))
           ),
           divInfoUI(id='research')
@@ -225,18 +190,8 @@ of water. This defines the spatial extent of a watershed.")
                    )),
             column(6, offset = 3,
                    box(title = NULL, width = 12, status = 'info',
-                       h3("Division Director"),
-                       fluidRow(
-                         column(4, p('Emmit Taylor Jr.')),
-                         column(4, p('(208) 843-7144 Ext: 3544')),
-                         column(4, p('emmitt@nezperce.org'))
-                       ),
-                       h3("Administrative Specialist"),
-                       fluidRow(
-                         column(4, p('Ermie Whitman')),
-                         column(4, p('(208) 843-7144 Ext: 3525')),
-                         column(4, p('ermiew@nezperce.org'))
-                       )
+                       employeeInfoUI('watershed_director'),
+                       employeeInfoUI('watershed_assistant')
                    ))
           ),
           divInfoUI(id='watershed')
@@ -257,13 +212,8 @@ of resource protection, but also for the conducting of its activities as a sover
 program and its staff serve a key role.")
                    )),
             column(6, offset = 3,
-                   box(title = NULL, width = 12, status = 'info', 
-                       h3("Division Director"),
-                       fluidRow(
-                         column(4, p('Adam Villavicencio')),
-                         column(4, p('(208) 843-7143 Ext: 3528')),
-                         column(4, p('adamv@nezperce.org'))
-                       )
+                   box(title = NULL, width = 12, status = 'info',
+                       employeeInfoUI('enforcement_director'),
                    ))
           ),
           divInfoUI(id='enforcement')

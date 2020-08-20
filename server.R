@@ -171,14 +171,16 @@ server <- function(input, output, session) {
   })
   
   # Administration Tab ----
-  # observeEvent(input$tabs, {
-  #   if(input$tabs == 'tab_administration'){
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_administration'){
   #     projects_list <<- getProjects(cdms_host) %>%
   #       filter(SubProgram == 'Administration')
-  # 
+  #     
+            employeeInfoServer('administration_director', 'David Johnson')
+            employeeInfoServer('administration_assistant', 'Michelle Wilson')
   #     divInfoServer(id='administration', projects_list)
-  #   } 
-  # })
+    }
+  })
   
   # Harvest Tab ----
   observeEvent(input$tabs, {
@@ -186,6 +188,7 @@ server <- function(input, output, session) {
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Harvest')
       
+      employeeInfoServer('harvest_director', 'Joseph Oatman')
       divInfoServer(id='harvest', projects_list)
     } 
   })
@@ -196,6 +199,8 @@ server <- function(input, output, session) {
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Production')
       
+      employeeInfoServer('production_director', 'Rebecca Johnson')
+      employeeInfoServer('production_assistant', 'Letitia Whitman')
       divInfoServer(id='production', projects_list)
     } 
   })
@@ -207,6 +212,8 @@ server <- function(input, output, session) {
         filter(SubProgram == 'Research',
                !Id %in% c(11057, 11068, 11071))
       
+      employeeInfoServer('research_director', 'Jason Vogel')
+      employeeInfoServer('research_assistant', 'Paulette Smith')
       divInfoServer(id='research', projects_list)
     } 
   })
@@ -217,6 +224,8 @@ server <- function(input, output, session) {
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Watershed')
       
+      employeeInfoServer('watershed_director', 'Emmit Taylor, Jr.')
+      employeeInfoServer('watershed_assistant', 'Ermie Whitman')
       divInfoServer(id='watershed', projects_list)
     } 
   })
@@ -227,6 +236,7 @@ server <- function(input, output, session) {
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Enforcement') 
       
+      employeeInfoServer('enforcement_director', 'Adam Villavicencio')
       divInfoServer(id='enforcement', projects_list)
     } 
   })
