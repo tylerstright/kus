@@ -358,7 +358,7 @@ program and its staff serve a key role.")
             fluidRow(
               box(width = 12, status = "info",
                   h2('CDMS Document Access', style = 'text-align:center;'),
-                  uiOutput(outputId='documents_info'),
+                  uiOutput(outputId='documentsUI'),
                   DT::dataTableOutput('documents_table')
               ) 
             )
