@@ -252,7 +252,7 @@ server <- function(input, output, session) {
       projects <- getProjects(cdms_host) %>%
         select(Id, Project = Name)
 
-      documents_df <- left_join(files, projects, by = c('ProjectId'='Id')) %>%
+      documents_df <<- left_join(files, projects, by = c('ProjectId'='Id')) %>%
         select(Project, Author=Fullname, Title, FileName=Name, Description, Link, FileType)
 
       # UI
@@ -279,15 +279,16 @@ server <- function(input, output, session) {
 
   # Selected File Info
   observeEvent(input$documents_table_rows_selected, {
+    if(is.null(input$documents_table_rows_selected)) {NULL} else {
     docURL <- documents_df[[input$documents_table_rows_selected, "Link"]]
     docURL <- paste0('https:', docURL)
     docURL <- gsub('\\\\', '/', docURL)
     docURL <<- gsub(' ', '%20', docURL)
-    
-    docName <<- documents_df$FileName[input$documents_table_rows_selected]
-    
-  })
 
+    docName <<- documents_df$FileName[input$documents_table_rows_selected]
+    }
+  })
+    
   # Document Download
   output$document_export <- downloadHandler(
         filename = function() {
