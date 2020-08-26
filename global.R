@@ -19,6 +19,8 @@ source('./R/divInfoUI.R')
 source('./R/divInfoServer.R')
 source('./R/employeeInfoUI.R')
 source('./R/employeeInfoServer.R')
+source('./R/contactInfoUI.R')
+source('./R/contactInfoServer.R')
 
 # Source
 source('./R/sum_FCHN_redds.R') # custom query
