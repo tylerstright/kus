@@ -1368,10 +1368,35 @@ server <- function(input, output, session) {
   )
   
   # Contact Information Tab -
-    # CDMS user info
-  output$cdms_users <- DT::renderDataTable({
-    DT::datatable(users, options = list(orderClasses = TRUE), filter = 'top')  
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_contacts') {
+      # Field Office Contacts
+      contactInfoServer('JFO', 'James Harbeck', "Joseph")
+      contactInfoServer('MFO', 'Ryan Kinzer', "McCall")
+      contactInfoServer('OFO', 'Bill Arnsberg', "Orofino")
+      contactInfoServer('SWO', 'Jason Vogel', "Sweetwater")
+      # Division Contacts
+      contactInfoServer('Administration', 'David Johnson', 'Administration')
+      contactInfoServer('Harvest', 'Joseph Oatman', 'Harvest')
+      contactInfoServer('Production', 'Rebecca Johnson', 'Production')
+      contactInfoServer('Research', 'Jason Vogel', 'Research')
+      contactInfoServer('Conservation Enforcement', 'Adam Villavicencio', 'Conservation Enforcement')
+      # Data Management Contacts
+      contactInfoServer('DM1', 'Clark Watry')
+      contactInfoServer('DM2', 'Ryan Kinzer')
+      contactInfoServer('DM3', 'Samantha Smith')
+      contactInfoServer('DM4', 'Tyler Stright')
+      # Kus Web App Contacts
+      contactInfoServer('Kus1', 'Tyler Stright', 'Kus Web App Developer')
+      
+      # CDMS user info
+      output$cdms_users <- DT::renderDataTable({
+        DT::datatable(users, options = list(orderClasses = TRUE), filter = 'top')  
+      }) 
+    }
   })
+  
+
   
   
 } # close Server
