@@ -985,7 +985,7 @@ server <- function(input, output, session) {
 
       RV$query_data <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
       
-      # field selector
+      # CDMS (raw) Datasets UI
       output$raw_UI <- renderUI({
         list(
           box(width = 12, 
