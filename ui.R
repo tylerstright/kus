@@ -367,33 +367,13 @@ program and its staff serve a key role.")
     # Restricted Data Access Tab ----
     # CDMS Datasets ----
     tabItem(tabName = 'tab_cdms',
-            
             box(width = 12, 
-                fluidRow(column(6, uiOutput("raw_dataset_menu"),
-                                fluidRow(
-                                  column(8, offset = 2, actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'))
-                                ),
-                                br(),
-                                selectInput(inputId = 'q_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
-                                sliderInput(inputId= 'q_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1),
-                                helpText(HTML('<em>* Year is "Spawn Year" for adult datasets, "Migratory Year" for juvenile datasets, and "Collection Year" for Age data.</em>'), style = 'text-align:center;')
-                ),
-                column(6, 
-                       selectInput(inputId= 'q_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
-                       selectInput(inputId= 'q_pop_name', label= 'Choose Population:', choices= NULL, selected = NULL, multiple = TRUE),
-                       selectInput(inputId= 'q_stream', label= 'Choose Stream:', choices= NULL, selected = NULL, multiple = TRUE),
-                       br(),
-                       fluidRow(
-                         column(8, offset = 2, actionButton('clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
-                       )
-                )
-                ),
-                hr(),
-                fluidRow(column(12, align = "center", 
-                                uiOutput('selected_cdms'), hr(),
-                                downloadButton("raw_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
-            )
+                fluidRow(column(6, offset = 3,
+                                uiOutput("raw_dataset_menu"),
+                                actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'),
+                )), br()
+            ),
+            uiOutput('raw_UI')
     ),
     # Custom Queries ----
     tabItem(tabName = 'tab_custom',
@@ -402,29 +382,19 @@ program and its staff serve a key role.")
                              summaries.', style = 'text-align: center;'),
                 h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;'),
                 hr(),
-                fluidRow(column(6, 
-                                selectInput('custom_query_menu', label = NULL, choices = custom_query_df$query_names, selected = '-Select Custom Query-'),
-                                uiOutput('query_description', style = 'text-align:center;'),
-                                br(),
-                                uiOutput('custom_query_grouping', label = NULL),
-                                uiOutput('groupingtext', label ='GRPTXT'),
-                                br(),
-                                fluidRow(
-                                  column(8, offset=2, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'))
-                                )
-                ),
-                column(6, 
-                       selectInput(inputId = 'cq_fields', label = NULL, choices = NULL, selectize = TRUE, multiple = TRUE),
-                       helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
+                fluidRow(
+                  column(6, offset = 3,
+                         selectInput('custom_query_menu', label = NULL, choices = custom_query_df$query_names, selected = '-Select Custom Query-'),
+                         uiOutput('query_description', style = 'text-align:center;'),
+                         br(),
+                         uiOutput('custom_query_grouping', label = NULL),
+                         uiOutput('groupingtext', label ='GRPTXT'),
+                         br(),
+                         actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%')
+                  )
                 )
-                )  
             ),
-            box(width = 12, 
-                fluidRow(column(12, align = "center", 
-                                uiOutput('selected_custom'),
-                                downloadButton("custom_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
-            )
+            uiOutput('custom_UI')
     ),
     # FINS Data ----
     tabItem(tabName = 'tab_fins',

@@ -968,29 +968,9 @@ server <- function(input, output, session) {
     
   })
   
+  
   # Restricted Data Access ====================================================
   # CDMS DATASETS ----
-    # Clear Field Values Button
-  observeEvent(input$clear_fields, {
-    if(exists('raw_dat') != TRUE) {
-      NULL
-    } else {
-    RV$query_data <<- raw_dat 
-    
-      updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'q_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$query_data), selected = NULL) 
-      
-      updateSliderInput(session, inputId = 'q_year', label = 'Choose Years*:', min = min(RV$query_data$Year), max = max(RV$query_data$Year), 
-                        value = c(min(RV$query_data$Year), max(RV$query_data$Year)), step = 1)
-    }
-  })
-  
-  # Dataset selection ----
   output$raw_dataset_menu <- renderUI({
     
     datasets_ls <- as.list(datasets[,1])
@@ -1004,18 +984,25 @@ server <- function(input, output, session) {
     raw_dat <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
 
       RV$query_data <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
-    
-      # Update Inputs
-      updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
-                        selected = NULL) 
-      updateSelectInput(session, inputId= 'q_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$query_data), selected = NULL) 
       
-      updateSliderInput(session, inputId = 'q_year', label = '*Choose Years:', min = min(RV$query_data$Year), max = max(RV$query_data$Year), 
-                        value = c(min(RV$query_data$Year), max(RV$query_data$Year)), step = 1)
+      # CDMS (raw) Datasets UI
+      output$raw_UI <- renderUI({
+        list(
+          box(width = 12, 
+              fluidRow(column(12, align = "center",
+                              uiOutput('selected_cdms'), 
+                              column(6, offset=3, 
+                                     selectInput('q_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$query_data)),
+                                                 selectize = TRUE, selected = NULL, multiple = TRUE),
+                                     downloadButton("raw_export", label = "Export .CSV File"),
+                                     helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.</em>'))))
+              ),
+              fluidRow(column(12,
+                              div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table')) # overflow-x: auto; may be better.
+              ))
+          )
+        )
+      })
 
       # Display loaded CDMS Dataset
       output$selected_cdms <- renderText({
@@ -1028,59 +1015,6 @@ server <- function(input, output, session) {
 
   })
   
-  # Input Reactivity ----
-    # CDMS Dataset: Species
-  observeEvent(input$q_species, {
-                   
-                   # save existing input values (to keep selectInputs the same)
-                   selected_pop <- input$q_pop_name
-                   selected_stream <- input$q_stream
-
-                   # filter dataframe
-                   RV$query_data <<- raw_dat %>%
-                   filter(if(is.null(input$q_species)) SpeciesRun %in% unique(raw_dat$SpeciesRun) else SpeciesRun == input$q_species,
-                          if(is.null(input$q_pop_name)) POP_NAME %in% unique(raw_dat$POP_NAME) else POP_NAME == input$q_pop_name,
-                          if(is.null(input$q_stream)) StreamName %in% unique(raw_dat$StreamName) else StreamName == input$q_stream)
-                   
-                   updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
-                                     selected = selected_pop)
-                   updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
-                                     selected = selected_stream)
-                 })
-    # CDMS Dataset: POP_NAME
-  observeEvent(input$q_pop_name, {
-                   
-                   # save existing input values
-                   selected_species <- input$q_species
-                   selected_stream <- input$q_stream
-
-                   RV$query_data <<- raw_dat %>%
-                     filter(if(is.null(input$q_species)) SpeciesRun %in% unique(raw_dat$SpeciesRun) else SpeciesRun == input$q_species,
-                            if(is.null(input$q_pop_name)) POP_NAME %in% unique(raw_dat$POP_NAME) else POP_NAME == input$q_pop_name,
-                            if(is.null(input$q_stream)) StreamName %in% unique(raw_dat$StreamName) else StreamName == input$q_stream)
-
-                   updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
-                                     selected = selected_species)
-                   updateSelectInput(session, inputId= 'q_stream', label= 'Choose Stream:', choices= sort(unique(RV$query_data$StreamName)),
-                                     selected = selected_stream)
-                 })
-    # CDMS Dataset: StreamName
-  observeEvent(input$q_stream, {
-                   
-                   # save existing input values
-                   selected_species <- input$q_species
-                   selected_pop <- input$q_pop_name
-
-                   RV$query_data <<- raw_dat %>%
-                     filter(if(is.null(input$q_species)) SpeciesRun %in% unique(raw_dat$SpeciesRun) else SpeciesRun == input$q_species,
-                            if(is.null(input$q_pop_name)) POP_NAME %in% unique(raw_dat$POP_NAME) else POP_NAME == input$q_pop_name,
-                            if(is.null(input$q_stream)) StreamName %in% unique(raw_dat$StreamName) else StreamName == input$q_stream)
-                   
-                   updateSelectInput(session, inputId= 'q_species', label= 'Choose Species:', choices= sort(unique(RV$query_data$SpeciesRun)),
-                                     selected = selected_species)
-                   updateSelectInput(session, inputId= 'q_pop_name', label= 'Choose Population:', choices= sort(unique(RV$query_data$POP_NAME)),
-                                     selected = selected_pop)
-                 })
 
   # Create CDMS Dataset table (reactive/self-updating) ----
   output$raw_table <- DT::renderDataTable({
@@ -1090,12 +1024,9 @@ server <- function(input, output, session) {
     )
 
     if(is.null(input$q_fields)) {
-      cdms_table_data <<- RV$query_data %>%
-        filter(Year %in% c(min(input$q_year): max(input$q_year)))
-      
+      cdms_table_data <<- RV$query_data 
     } else {
-      cdms_table_data <<- RV$query_data %>% 
-        filter(Year %in% c(min(input$q_year): max(input$q_year))) %>%
+      cdms_table_data <<- RV$query_data %>%
         select(input$q_fields)
       }
 
@@ -1154,8 +1085,25 @@ server <- function(input, output, session) {
       RV$cq_data <<- get(x=custom_query_df[match(input$custom_query_menu, custom_query_df$query_names), 3])
         }
         
-        updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$cq_data), selected = NULL)
-        
+        output$custom_UI <- renderUI({
+          list(
+            box(width = 12, 
+                fluidRow(column(12, align = "center",
+                                uiOutput('selected_custom'), 
+                                column(6, offset=3, 
+                                       selectInput('cq_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$cq_data)),
+                                                   selectize = TRUE, selected = NULL, multiple = TRUE),
+                                       downloadButton("custom_export", label = "Export .CSV File"),
+                                       helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.</em>'))))
+                ),
+                fluidRow(column(12,
+                                div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table')) # overflow-x: auto; may be better.
+                ))
+            )
+          )
+        })
+          
+
         # Display loaded Custom Query
         output$selected_custom <- renderText({
           paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
@@ -1209,89 +1157,6 @@ server <- function(input, output, session) {
       
     }
   })
-  
-  # observeEvent(input$tabs, {
-  #   if(input$tabs == 'tab_fins'){
-  #     RV$fins_data <<- AdultWeirData
-  #     finsRoC <<- 'raw'   # raw or cleaned?
-  #
-  #     output$selected_fins <- renderText({
-  #       paste0(h2('Showing: Raw FINS Data'))
-  #     })
-  #
-  #     updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
-  #                       selected = NULL)
-  #     updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location)),
-  #                       selected = NULL)
-  #     updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data),
-  #                       selected = NULL)
-  #     updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year),
-  #                       value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
-  #   }
-  # })
-  #   # Clear Fields
-  # observeEvent(input$fins_clear_fields, {
-  #     updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
-  #                       selected = NULL)
-  #     updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location)),
-  #                       selected = NULL)
-  #     updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL)
-  #
-  #     updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year),
-  #                       value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
-  # })
-  #
-  #   # Update data and display which.
-  #   observeEvent(input$fins_raw, {
-  #     RV$fins_data <<- AdultWeirData
-  #     finsRoC <<- 'raw'
-  #
-  #     output$selected_fins <- renderText({
-  #       paste0(h2('Showing: Raw FINS Data'))
-  #     })
-  #   })
-  #
-  #   observeEvent(input$fins_clean, {
-  #     RV$fins_data <<- AdultWeirData_clean
-  #     finsRoC <<- 'clean'
-  #
-  #     output$selected_fins <- renderText({
-  #       paste0(h2('Showing: Cleaned FINS Data'))
-  #     })
-  #   })
-  #
-  #   # FINS Datatable
-  # output$fins_table <- DT::renderDataTable({
-  #
-  #   if(is.null(input$fins_fields)) {
-  #     fins_table_data <<- RV$fins_data %>%
-  #       filter(year %in% c(min(input$fins_year): max(input$fins_year)))
-  #
-  #   } else {
-  #     fins_table_data <<- RV$fins_data %>%
-  #       filter(year %in% c(min(input$fins_year): max(input$fins_year))) %>%
-  #       select(input$fins_fields)
-  #   }
-  #
-  #   DT::datatable(fins_table_data, options = list(orderClasses = TRUE), filter = 'top')
-  # })
-  #
-  # FINS Export
-  # output$fins_export <- downloadHandler(
-  #   filename = function() {
-  #     paste(finsRoC,"_fins_data_", Sys.Date(), ".csv", sep='')
-  #   },
-  #   content = function(file) {
-  #     write.csv(fins_table_data, file, row.names = FALSE, na='')
-  #   },
-  #   contentType = "text/csv"
-  # )
-  
-  # Filter FINS data ----
-  # observeEvent(input$fins_filter, {
-  #   RV$fins_data <- AdultWeirData_clean %>%
-  #     filter(if(input$fins_filtertype == 'Facility') facility == input$fins_filter else trap_year == input$fins_filter)
-  # })
   
   # FINS EXPORT (temporary until datatable works)
   output$fins_export <- downloadHandler(
