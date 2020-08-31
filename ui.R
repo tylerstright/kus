@@ -372,14 +372,8 @@ program and its staff serve a key role.")
                                 uiOutput("raw_dataset_menu"),
                                 actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'),
                 )), br()
-                ),
-            # box(width = 12, 
-                # hr(), br(),
-                uiOutput('raw_UI')#,
-                # fluidRow(column(12, 
-                #                 div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table')) # overflow-x: auto; may be better.
-                # ))
-            # )
+            ),
+            uiOutput('raw_UI')
     ),
     # Custom Queries ----
     tabItem(tabName = 'tab_custom',
@@ -396,11 +390,10 @@ program and its staff serve a key role.")
                          uiOutput('custom_query_grouping', label = NULL),
                          uiOutput('groupingtext', label ='GRPTXT'),
                          br(),
-                         actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'),
-                         uiOutput('cdms_UI'))
-                ),
-
-                
+                         actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%')
+                  )
+                )
+            ),
                 # fluidRow(column(6,
                 #                 selectInput('custom_query_menu', label = NULL, choices = custom_query_df$query_names, selected = '-Select Custom Query-'),
                 #                 uiOutput('query_description', style = 'text-align:center;'),
@@ -417,13 +410,14 @@ program and its staff serve a key role.")
                 #        helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
                 # )
                 # )  
-            ),
-            box(width = 12, 
-                fluidRow(column(12, align = "center", 
-                                uiOutput('selected_custom'),
-                                downloadButton("custom_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
-            )
+            # ),
+            uiOutput('custom_UI')
+            # box(width = 12, 
+            #     fluidRow(column(12, align = "center", 
+            #                     uiOutput('selected_custom'),
+            #                     downloadButton("custom_export", label = "Export .CSV File"))),
+            #     div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
+            # )
     ),
     # FINS Data ----
     tabItem(tabName = 'tab_fins',

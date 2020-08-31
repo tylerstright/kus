@@ -995,7 +995,7 @@ server <- function(input, output, session) {
                                      selectInput('q_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$query_data)),
                                                  selectize = TRUE, selected = NULL, multiple = TRUE),
                                      downloadButton("raw_export", label = "Export .CSV File"),
-                                     helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.'))))
+                                     helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.</em>'))))
               ),
               fluidRow(column(12,
                               div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table')) # overflow-x: auto; may be better.
@@ -1085,15 +1085,25 @@ server <- function(input, output, session) {
       RV$cq_data <<- get(x=custom_query_df[match(input$custom_query_menu, custom_query_df$query_names), 3])
         }
         
-        output$cdms_UI <- renderUI({
+        output$custom_UI <- renderUI({
           list(
-          column(6, 
-                 selectInput(inputId = 'cq_fields', label = NULL, choices = NULL, selectize = TRUE, multiple = TRUE),
-                 helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
-          )
+            box(width = 12, 
+                fluidRow(column(12, align = "center",
+                                uiOutput('selected_custom'), 
+                                column(6, offset=3, 
+                                       selectInput('cq_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$cq_data)),
+                                                   selectize = TRUE, selected = NULL, multiple = TRUE),
+                                       downloadButton("custom_export", label = "Export .CSV File"),
+                                       helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.</em>'))))
+                ),
+                fluidRow(column(12,
+                                div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table')) # overflow-x: auto; may be better.
+                ))
+            )
           )
         })
-        
+          
+
         # Display loaded Custom Query
         output$selected_custom <- renderText({
           paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
@@ -1147,89 +1157,6 @@ server <- function(input, output, session) {
       
     }
   })
-  
-  # observeEvent(input$tabs, {
-  #   if(input$tabs == 'tab_fins'){
-  #     RV$fins_data <<- AdultWeirData
-  #     finsRoC <<- 'raw'   # raw or cleaned?
-  #
-  #     output$selected_fins <- renderText({
-  #       paste0(h2('Showing: Raw FINS Data'))
-  #     })
-  #
-  #     updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
-  #                       selected = NULL)
-  #     updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location)),
-  #                       selected = NULL)
-  #     updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data),
-  #                       selected = NULL)
-  #     updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year),
-  #                       value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
-  #   }
-  # })
-  #   # Clear Fields
-  # observeEvent(input$fins_clear_fields, {
-  #     updateSelectInput(session, inputId= 'fins_species', label= 'Choose Species:', choices= sort(unique(RV$fins_data$SpeciesRun)),
-  #                       selected = NULL)
-  #     updateSelectInput(session, inputId= 'fins_location', label= 'Choose Location:', choices= sort(unique(RV$fins_data$Location)),
-  #                       selected = NULL)
-  #     updateSelectInput(session, inputId= 'fins_fields', label= 'Choose Fields in Desired Order:', choices= names(RV$fins_data), selected = NULL)
-  #
-  #     updateSliderInput(session, inputId = 'fins_year', label = 'Choose Years:', min = min(RV$fins_data$year), max = max(RV$fins_data$year),
-  #                       value = c(min(RV$fins_data$year), max(RV$fins_data$year)), step = 1)
-  # })
-  #
-  #   # Update data and display which.
-  #   observeEvent(input$fins_raw, {
-  #     RV$fins_data <<- AdultWeirData
-  #     finsRoC <<- 'raw'
-  #
-  #     output$selected_fins <- renderText({
-  #       paste0(h2('Showing: Raw FINS Data'))
-  #     })
-  #   })
-  #
-  #   observeEvent(input$fins_clean, {
-  #     RV$fins_data <<- AdultWeirData_clean
-  #     finsRoC <<- 'clean'
-  #
-  #     output$selected_fins <- renderText({
-  #       paste0(h2('Showing: Cleaned FINS Data'))
-  #     })
-  #   })
-  #
-  #   # FINS Datatable
-  # output$fins_table <- DT::renderDataTable({
-  #
-  #   if(is.null(input$fins_fields)) {
-  #     fins_table_data <<- RV$fins_data %>%
-  #       filter(year %in% c(min(input$fins_year): max(input$fins_year)))
-  #
-  #   } else {
-  #     fins_table_data <<- RV$fins_data %>%
-  #       filter(year %in% c(min(input$fins_year): max(input$fins_year))) %>%
-  #       select(input$fins_fields)
-  #   }
-  #
-  #   DT::datatable(fins_table_data, options = list(orderClasses = TRUE), filter = 'top')
-  # })
-  #
-  # FINS Export
-  # output$fins_export <- downloadHandler(
-  #   filename = function() {
-  #     paste(finsRoC,"_fins_data_", Sys.Date(), ".csv", sep='')
-  #   },
-  #   content = function(file) {
-  #     write.csv(fins_table_data, file, row.names = FALSE, na='')
-  #   },
-  #   contentType = "text/csv"
-  # )
-  
-  # Filter FINS data ----
-  # observeEvent(input$fins_filter, {
-  #   RV$fins_data <- AdultWeirData_clean %>%
-  #     filter(if(input$fins_filtertype == 'Facility') facility == input$fins_filter else trap_year == input$fins_filter)
-  # })
   
   # FINS EXPORT (temporary until datatable works)
   output$fins_export <- downloadHandler(
