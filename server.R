@@ -988,16 +988,21 @@ server <- function(input, output, session) {
       # field selector
       output$raw_UI <- renderUI({
         list(
-          fluidRow(column(12, align = "center",
-                          uiOutput('selected_cdms'), 
-                          column(6, offset=3, 
-                                 selectInput('q_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$query_data)),
-                                             selectize = TRUE, selected = NULL, multiple = TRUE),
-                                 downloadButton("raw_export", label = "Export .CSV File"),
-                          helpText(HTML('<em>*CSV export will recognize any filters applied to the table below.'))))
+          box(width = 12, 
+              fluidRow(column(12, align = "center",
+                              uiOutput('selected_cdms'), 
+                              column(6, offset=3, 
+                                     selectInput('q_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$query_data)),
+                                                 selectize = TRUE, selected = NULL, multiple = TRUE),
+                                     downloadButton("raw_export", label = "Export .CSV File"),
+                                     helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.'))))
+              ),
+              fluidRow(column(12,
+                              div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table')) # overflow-x: auto; may be better.
+              ))
           )
         )
-  })
+      })
 
       # Display loaded CDMS Dataset
       output$selected_cdms <- renderText({
@@ -1080,7 +1085,14 @@ server <- function(input, output, session) {
       RV$cq_data <<- get(x=custom_query_df[match(input$custom_query_menu, custom_query_df$query_names), 3])
         }
         
-        updateSelectInput(session, inputId= 'cq_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$cq_data)), selected = NULL)
+        output$cdms_UI <- renderUI({
+          list(
+          column(6, 
+                 selectInput(inputId = 'cq_fields', label = NULL, choices = NULL, selectize = TRUE, multiple = TRUE),
+                 helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
+          )
+          )
+        })
         
         # Display loaded Custom Query
         output$selected_custom <- renderText({

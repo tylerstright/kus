@@ -370,14 +370,16 @@ program and its staff serve a key role.")
             box(width = 12, 
                 fluidRow(column(6, offset = 3,
                                 uiOutput("raw_dataset_menu"),
-                                actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%')
-                )),
-                br(),
-                uiOutput('raw_UI'),
-                fluidRow(column(12, 
-                                div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table')) # overflow-x: auto; may be better.
-                ))
-            )
+                                actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'),
+                )), br()
+                ),
+            # box(width = 12, 
+                # hr(), br(),
+                uiOutput('raw_UI')#,
+                # fluidRow(column(12, 
+                #                 div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table')) # overflow-x: auto; may be better.
+                # ))
+            # )
     ),
     # Custom Queries ----
     tabItem(tabName = 'tab_custom',
@@ -386,22 +388,35 @@ program and its staff serve a key role.")
                              summaries.', style = 'text-align: center;'),
                 h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;'),
                 hr(),
-                fluidRow(column(6, 
-                                selectInput('custom_query_menu', label = NULL, choices = custom_query_df$query_names, selected = '-Select Custom Query-'),
-                                uiOutput('query_description', style = 'text-align:center;'),
-                                br(),
-                                uiOutput('custom_query_grouping', label = NULL),
-                                uiOutput('groupingtext', label ='GRPTXT'),
-                                br(),
-                                fluidRow(
-                                  column(8, offset=2, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'))
-                                )
+                fluidRow(
+                  column(6, offset = 3,
+                         selectInput('custom_query_menu', label = NULL, choices = custom_query_df$query_names, selected = '-Select Custom Query-'),
+                         uiOutput('query_description', style = 'text-align:center;'),
+                         br(),
+                         uiOutput('custom_query_grouping', label = NULL),
+                         uiOutput('groupingtext', label ='GRPTXT'),
+                         br(),
+                         actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'),
+                         uiOutput('cdms_UI'))
                 ),
-                column(6, 
-                       selectInput(inputId = 'cq_fields', label = NULL, choices = NULL, selectize = TRUE, multiple = TRUE),
-                       helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
-                )
-                )  
+
+                
+                # fluidRow(column(6,
+                #                 selectInput('custom_query_menu', label = NULL, choices = custom_query_df$query_names, selected = '-Select Custom Query-'),
+                #                 uiOutput('query_description', style = 'text-align:center;'),
+                #                 br(),
+                #                 uiOutput('custom_query_grouping', label = NULL),
+                #                 uiOutput('groupingtext', label ='GRPTXT'),
+                #                 br(),
+                #                 fluidRow(
+                #                   column(8, offset=2, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'))
+                #                 )
+                # ),
+                # column(6, 
+                #        selectInput(inputId = 'cq_fields', label = NULL, choices = NULL, selectize = TRUE, multiple = TRUE),
+                #        helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
+                # )
+                # )  
             ),
             box(width = 12, 
                 fluidRow(column(12, align = "center", 
