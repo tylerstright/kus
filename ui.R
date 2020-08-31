@@ -367,32 +367,16 @@ program and its staff serve a key role.")
     # Restricted Data Access Tab ----
     # CDMS Datasets ----
     tabItem(tabName = 'tab_cdms',
-            
             box(width = 12, 
-                fluidRow(column(6, uiOutput("raw_dataset_menu"),
-                                fluidRow(
-                                  column(8, offset = 2, actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'))
-                                ),
-                                br(),
-                                selectInput(inputId = 'q_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
-                                sliderInput(inputId= 'q_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1),
-                                helpText(HTML('<em>* Year is "Spawn Year" for adult datasets, "Migratory Year" for juvenile datasets, and "Collection Year" for Age data.</em>'), style = 'text-align:center;')
-                ),
-                column(6, 
-                       selectInput(inputId= 'q_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
-                       selectInput(inputId= 'q_pop_name', label= 'Choose Population:', choices= NULL, selected = NULL, multiple = TRUE),
-                       selectInput(inputId= 'q_stream', label= 'Choose Stream:', choices= NULL, selected = NULL, multiple = TRUE),
-                       br(),
-                       fluidRow(
-                         column(8, offset = 2, actionButton('clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
-                       )
-                )
-                ),
-                hr(),
-                fluidRow(column(12, align = "center", 
-                                uiOutput('selected_cdms'), hr(),
-                                downloadButton("raw_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table'))
+                fluidRow(column(6, offset = 3,
+                                uiOutput("raw_dataset_menu"),
+                                actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%')
+                )),
+                br(),
+                uiOutput('raw_UI'),
+                fluidRow(column(12, 
+                                div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table')) # overflow-x: auto; may be better.
+                ))
             )
     ),
     # Custom Queries ----
