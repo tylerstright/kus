@@ -394,30 +394,7 @@ program and its staff serve a key role.")
                   )
                 )
             ),
-                # fluidRow(column(6,
-                #                 selectInput('custom_query_menu', label = NULL, choices = custom_query_df$query_names, selected = '-Select Custom Query-'),
-                #                 uiOutput('query_description', style = 'text-align:center;'),
-                #                 br(),
-                #                 uiOutput('custom_query_grouping', label = NULL),
-                #                 uiOutput('groupingtext', label ='GRPTXT'),
-                #                 br(),
-                #                 fluidRow(
-                #                   column(8, offset=2, actionButton("custom_submit", label = "Submit Query", icon = icon('hourglass-start'), width = '100%'))
-                #                 )
-                # ),
-                # column(6, 
-                #        selectInput(inputId = 'cq_fields', label = NULL, choices = NULL, selectize = TRUE, multiple = TRUE),
-                #        helpText(HTML('<em>Select desired fields in preferred order.</em>'), style='text-align:center;')
-                # )
-                # )  
-            # ),
             uiOutput('custom_UI')
-            # box(width = 12, 
-            #     fluidRow(column(12, align = "center", 
-            #                     uiOutput('selected_custom'),
-            #                     downloadButton("custom_export", label = "Export .CSV File"))),
-            #     div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table'))
-            # )
     ),
     # FINS Data ----
     tabItem(tabName = 'tab_fins',
