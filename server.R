@@ -270,7 +270,7 @@ server <- function(input, output, session) {
 
       # Documents Table ----
       output$documents_table <- DT::renderDataTable({
-        DT::datatable(documents_df %>% select(-Link, -FileName, -FileType), options = list(orderClasses = TRUE), 
+        DT::datatable(documents_df %>% select(-Link, -FileName), options = list(orderClasses = TRUE), 
                       filter = 'top', selection = 'single')
       })
 
@@ -1209,10 +1209,11 @@ server <- function(input, output, session) {
       contactInfoServer('SWO', 'Jason Vogel', "Sweetwater")
       # Division Contacts
       contactInfoServer('Administration', 'David Johnson', 'Administration')
+      contactInfoServer('Conservation Enforcement', 'Adam Villavicencio', 'Conservation Enforcement')
       contactInfoServer('Harvest', 'Joseph Oatman', 'Harvest')
       contactInfoServer('Production', 'Rebecca Johnson', 'Production')
       contactInfoServer('Research', 'Jason Vogel', 'Research')
-      contactInfoServer('Conservation Enforcement', 'Adam Villavicencio', 'Conservation Enforcement')
+      contactInfoServer('Watershed', 'Emmit Taylor, Jr.', 'Watershed')
       # Data Management Contacts
       contactInfoServer('DM1', 'Clark Watry')
       contactInfoServer('DM2', 'Ryan Kinzer')

@@ -468,10 +468,11 @@ program and its staff serve a key role.")
             fluidRow(
               column(12, 
                      contactInfoUI('Administration'),
+                     contactInfoUI('Conservation Enforcement'),
                      contactInfoUI('Harvest'),
                      contactInfoUI('Production'),
                      contactInfoUI('Research'),
-                     contactInfoUI('Conservation Enforcement'))
+                     contactInfoUI('Watershed'))
             ),
             hr(),
             h2('Data Management Contacts', style = 'color:white'),
