@@ -1,7 +1,7 @@
 divInfoUI <- function(id) {
   ns <- NS(id)
   tagList(
-    box(title = 'Project Information', solidHeader = TRUE, width = 8, status = 'info',
+    box(title = 'Project Information', solidHeader = TRUE, width = 12, status = 'info',
         uiOutput(ns('select')),
         h3("Description"),
         uiOutput(ns('description')), br(),
@@ -19,11 +19,11 @@ divInfoUI <- function(id) {
         uiOutput(ns('projectnumber')), br(),
         h3('Basin/Sub-basin'),
         uiOutput(ns('basin'))
-    ),
-    box(title = 'Project Pictures', solidHeader = TRUE, width = 4, status = 'info',
-        column(12, class = 'w3-container', # not sure the container is needed.
-               uiOutput(ns('picture'))
-        )
-    )
+    )#,
+    # box(title = 'Project Pictures', solidHeader = TRUE, width = 4, status = 'info',
+    #     column(12, class = 'w3-container', # not sure the container is needed.
+    #            uiOutput(ns('picture'))
+    #     )
+    # )
   )
 }
