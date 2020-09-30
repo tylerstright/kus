@@ -29,6 +29,7 @@ sidebar <- dashboardSidebar(
               menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                        menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
                        menuSubItem('Weir Collections', tabName = 'tab_weir'),
+                       menuSubItem('Fall Chinook', tabName = 'tab_fchn'),
                        # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
                        menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')#,
                        # menuSubItem('Age Sampling', tabName = 'tab_age')
@@ -288,7 +289,25 @@ program and its staff serve a key role.")
                 div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_table'))
             )
     ),
-    
+    # Fall Chinook Run Reconstruction Data Summaries Tab ----
+    tabItem(tabName = 'tab_fchn',
+            fluidRow(
+              column(12, 
+                     box(title = 'Fall Chinook Yearly Escapement Estimates by Origin', 
+                         status = 'info', width = 12,
+                         plotlyOutput(outputId = 'fchn_esc'))
+                     )),
+            fluidRow(
+              column(12, 
+                     box(title = NULL, # 'Age Composition by Year', 
+                         status = 'info', width = 6,
+                         plotlyOutput(outputId = 'fchn_age')),
+                     box(title = NULL, # 'Sex Composition for All Years', 
+                         status = 'info', width = 6,
+                         plotlyOutput(outputId = 'fchn_sex'))
+                     )
+            )
+    ),
     # In-Stream Array Abundance Summaries Tab ----
     # tabItem(tabName = 'tab_array',
     #         fluidRow(
