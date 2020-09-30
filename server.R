@@ -631,6 +631,100 @@ server <- function(input, output, session) {
     contentType = "text/csv"
   )
   
+  # Fall Chinook Run Reconstruction Data Summaries Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_fchn'){
+      
+      fcrr_esc <- FCRR %>%
+        filter(measure == 'esc_above',
+               age != 'unknown') %>% 
+        group_by(return_year, origin) %>%
+        summarize(age_total = sum(as.double(estimate), na.rm = TRUE)) %>%
+        spread(key = origin, value = age_total) %>%
+        pivot_longer(cols = c('hatchery', 'wild'), 
+                     names_to = 'origin',
+                     values_to = 'total') %>%
+        mutate(origin = str_to_title(origin))
+      
+      output$fchn_esc <- renderPlotly({
+        plot_ly(fcrr_esc,
+                x=~return_year,
+                y=~total,
+                type = 'bar',
+                marker = list(line = list(width=1, color = 'rgb(0,0,0)')),
+                text = ~paste0(return_year, ' ', origin, ': ',
+                               prettyNum(round(total, 0), big.mark = ',', trim=TRUE)),
+                name = ~origin, 
+                hovertemplate = '%{text}', 
+                color = ~origin,
+                colors = viridis_pal(option="D")(length(unique(fcrr_esc$origin)))) %>%
+          layout(barmode = 'stack',
+                 hovermode = 'x',
+                 legend = list(orientation = 'h',
+                               xanchor = 'center',
+                               x = 0.5, y = 1.1),
+                 yaxis = list(title = 'Estimated Escapement', 
+                              tickformat = ',d'), #digits'),
+                 xaxis = list(title = 'Return Year',
+                              nticks = length(unique(fcrr_esc$return_year))))
+      })
+        
+      fcrr_age <- FCRR %>%
+        filter(measure == 'esc_above',
+               age != 'unknown') %>% #, grouping != 'J') %>%
+        select(return_year, age, brood_year, estimate, origin) %>%
+        group_by(return_year, age) %>%
+        summarize(estimate = sum(estimate, na.rm = TRUE)) %>%
+        group_by(return_year) %>%
+        mutate(p_age = estimate/sum(estimate, na.rm = TRUE))
+      
+      output$fchn_age <- renderPlotly({
+        
+
+        # age composition
+        plot_ly(data = fcrr_age,
+                x = ~return_year, 
+                y = ~p_age, 
+                name = ~age, 
+                type = 'bar',
+                # orientation = 'h',
+                text = ~age,
+                hovertemplate = paste('%{x} Age %{text}: %{y}%'),
+                color = ~age,
+                colors = viridis_pal(option="D")(length(unique(fcrr_age$age)))
+        ) %>%
+          layout(title = list(text = 'Age Composition', font = plotly_font),
+                 barmode = 'stack',
+                 hovermode = 'x',
+                 xaxis = list(title = 'Return Year', font = plotly_font),
+                 yaxis = list(title = 'Percent of Total (%)',
+                              tickformat = '%'))
+      })
+      
+      fcrr_sex <- FCRR %>%
+        filter(grouping != 'J') %>%
+        mutate(grouping = if_else(grouping == 'M', 'Male', 'Female')) %>%
+        group_by(grouping) %>%
+        summarize(total = sum(estimate, na.rm = TRUE)) %>%
+        mutate(p_sex = total/sum(total, na.rm = TRUE))
+      
+      output$fchn_sex <- renderPlotly({
+        
+        plot_ly() %>%
+          add_pie(data = fcrr_sex,        
+                  labels = ~grouping,
+                  values = ~p_sex,
+                  hoverinfo = 'none',
+                  texttemplate = ~paste0(round(p_sex, 2)*100, '% ', grouping),
+                  marker = list(colors = viridis_pal(option="D")(length(unique(fcrr_sex$grouping))))) %>%
+          layout(showlegend = FALSE,
+                 title = list(text = 'Sex Ratio for All Years'))
+      })
+
+      
+    }
+  })
+  
   # In-Stream Array Abundance Summaries Tab ----
   # Juvenile Monitoring Summaries Tab ----
   observeEvent(input$tabs, {
