@@ -38,8 +38,8 @@ sidebar <- dashboardSidebar(
               menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                        menuItemOutput('rd_cdms'),
                        menuItemOutput('rd_customquery'),
-                       menuItemOutput('rd_fins'),
-                       menuItemOutput('rd_reports')
+                       menuItemOutput('rd_fins')#,
+                       # menuItemOutput('rd_reports')
               ),
               menuItem('Contact Information', tabName = 'tab_contacts'),
               br(), br(), 
@@ -59,7 +59,7 @@ body <- dashboardBody(
     tabItem(tabName = 'tab_home',
             br(),
             fluidRow(
-              column(10, offset = 0,
+              column(12, offset = 0,
                      h1('Department of Fisheries Resources Management', style = 'text-align:center;'),
                      br(),
                      column(10, offset = 1,
@@ -67,16 +67,16 @@ body <- dashboardBody(
                                 p("The Nez Perce Department of Fisheries Resources Management will protect and restore aquatic resources and habitats. Our mission will be accomplished consistent with the Nimmipuu way of life and beliefs, which have the utmost respect for the Creator, for all species, and for the past, present and future generations to come. Our mission will be consistent with the reserved rights stated within the Nez Perce Tribe's 1855 Treaty."),
                             )),
                      br()
-              ),
-              column(2,
-                     tags$a(
-                       href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf', 
-                       target = '_blank',
-                       tags$img(src='DFRM Management Plan Cover.jpg',
-                                title = 'Click to view the DFRM Management Plan',
-                                style = 'width:80% !important; padding-bottom:10%')
-                     )
-              )
+              )#,
+              # column(2,
+              #        tags$a(
+              #          href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf', 
+              #          target = '_blank',
+              #          tags$img(src='DFRM Management Plan Cover.jpg',
+              #                   title = 'Click to view the DFRM Management Plan',
+              #                   style = 'width:80% !important; padding-bottom:10%')
+              #        )
+              # )
               
             ),
             
@@ -244,7 +244,7 @@ program and its staff serve a key role.")
             box(width = 12, 
                 title = 'Tabular Summary Data',
                 # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table'))
+                DT::dataTableOutput('sgs_table')
             )
     ),
     
@@ -252,11 +252,11 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_weir',
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Chinook', sep = ''),
-                  div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_chn')))
+                  DT::dataTableOutput('weir_sum_chn'))
             ),
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
-                  div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_sth')))
+                  DT::dataTableOutput('weir_sum_sth'))
             ),
             hr(),
             fluidRow(
@@ -286,7 +286,7 @@ program and its staff serve a key role.")
             box(width = 12, 
                 title = paste(year(Sys.Date()), 'Weir Disposition Summary'),
                 # fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_table'))
+                DT::dataTableOutput('weir_table')
             )
     ),
     # Fall Chinook Run Reconstruction Data Summaries Tab ----
@@ -341,7 +341,7 @@ program and its staff serve a key role.")
             
             box(width = 12, title = 'Tabular Summary Data',
                 # fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('juv_table'))
+                DT::dataTableOutput('juv_table')
             )
     ),
     
@@ -447,28 +447,28 @@ program and its staff serve a key role.")
                                 # uiOutput('selected_fins'), 
                                 hr(),
                                 downloadButton("fins_export", label = "Export .CSV File")))#,
-                #     div(style = 'overflow-x: scroll;', DT::dataTableOutput('fins_table'))
+                #     DT::dataTableOutput('fins_table')
             )
     ),
     # Reports ----
-    tabItem(tabName = 'tab_reports',
-            fluidRow(
-              box(width = 12,
-                  h2('Reports!', style = 'text-align: center;'),
-                  h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
-                       we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
-                  h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
-              )
-            ),
-            fluidRow(
-              box(width = 12,
-                  title = 'Report Download',
-                  uiOutput('pdf_reports'),
-                  # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
-                  downloadButton('report_export', label = 'Download Report')
-              )
-            )
-    ),
+    # tabItem(tabName = 'tab_reports',
+    #         fluidRow(
+    #           box(width = 12,
+    #               h2('Reports!', style = 'text-align: center;'),
+    #               h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
+    #                    we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
+    #               h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
+    #           )
+    #         ),
+    #         fluidRow(
+    #           box(width = 12,
+    #               title = 'Report Download',
+    #               uiOutput('pdf_reports'),
+    #               # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
+    #               downloadButton('report_export', label = 'Download Report')
+    #           )
+    #         )
+    # ),
     
     tabItem('tab_contacts',
             br(),
