@@ -1270,30 +1270,30 @@ server <- function(input, output, session) {
   )
 
   # Reports (Tab) ----
-  output$pdf_reports <- renderUI({
-
-    report_list <- gsub('_', ' ', gsub('.pdf', '', list.files(path = './pdf/')))
-
-    selectInput('pdf_reports', "Available Reports:", choices = report_list,
-                selected = report_list[1])
-  })
+  # output$pdf_reports <- renderUI({
+  # 
+  #   report_list <- gsub('_', ' ', gsub('.pdf', '', list.files(path = './pdf/')))
+  # 
+  #   selectInput('pdf_reports', "Available Reports:", choices = report_list,
+  #               selected = report_list[1])
+  # })
+  # 
+  #   # Download Reports (already in PDF)
+  # output$report_export <- downloadHandler(
+  # 
+  #   filename = function() { 
+  #     paste(gsub(' ', '_', input$pdf_reports), '_', format(Sys.Date(), "%m_%d_%y"), '.pdf', sep='')
+  #   },  
+  #   
+  #   content = function(file){
+  #     # build file path
+  #     report_path <- paste('./pdf/', gsub(' ', '_', input$pdf_reports), '.pdf', sep= '')
+  #     
+  #     file.copy(report_path, file)
+  #   }
+  # )
   
-    # Download Reports (already in PDF)
-  output$report_export <- downloadHandler(
-
-    filename = function() { 
-      paste(gsub(' ', '_', input$pdf_reports), '_', format(Sys.Date(), "%m_%d_%y"), '.pdf', sep='')
-    },  
-    
-    content = function(file){
-      # build file path
-      report_path <- paste('./pdf/', gsub(' ', '_', input$pdf_reports), '.pdf', sep= '')
-      
-      file.copy(report_path, file)
-    }
-  )
-  
-  # Contact Information Tab -
+  # Contact Information Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_contacts') {
       # Field Office Contacts

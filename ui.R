@@ -38,8 +38,8 @@ sidebar <- dashboardSidebar(
               menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                        menuItemOutput('rd_cdms'),
                        menuItemOutput('rd_customquery'),
-                       menuItemOutput('rd_fins'),
-                       menuItemOutput('rd_reports')
+                       menuItemOutput('rd_fins')#,
+                       # menuItemOutput('rd_reports')
               ),
               menuItem('Contact Information', tabName = 'tab_contacts'),
               br(), br(), 
@@ -451,24 +451,24 @@ program and its staff serve a key role.")
             )
     ),
     # Reports ----
-    tabItem(tabName = 'tab_reports',
-            fluidRow(
-              box(width = 12,
-                  h2('Reports!', style = 'text-align: center;'),
-                  h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
-                       we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
-                  h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
-              )
-            ),
-            fluidRow(
-              box(width = 12,
-                  title = 'Report Download',
-                  uiOutput('pdf_reports'),
-                  # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
-                  downloadButton('report_export', label = 'Download Report')
-              )
-            )
-    ),
+    # tabItem(tabName = 'tab_reports',
+    #         fluidRow(
+    #           box(width = 12,
+    #               h2('Reports!', style = 'text-align: center;'),
+    #               h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
+    #                    we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
+    #               h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
+    #           )
+    #         ),
+    #         fluidRow(
+    #           box(width = 12,
+    #               title = 'Report Download',
+    #               uiOutput('pdf_reports'),
+    #               # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
+    #               downloadButton('report_export', label = 'Download Report')
+    #           )
+    #         )
+    # ),
     
     tabItem('tab_contacts',
             br(),
