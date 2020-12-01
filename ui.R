@@ -59,10 +59,10 @@ body <- dashboardBody(
     tabItem(tabName = 'tab_home',
             br(),
             fluidRow(
-              column(10, offset = 0,
+              column(12, offset = 0,
                      h1('Department of Fisheries Resources Management', style = 'text-align:center;'),
                      br(),
-                     column(12, offset = 1,
+                     column(10, offset = 1,
                             box(status = 'info', width=12, background = 'aqua',
                                 p("The Nez Perce Department of Fisheries Resources Management will protect and restore aquatic resources and habitats. Our mission will be accomplished consistent with the Nimmipuu way of life and beliefs, which have the utmost respect for the Creator, for all species, and for the past, present and future generations to come. Our mission will be consistent with the reserved rights stated within the Nez Perce Tribe's 1855 Treaty."),
                             )),
