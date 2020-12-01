@@ -270,7 +270,7 @@ server <- function(input, output, session) {
 
       # Documents Table ----
       output$documents_table <- DT::renderDataTable({
-        DT::datatable(documents_df %>% select(-Link, -FileName), options = list(orderClasses = TRUE), 
+        DT::datatable(documents_df %>% select(-Link, -FileName), options = list(orderClasses = TRUE, scrollX = TRUE), 
                       filter = 'top', selection = 'single')
       })
 
@@ -441,7 +441,7 @@ server <- function(input, output, session) {
     
     sgs_table_data <<- RV$sgs_data
 
-    DT::datatable(sgs_table_data, options = list(orderClasses = TRUE), filter = 'top')
+    DT::datatable(sgs_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
   
     # SGS_Summary Dataset EXPORT
@@ -475,13 +475,13 @@ server <- function(input, output, session) {
       output$weir_sum_chn <- renderDataTable({
         chn_tmp <<- weir_sum_all %>% filter(Species == 'Chinook')
         
-        DT::datatable(chn_tmp, options = list(orderClasses = TRUE))
+        DT::datatable(chn_tmp, options = list(orderClasses = TRUE, scrollX = TRUE))
       })
       
       output$weir_sum_sth <- renderDataTable({
         sth_tmp <<- weir_sum_all %>% filter(Species == 'Steelhead')
         
-        DT::datatable(sth_tmp, options = list(orderClasses = TRUE))
+        DT::datatable(sth_tmp, options = list(orderClasses = TRUE, scrollX = TRUE))
       })
       
     }
@@ -571,7 +571,7 @@ server <- function(input, output, session) {
              trap == input$weir_trap,
              trap_year == input$weir_year) 
     
-    DT::datatable(weir_props_filtered, options = list(orderClasses = TRUE))
+    DT::datatable(weir_props_filtered, options = list(orderClasses = TRUE, scrollX = TRUE))
 
   })
   
@@ -617,7 +617,7 @@ server <- function(input, output, session) {
     weir_table_data <<- RV$weir_sum %>% # is this step necessary?
       filter(trap %in% input$weir_trap)
 
-    DT::datatable(weir_table_data, options = list(orderClasses = TRUE), filter = 'top')
+    DT::datatable(weir_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
   
   # Weir Disposition Summary EXPORT
@@ -889,7 +889,7 @@ server <- function(input, output, session) {
       select(POP_NAME, LocationLabel, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage, Abundance, Ab_SE, 
              Ab_L95, Ab_U95, ReleaseGroup, SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95)
     
-    DT::datatable(juv_table_data, options = list(orderClasses = TRUE), filter = 'top')
+    DT::datatable(juv_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
   
     # Juvenile Summary Dataset EXPORT
@@ -1092,7 +1092,7 @@ server <- function(input, output, session) {
                                      helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.</em>'))))
               ),
               fluidRow(column(12,
-                              div(style = 'overflow-x: scroll;', DT::dataTableOutput('raw_table')) # overflow-x: auto; may be better.
+                              DT::dataTableOutput('raw_table') # overflow-x: auto; may be better.
               ))
           )
         )
@@ -1124,7 +1124,7 @@ server <- function(input, output, session) {
         select(input$q_fields)
       }
 
-    DT::datatable(cdms_table_data, options = list(orderClasses = TRUE), filter = 'top')
+    DT::datatable(cdms_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
   
     # CDMS Dataset EXPORT ----
@@ -1191,7 +1191,7 @@ server <- function(input, output, session) {
                                        helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.</em>'))))
                 ),
                 fluidRow(column(12,
-                                div(style = 'overflow-x: scroll;', DT::dataTableOutput('custom_table')) # overflow-x: auto; may be better.
+                                DT::dataTableOutput('custom_table') # overflow-x: auto; may be better.
                 ))
             )
           )
@@ -1216,7 +1216,7 @@ server <- function(input, output, session) {
         select(input$cq_fields)
     }
     
-    DT::datatable(custom_table_data, options = list(orderClasses = TRUE), filter = 'top')  
+    DT::datatable(custom_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')  
   })
   
   # Custom Query EXPORT
@@ -1318,7 +1318,7 @@ server <- function(input, output, session) {
       
       # CDMS user info
       output$cdms_users <- DT::renderDataTable({
-        DT::datatable(users, options = list(orderClasses = TRUE), filter = 'top')  
+        DT::datatable(users, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')  
       }) 
     }
   })

@@ -132,6 +132,7 @@ p {font-family: "Arial Narrow";
   /*border-bottom: 1px solid rgb(0, 0, 0); */
 }
 
+/* position and tell shiny to show the spinner when busy */
 .shinybusy-busy {
   position: fixed !important;
   z-index:9999 !important;
@@ -150,5 +151,14 @@ p {font-family: "Arial Narrow";
   width:400px !important;
 }
 
-img {max-width: 100%; width: 100%; height: auto;}
 /* images will expand to width of container */
+img {max-width: 100%; width: 100%; height: auto;}
+
+
+/* this shifts the horizontal scroll to the top of the datatable */
+.dataTables_scrollBody {
+    transform:rotateX(180deg);
+}
+.dataTables_scrollBody table {
+    transform:rotateX(180deg);
+}

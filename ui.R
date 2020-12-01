@@ -244,7 +244,7 @@ program and its staff serve a key role.")
             box(width = 12, 
                 title = 'Tabular Summary Data',
                 # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('sgs_table'))
+                DT::dataTableOutput('sgs_table')
             )
     ),
     
@@ -252,11 +252,11 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_weir',
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Chinook', sep = ''),
-                  div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_chn')))
+                  DT::dataTableOutput('weir_sum_chn'))
             ),
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
-                  div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_sum_sth')))
+                  DT::dataTableOutput('weir_sum_sth'))
             ),
             hr(),
             fluidRow(
@@ -286,7 +286,7 @@ program and its staff serve a key role.")
             box(width = 12, 
                 title = paste(year(Sys.Date()), 'Weir Disposition Summary'),
                 # fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('weir_table'))
+                DT::dataTableOutput('weir_table')
             )
     ),
     # Fall Chinook Run Reconstruction Data Summaries Tab ----
@@ -341,7 +341,7 @@ program and its staff serve a key role.")
             
             box(width = 12, title = 'Tabular Summary Data',
                 # fluidRow(column(12, align = "center", downloadButton("juv_export", label = "Export .CSV File"))),
-                div(style = 'overflow-x: scroll;', DT::dataTableOutput('juv_table'))
+                DT::dataTableOutput('juv_table')
             )
     ),
     
@@ -447,7 +447,7 @@ program and its staff serve a key role.")
                                 # uiOutput('selected_fins'), 
                                 hr(),
                                 downloadButton("fins_export", label = "Export .CSV File")))#,
-                #     div(style = 'overflow-x: scroll;', DT::dataTableOutput('fins_table'))
+                #     DT::dataTableOutput('fins_table')
             )
     ),
     # Reports ----
