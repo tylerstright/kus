@@ -252,11 +252,11 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_weir',
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Chinook', sep = ''),
-                  DT::dataTableOutput('weir_sum_chn'))
+                  DT::dataTableOutput('weir_sum_chn'), br())
             ),
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
-                  DT::dataTableOutput('weir_sum_sth'))
+                  DT::dataTableOutput('weir_sum_sth'), br())
             ),
             hr(),
             fluidRow(
@@ -277,14 +277,14 @@ program and its staff serve a key role.")
             ),
             hr(),
             fluidRow(
-              box(width = 6,
+              box(width = 6, title = 'Weir Collection Statistics',
                   dataTableOutput('weir_props_table')),
               box(width = 6,
                   plotlyOutput('p_weir_props'))
             ),
             hr(),
             box(width = 12, 
-                title = paste(year(Sys.Date()), 'Weir Disposition Summary'),
+                title = 'Weir Disposition Summary',
                 # fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
                 DT::dataTableOutput('weir_table')
             )
