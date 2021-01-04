@@ -13,11 +13,11 @@ employeeInfoServer <- function(id, employee_) { # or should it be position?
       })
       
       output$phone <- renderUI({
-        p(users[match(employee_, users$Name), "WorkPhone"]) 
+        p(users[match(employee_, users$Name), "WorkPhone"], style = 'text-align:center;') 
       })
       
       output$email <- renderUI({
-        p(users[match(employee_, users$Name), "Email"]) 
+        p(users[match(employee_, users$Name), "Email"], style = 'text-align:right;') 
       })
       
     }
