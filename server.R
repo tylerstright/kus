@@ -635,7 +635,8 @@ server <- function(input, output, session) {
                               sex, trap, species, SpeciesRun, sex, origin, age_designation) %>%
       rename(TotalCatch = n)
     
-    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation'))
+    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation')) %>%
+      rename(Trap=trap, Species=species, Sex=sex, Origin=origin, `Age Designation`=age_designation)
     
     shiny::validate(
       need(weir_table_data, message = '    Table will populate after data load.')
