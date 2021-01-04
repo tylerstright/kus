@@ -474,15 +474,35 @@ server <- function(input, output, session) {
       })
       
       output$weir_sum_chn <- renderDataTable({
+        
+        shiny::validate(
+          need(exists('weir_sum_all'), message = '*No Chinook catch yet this year!')
+        )
+        
         chn_tmp <<- weir_sum_all %>% filter(Species == 'Chinook')
         
-        DT::datatable(chn_tmp, options = list(orderClasses = TRUE, scrollX = TRUE))
+        shiny::validate(
+          need(nrow(chn_tmp) > 0, message = '*No Chinook catch yet this year!')
+        )
+        
+        DT::datatable(chn_tmp, options = list(orderClasses = TRUE, scrollX = TRUE,
+                                              dom = 'tp'))
       })
       
       output$weir_sum_sth <- renderDataTable({
+        
+        shiny::validate(
+          need(exists('weir_sum_all'), message = '*No Steelhead catch yet this year!')
+        )
+        
         sth_tmp <<- weir_sum_all %>% filter(Species == 'Steelhead')
         
-        DT::datatable(sth_tmp, options = list(orderClasses = TRUE, scrollX = TRUE))
+        shiny::validate(
+          need(nrow(sth_tmp) > 0, message = '*No Steelhead catch yet this year!')
+        )
+        
+        DT::datatable(sth_tmp, options = list(orderClasses = TRUE, scrollX = TRUE,
+                                              dom = 'tp'))
       })
       
     }
@@ -501,17 +521,8 @@ server <- function(input, output, session) {
     
   })
   
-  # weir select 
+  # weir_trap select 
   observeEvent(input$weir_trap, {
-    # data
-    weir_disp <- cnt_groups(NPTweir, disposition, disposition, trap, species, SpeciesRun, sex, origin, age_designation) %>%
-      spread(key = disposition, value = n)
-
-    weir_totals <- cnt_groups(NPTweir, sex, trap, species, SpeciesRun, sex, origin, age_designation) %>%
-      rename(TotalCatch = n)
-
-    RV$weir_sum <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation'))
-    
     # for weir catch plot
     tmp_p_weir_df <- p_weir_df %>%
       filter(SpeciesRun == input$weir_species,
@@ -527,9 +538,10 @@ server <- function(input, output, session) {
   
 
     
-    # Weir Catch PLOT
+    # Weir Catch PLOT / Disposition Summary
   observeEvent(input$weir_year, {
     
+    # Weir Catch Plot
     output$p_weircatch <- renderPlotly({
       
       weir_filtered <- p_weir_df %>%
@@ -563,16 +575,18 @@ server <- function(input, output, session) {
     })
   })
   
-  # Weir Proportions Table and Plot
+  # Weir Collection Statistics Table and Plot
   
   output$weir_props_table <- renderDataTable({
     
     weir_props_filtered <- weir_props %>%
       filter(SpeciesRun == input$weir_species,
              trap == input$weir_trap,
-             trap_year == input$weir_year) 
+             trap_year == input$weir_year) %>%
+      dplyr::rename(Trap = trap, `Trap Year` = trap_year)
     
-    DT::datatable(weir_props_filtered, options = list(orderClasses = TRUE, scrollX = TRUE))
+    DT::datatable(weir_props_filtered, options = list(orderClasses = TRUE, scrollX = TRUE,
+                                                      dom = 't'))
 
   })
   
@@ -610,13 +624,22 @@ server <- function(input, output, session) {
   
   # Weir Disposition Summary Data Table
   output$weir_table <- DT::renderDataTable({
-
+    # data prep
+    weir_disp <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
+                                               trap_year == input$weir_year), 
+                            disposition, disposition, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+      spread(key = disposition, value = n)
+    
+    weir_totals <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
+                                                 trap_year == input$weir_year), 
+                              sex, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+      rename(TotalCatch = n)
+    
+    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation'))
+    
     shiny::validate(
-      need(RV$weir_sum, message = '    Table will populate after data load.')
+      need(weir_table_data, message = '    Table will populate after data load.')
     )
-
-    weir_table_data <<- RV$weir_sum %>% # is this step necessary?
-      filter(trap %in% input$weir_trap)
 
     DT::datatable(weir_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
