@@ -92,66 +92,11 @@ server <- function(input, output, session) {
     ungroup() %>%
     filter(Date < Sys.Date()) # this isn't perfect. I'm not sure when 'yesterdays' count is added.
     
-  
-  output$windowChinook <- renderValueBox({
-    
-    n <- window_df %>%
-      filter(species == 'Chinook') %>%
-      summarise(n = sum(Count, na.rm = TRUE)) %>%
-      pull(n)
-    
-    valueBox(
-        value = prettyNum(n, big.mark = ","),
-        color = 'aqua',
-        icon = icon("fish"),
-        subtitle = "Chinook Salmon"
-      )
-    })
-  
-  output$windowSteelhead <- renderValueBox({
-
-    n <- window_df %>%
-      filter(species == 'Steelhead') %>%
-      summarise(n = sum(Count, na.rm = TRUE)) %>%
-      pull(n)
-    
-    valueBox(
-      value = prettyNum(n, big.mark = ","),
-      color = 'aqua',
-      icon = icon("fish"),
-      subtitle = "Steelhead"
-    )
-  })
-  
-  output$windowCoho <- renderValueBox({
-
-    n <- window_df %>%
-      filter(species == 'Coho') %>%
-      summarise(n = sum(Count, na.rm = TRUE)) %>%
-      pull(n)
-    
-    valueBox(
-      value = prettyNum(n, big.mark = ","),
-      color = 'aqua',
-      icon = icon("fish"),
-      subtitle = "Coho Salmon"
-    )
-  })
-  
-  output$windowSockeye <- renderValueBox({
-
-    n <- window_df %>%
-      filter(species == 'Sockeye') %>%
-      summarise(n = sum(Count, na.rm = TRUE)) %>%
-      pull(n)
-    
-    valueBox(
-      value = prettyNum(n, big.mark = ","),
-      color = 'aqua',
-      icon = icon("fish"),
-      subtitle = "Sockeye Salmon"
-    )
-  })
+  # Window Counts
+  windowCountServer('chinook', data=window_df, species_='Chinook', subtitle_='Chinook Salmon')
+  windowCountServer('steelhead', data=window_df, species_='Steelhead', subtitle_='Steelhead')
+  windowCountServer('coho', data=window_df, species_='Coho', subtitle_='Coho Salmon')
+  windowCountServer('sockeye', data=window_df, species_='Sockeye', subtitle_='Sockeye Salmon')
   
   output$window_plot <- renderPlotly({
     plot_ly(data = window_df,
@@ -213,7 +158,7 @@ server <- function(input, output, session) {
       employeeInfoServer('watershed_assistant', 'Ermie Whitman')
       divInfoServer(id='watershed', projects_list)
     } 
-    # (Conservation) Enforcement Tab ----
+    # Conservation Enforcement Tab ----
     if(input$tabs == 'tab_enforcement'){
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Enforcement') 

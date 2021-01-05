@@ -83,18 +83,10 @@ body <- dashboardBody(
             box(width = NULL, solidHeader = TRUE, status = 'primary',
                 title = 'Lower Granite Window Counts',
                 fluidRow(
-                  column(3,
-                         valueBoxOutput("windowChinook", width = NULL)
-                  ),
-                  column(3,
-                         valueBoxOutput("windowSteelhead", width = NULL)
-                  ),
-                  column(3,
-                         valueBoxOutput("windowCoho", width = NULL)
-                  ),
-                  column(3,
-                         valueBoxOutput("windowSockeye", width = NULL)
-                  )
+                  windowCountUI('chinook'),
+                  windowCountUI('steelhead'),
+                  windowCountUI('coho'),
+                  windowCountUI('sockeye')
                 ),
                 fluidRow(
                   column(12, plotlyOutput('window_plot'))
