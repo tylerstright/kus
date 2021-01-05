@@ -171,76 +171,56 @@ server <- function(input, output, session) {
              xaxis = list(title= 'Date', titlefont = plotly_font))
   })
   
-  # Administration Tab ----
+  # DFRM Divisions ----
   observeEvent(input$tabs, {
+    # Administration Tab ----
     if(input$tabs == 'tab_administration'){
-  #     projects_list <<- getProjects(cdms_host) %>%
-  #       filter(SubProgram == 'Administration')
-  #     
-            employeeInfoServer('administration_director', 'David Johnson')
-            employeeInfoServer('administration_assistant', 'Michelle Wilson')
-  #     divInfoServer(id='administration', projects_list)
+      #     projects_list <<- getProjects(cdms_host) %>%
+      #       filter(SubProgram == 'Administration')
+      employeeInfoServer('administration_director', 'David Johnson')
+      employeeInfoServer('administration_assistant', 'Michelle Wilson')
+      #     divInfoServer(id='administration', projects_list)
     }
-  })
-  
-  # Harvest Tab ----
-  observeEvent(input$tabs, {
+    # Harvest Tab ----
     if(input$tabs == 'tab_harvest'){
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Harvest')
-      
       employeeInfoServer('harvest_director', 'Joseph Oatman')
       divInfoServer(id='harvest', projects_list)
     } 
-  })
-  
-  # Production Tab ----
-  observeEvent(input$tabs, {
+    # Production Tab ----
     if(input$tabs == 'tab_production'){
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Production')
-      
       employeeInfoServer('production_director', 'Rebecca Johnson')
       employeeInfoServer('production_assistant', 'Letitia Whitman')
       divInfoServer(id='production', projects_list)
     } 
-  })
-
-  # Research Tab ----
-  observeEvent(input$tabs, {
+    # Research Tab ----
     if(input$tabs == 'tab_research'){
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Research',
                !Id %in% c(11057, 11068, 11071))
-      
       employeeInfoServer('research_director', 'Jason Vogel')
       employeeInfoServer('research_assistant', 'Paulette Smith')
       divInfoServer(id='research', projects_list)
     } 
-  })
-
-  # Watershed Tab ----
-  observeEvent(input$tabs, {
+    # Watershed Tab ----
     if(input$tabs == 'tab_watershed'){
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Watershed')
-      
       employeeInfoServer('watershed_director', 'Emmit Taylor, Jr.')
       employeeInfoServer('watershed_assistant', 'Ermie Whitman')
       divInfoServer(id='watershed', projects_list)
     } 
-  })
-  
-  # (Conservation) Enforcement Tab ----
-  observeEvent(input$tabs, {
+    # (Conservation) Enforcement Tab ----
     if(input$tabs == 'tab_enforcement'){
       projects_list <<- getProjects(cdms_host) %>%
         filter(SubProgram == 'Enforcement') 
-      
       employeeInfoServer('enforcement_director', 'Adam Villavicencio')
       divInfoServer(id='enforcement', projects_list)
     } 
-  })
+  }) # Close DFRM Divisions
 
   # Documents Tab ----
   observeEvent(input$tabs, {
