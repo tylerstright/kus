@@ -404,7 +404,7 @@ server <- function(input, output, session) {
           need(exists('weir_sum_all'), message = '*No Chinook catch yet this year!')
         )
         
-        chn_tmp <<- weir_sum_all %>% filter(Species == 'Chinook')
+        chn_tmp <- weir_sum_all %>% filter(Species == 'Chinook')
         
         shiny::validate(
           need(nrow(chn_tmp) > 0, message = '*No Chinook catch yet this year!')
@@ -420,7 +420,7 @@ server <- function(input, output, session) {
           need(exists('weir_sum_all'), message = '*No Steelhead catch yet this year!')
         )
         
-        sth_tmp <<- weir_sum_all %>% filter(Species == 'Steelhead')
+        sth_tmp <- weir_sum_all %>% filter(Species == 'Steelhead')
         
         shiny::validate(
           need(nrow(sth_tmp) > 0, message = '*No Steelhead catch yet this year!')
@@ -453,7 +453,6 @@ server <- function(input, output, session) {
       filter(SpeciesRun == input$weir_species,
              trap == input$weir_trap)
     
-    
     output$weir_year <- renderUI({
       selectInput(inputId = 'weir_year', label = 'Choose Year:', choices = unique(sort(tmp_p_weir_df$trap_year)), 
                   selected = max(tmp_p_weir_df$trap_year))
@@ -462,46 +461,40 @@ server <- function(input, output, session) {
   })
   
   
-  
-  # Weir Catch PLOT / Disposition Summary
-  observeEvent(input$weir_year, {
+  # Weir Daily Catch Plot
+  output$p_weircatch <- renderPlotly({
     
-    # Weir Catch Plot
-    output$p_weircatch <- renderPlotly({
-      
-      weir_filtered <- p_weir_df %>%
-        filter(SpeciesRun == input$weir_species,
-               trap == input$weir_trap,
-               trap_year == input$weir_year)
-      
-      plot_ly(data = weir_filtered,
-              x = ~trapped_date,
-              y = ~DailyCatch,
-              type = 'bar',
-              marker = list(line = list(width=0.8, color = 'rgb(0,0,0)')), # outline of bars
-              legendgroup = ~origin,
-              color = ~origin,
-              colors = viridis_pal(option="D")(length(unique(weir_filtered$origin)))) %>%
-        layout(hovermode = 'x',
-               barmode = 'stack',
-               # bargap = .3,
-               title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Daily Catch, by Origin'),
-                            font = plotly_font),
-               yaxis= list(
-                 title = 'Daily Catch',
-                 titlefont = plotly_font),
-               xaxis= list(title = 'Date',
-                           type = 'date',
-                           tickformat = '%m/%d/%y',
-                           nticks = nrow(weir_filtered)/2,
-                           tickangle = -45,
-                           titlefont = plotly_font
-               ))
-    })
+    weir_filtered <- p_weir_df %>%
+      filter(SpeciesRun == input$weir_species,
+             trap == input$weir_trap,
+             trap_year == input$weir_year)
+    
+    plot_ly(data = weir_filtered,
+            x = ~trapped_date,
+            y = ~DailyCatch,
+            type = 'bar',
+            marker = list(line = list(width=0.8, color = 'rgb(0,0,0)')), # outline of bars
+            legendgroup = ~origin,
+            color = ~origin,
+            colors = viridis_pal(option="D")(length(unique(weir_filtered$origin)))) %>%
+      layout(hovermode = 'x',
+             barmode = 'stack',
+             # bargap = .3,
+             title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Daily Catch, by Origin'),
+                          font = plotly_font),
+             yaxis= list(
+               title = 'Daily Catch',
+               titlefont = plotly_font),
+             xaxis= list(title = 'Date',
+                         type = 'date',
+                         tickformat = '%m/%d/%y',
+                         nticks = nrow(weir_filtered)/2,
+                         tickangle = -45,
+                         titlefont = plotly_font
+             ))
   })
   
-  # Weir Collection Statistics Table and Plot
-  
+  # Weir Collection Statistics
   output$weir_props_table <- renderDataTable({
     
     weir_props_filtered <- weir_props %>%
@@ -512,7 +505,6 @@ server <- function(input, output, session) {
     
     DT::datatable(weir_props_filtered, options = list(orderClasses = TRUE, scrollX = TRUE,
                                                       dom = 't'))
-    
   })
   
   output$p_weir_props <- renderPlotly({
@@ -571,15 +563,15 @@ server <- function(input, output, session) {
   })
   
   # Weir Disposition Summary EXPORT
-  output$weir_export <- downloadHandler(
-    filename = function() {
-      paste0("NPT_weir_disposition_summary_", Sys.Date(), ".csv")
-    },
-    content = function(file) {
-      write.csv(weir_table_data[input[["weir_table_rows_all"]], ], file, row.names = FALSE)
-    },
-    contentType = "text/csv"
-  )
+  # output$weir_export <- downloadHandler(
+  #   filename = function() {
+  #     paste0("NPT_weir_disposition_summary_", Sys.Date(), ".csv")
+  #   },
+  #   content = function(file) {
+  #     write.csv(weir_table_data[input[["weir_table_rows_all"]], ], file, row.names = FALSE)
+  #   },
+  #   contentType = "text/csv"
+  # )
   
   # Fall Chinook Run Reconstruction Data Summaries Tab ----
   observeEvent(input$tabs, {
@@ -1018,14 +1010,11 @@ server <- function(input, output, session) {
   output$raw_dataset_menu <- renderUI({
     
     datasets_ls <- as.list(datasets[,1])
-    
     names(datasets_ls) <- datasets[,2]
     selectInput("datasets", label = 'Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
   }) 
   
   observeEvent(input$raw_submit,{
-    
-    raw_dat <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
     
     RV$query_data <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
     
@@ -1048,7 +1037,7 @@ server <- function(input, output, session) {
       )
     })
     
-    # Display loaded CDMS Dataset
+    # Loaded CDMS Dataset: selected_cdms
     output$selected_cdms <- renderText({
       selected_df <- datasets %>%
         filter(DatastoreId == isolate(input$datasets)) %>%
@@ -1059,8 +1048,7 @@ server <- function(input, output, session) {
     
   })
   
-  
-  # Create CDMS Dataset table (reactive/self-updating) ----
+  # CDMS Dataset table ----
   output$raw_table <- DT::renderDataTable({
     
     shiny::validate(
@@ -1091,10 +1079,9 @@ server <- function(input, output, session) {
     contentType = "text/csv"
   )
   
-  # Custom Queries (CUSTOM!) --------------------------------------------------
-  # Dynamic Description for Custom Queries
+  # Custom Queries --------------------------------------------------
+  # Description
   output$query_description <- renderText({
-    # match Query with Description and paste value
     q_description <- custom_query_df$query_descriptions[match(input$custom_query_menu, custom_query_df$query_names)]
     paste0("Description: ", q_description)
   })
@@ -1148,7 +1135,7 @@ server <- function(input, output, session) {
       })
       
       
-      # Display loaded Custom Query
+      # Display Loaded Custom Query
       output$selected_custom <- renderText({
         paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
       })
