@@ -249,8 +249,7 @@ program and its staff serve a key role.")
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
                   DT::dataTableOutput('weir_sum_sth'), br())
-            ),
-            hr(),
+            ), hr(),
             fluidRow(
               column(12,
                      box(title = 'Weir Collection Summaries', status='info', width= 5,
@@ -261,20 +260,16 @@ program and its staff serve a key role.")
                      box(width = 7, 
                          img(src='jcweir.jpg', width = '100%', height='auto') 
                      ))
-            ),
-            hr(),
-            
+            ), hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_weircatch'))
-            ),
-            hr(),
+            ), hr(),
             fluidRow(
               box(width = 6, title = 'Weir Collection Statistics',
                   dataTableOutput('weir_props_table')),
               box(width = 6,
                   plotlyOutput('p_weir_props'))
-            ),
-            hr(),
+            ), hr(),
             box(width = 12, 
                 title = 'Weir Disposition Summary',
                 # fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
