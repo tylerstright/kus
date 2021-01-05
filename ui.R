@@ -288,7 +288,7 @@ program and its staff serve a key role.")
                      box(title = 'Fall Chinook Yearly Escapement Estimates by Origin', 
                          status = 'info', width = 12,
                          plotlyOutput(outputId = 'fchn_esc'))
-                     )),
+              )),
             fluidRow(
               column(12, 
                      box(title = NULL, # 'Age Composition by Year', 
@@ -297,7 +297,7 @@ program and its staff serve a key role.")
                      box(title = NULL, # 'Sex Composition for All Years', 
                          status = 'info', width = 6,
                          plotlyOutput(outputId = 'fchn_sex'))
-                     )
+              )
             )
     ),
     # In-Stream Array Abundance Summaries Tab ----
