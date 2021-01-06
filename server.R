@@ -92,7 +92,6 @@ server <- function(input, output, session) {
     ungroup() %>%
     filter(Date < Sys.Date()) # this isn't perfect. I'm not sure when 'yesterdays' count is added.
   
-  # Window Counts
   windowCountServer('chinook', data=window_df, species_='Chinook', subtitle_='Chinook Salmon')
   windowCountServer('steelhead', data=window_df, species_='Steelhead', subtitle_='Steelhead')
   windowCountServer('coho', data=window_df, species_='Coho', subtitle_='Coho Salmon')

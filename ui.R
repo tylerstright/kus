@@ -59,7 +59,7 @@ body <- dashboardBody(
     tabItem(tabName = 'tab_home',
             br(),
             fluidRow(
-              column(12, offset = 0,
+              column(10, offset = 0,
                      h1('Department of Fisheries Resources Management', style = 'text-align:center;'),
                      br(),
                      column(10, offset = 1,
@@ -69,15 +69,14 @@ body <- dashboardBody(
                      br()
               )#,
               # column(2,
-              #        tags$a(
-              #          href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf', 
-              #          target = '_blank',
-              #          tags$img(src='DFRM Management Plan Cover.jpg',
-              #                   title = 'Click to view the DFRM Management Plan',
-              #                   style = 'width:80% !important; padding-bottom:10%')
-              #        )
+                     # tags$a(
+                     #   href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf',
+                     #   target = '_blank',
+                     #   tags$img(src='DFRM Management Plan Cover.jpg',
+                     #            title = 'Click to view the DFRM Management Plan',
+                     #            style = 'width:80% !important; padding-bottom:10%')
+                     # )
               # )
-              
             ),
             
             box(width = NULL, solidHeader = TRUE, status = 'primary',
