@@ -59,7 +59,7 @@ body <- dashboardBody(
     tabItem(tabName = 'tab_home',
             br(),
             fluidRow(
-              column(12, offset = 0,
+              column(10, offset = 0,
                      h1('Department of Fisheries Resources Management', style = 'text-align:center;'),
                      br(),
                      column(10, offset = 1,
@@ -69,32 +69,23 @@ body <- dashboardBody(
                      br()
               )#,
               # column(2,
-              #        tags$a(
-              #          href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf', 
-              #          target = '_blank',
-              #          tags$img(src='DFRM Management Plan Cover.jpg',
-              #                   title = 'Click to view the DFRM Management Plan',
-              #                   style = 'width:80% !important; padding-bottom:10%')
-              #        )
+                     # tags$a(
+                     #   href = 'https://npt-cdms.nezperce.org/services/uploads/P/11066/DFRM%20Management%20Plan.pdf',
+                     #   target = '_blank',
+                     #   tags$img(src='DFRM Management Plan Cover.jpg',
+                     #            title = 'Click to view the DFRM Management Plan',
+                     #            style = 'width:80% !important; padding-bottom:10%')
+                     # )
               # )
-              
             ),
             
             box(width = NULL, solidHeader = TRUE, status = 'primary',
                 title = 'Lower Granite Window Counts',
                 fluidRow(
-                  column(3,
-                         valueBoxOutput("windowChinook", width = NULL)
-                  ),
-                  column(3,
-                         valueBoxOutput("windowSteelhead", width = NULL)
-                  ),
-                  column(3,
-                         valueBoxOutput("windowCoho", width = NULL)
-                  ),
-                  column(3,
-                         valueBoxOutput("windowSockeye", width = NULL)
-                  )
+                  windowCountUI('chinook'),
+                  windowCountUI('steelhead'),
+                  windowCountUI('coho'),
+                  windowCountUI('sockeye')
                 ),
                 fluidRow(
                   column(12, plotlyOutput('window_plot'))
@@ -257,8 +248,7 @@ program and its staff serve a key role.")
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
                   DT::dataTableOutput('weir_sum_sth'), br())
-            ),
-            hr(),
+            ), hr(),
             fluidRow(
               column(12,
                      box(title = 'Weir Collection Summaries', status='info', width= 5,
@@ -269,20 +259,16 @@ program and its staff serve a key role.")
                      box(width = 7, 
                          img(src='jcweir.jpg', width = '100%', height='auto') 
                      ))
-            ),
-            hr(),
-            
+            ), hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_weircatch'))
-            ),
-            hr(),
+            ), hr(),
             fluidRow(
               box(width = 6, title = 'Weir Collection Statistics',
                   dataTableOutput('weir_props_table')),
               box(width = 6,
                   plotlyOutput('p_weir_props'))
-            ),
-            hr(),
+            ), hr(),
             box(width = 12, 
                 title = 'Weir Disposition Summary',
                 # fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
@@ -296,7 +282,7 @@ program and its staff serve a key role.")
                      box(title = 'Fall Chinook Yearly Escapement Estimates by Origin', 
                          status = 'info', width = 12,
                          plotlyOutput(outputId = 'fchn_esc'))
-                     )),
+              )),
             fluidRow(
               column(12, 
                      box(title = NULL, # 'Age Composition by Year', 
@@ -305,7 +291,7 @@ program and its staff serve a key role.")
                      box(title = NULL, # 'Sex Composition for All Years', 
                          status = 'info', width = 6,
                          plotlyOutput(outputId = 'fchn_sex'))
-                     )
+              )
             )
     ),
     # In-Stream Array Abundance Summaries Tab ----

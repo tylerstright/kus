@@ -21,6 +21,8 @@ source('./R/employeeInfoUI.R')
 source('./R/employeeInfoServer.R')
 source('./R/contactInfoUI.R')
 source('./R/contactInfoServer.R')
+source('./R/windowCountUI.R')
+source('./R/windowCountServer.R')
 
 # Source
 source('./R/sum_FCHN_redds.R') # custom query
