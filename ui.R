@@ -280,32 +280,32 @@ program and its staff serve a key role.")
     ),
     # Spawner Abundance Tab ----
     tabItem(tabName = 'tab_nosa',
-            # fluidRow(
-            #   column(12,
-            #          box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
-            #              uiOutput(outputId = 'nosa_species'),
-            #              radioButtons('nosa_type', label = 'Choose Estimate Type:', 
-            #                           choices = c('Natural Spawner Aundance','Total Spawner Abundance')),
-            #              uiOutput(outputId = 'nosa_pop_name')
-            #          ),
-            #          box(width = 7, #height = '260',
-            #              # img(src='carcass.png', width = '100%', height='auto') 
-            #          ))
-            # ),
-            # hr(),
-            # fluidRow(
-            #   # box(width = 12, plotlyOutput('p_redds'))
-            # ),
-            # fluidRow(
-            #   # box(width = 4, plotlyOutput('p_females')),
-            #   # box(width = 4, plotlyOutput('p_phos')),
-            #   # box(width = 4, plotlyOutput('p_psm'))
-            # ),
-            # box(width = 12, 
-            #     title = 'Tabular Summary Data',
-            #     # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
-            #     DT::dataTableOutput('sgs_table')
-            # )
+            fluidRow(
+              column(12,
+                     box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
+                         # uiOutput(outputId = 'nosa_species'),
+                         radioButtons('nosa_type', label = 'Choose Estimate Type:',
+                                      choices = c('Natural Spawner Aundance','Total Spawner Abundance')),
+                         # uiOutput(outputId = 'nosa_pop_name')
+                     ),
+                     box(width = 7, #height = '260',
+                         # img(src='carcass.png', width = '100%', height='auto')
+                     ))
+            ),
+            hr(),
+            fluidRow(
+              # box(width = 12, plotlyOutput('p_redds'))
+            ),
+            fluidRow(
+              # box(width = 4, plotlyOutput('p_females')),
+              # box(width = 4, plotlyOutput('p_phos')),
+              # box(width = 4, plotlyOutput('p_psm'))
+            ),
+            box(width = 12,
+                title = 'Tabular Summary Data',
+                # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
+                # DT::dataTableOutput('sgs_table')
+            )
     ),
     # Fall Chinook Run Reconstruction Data Summaries Tab ----
     tabItem(tabName = 'tab_fchn',
@@ -472,7 +472,8 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_reports',
             fluidRow(
               box(width = 12,
-                  h2('Reports!', style = 'text-align: center;'),
+                  h2('Reports', style = 'text-align: center;'),
+                  br(),
                   h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
                        we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
                   h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
@@ -480,10 +481,10 @@ program and its staff serve a key role.")
             ),
             fluidRow(
               box(width = 12,
-                  title = 'Report Download',
+                  title = 'Report Downloads',
                   uiOutput('pdf_reports'),
                   # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
-                  downloadButton('report_export', label = 'Download Report')
+                  downloadButton('report_export', label = 'Download Adult Report')
               )
             )
     ),

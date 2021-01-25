@@ -572,6 +572,20 @@ server <- function(input, output, session) {
   #   contentType = "text/csv"
   # )
   
+  
+  # Spawner Abundance Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_nosa'){
+      
+      # output$nosa_species <- renderUI({
+      #   selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= as.list(unique(sgs_pop_list_full$SpeciesRun)), selectize= FALSE,
+      #               selected = 'Spring/summer Chinook salmon', multiple = FALSE)
+      # })
+      
+    }
+  })
+      
+  
   # Fall Chinook Run Reconstruction Data Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_fchn'){
