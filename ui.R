@@ -4,8 +4,8 @@
 header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),  # Title shown on browser tab located in dashboardPage()
                           tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, style = 'height:40px !important; width:auto !important;'), 
                                   class = 'dropdown', style = 'position: fixed; left:40px; padding-top:6px'),
-                          # tags$li(tags$a("Snake IPTDS", href = "https://nptfisheries.shinyapps.io/SnakeIPTDS/", target = '_blank', class='navlinks'),
-                                  # class = 'dropdown'),
+                          tags$li(tags$a("Snake IPTDS", href = "https://nptfisheries.shinyapps.io/SnakeIPTDS/", target = '_blank', class='navlinks'),
+                          class = 'dropdown'),
                           tags$li(tags$a("PITPH Web App", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank', class='navlinks'),
                                   class = 'dropdown'),
                           tags$li(tags$a("PITtrackR Web App", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank', class='navlinks'),
@@ -280,32 +280,32 @@ program and its staff serve a key role.")
     ),
     # Spawner Abundance Tab ----
     tabItem(tabName = 'tab_nosa',
-            fluidRow(
-              column(12,
-                     box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
-                         uiOutput(outputId = 'nosa_species'),
-                         radioButtons('nosa_type', label = 'Choose Estimate Type:', 
-                                      choices = c('Natural Spawner Aundance','Total Spawner Abundance')),
-                         uiOutput(outputId = 'nosa_pop_name')
-                     ),
-                     box(width = 7, #height = '260',
-                         # img(src='carcass.png', width = '100%', height='auto') 
-                     ))
-            ),
-            hr(),
-            fluidRow(
-              # box(width = 12, plotlyOutput('p_redds'))
-            ),
-            fluidRow(
-              # box(width = 4, plotlyOutput('p_females')),
-              # box(width = 4, plotlyOutput('p_phos')),
-              # box(width = 4, plotlyOutput('p_psm'))
-            ),
-            box(width = 12, 
-                title = 'Tabular Summary Data',
-                # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
-                DT::dataTableOutput('sgs_table')
-            )
+            # fluidRow(
+            #   column(12,
+            #          box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
+            #              uiOutput(outputId = 'nosa_species'),
+            #              radioButtons('nosa_type', label = 'Choose Estimate Type:', 
+            #                           choices = c('Natural Spawner Aundance','Total Spawner Abundance')),
+            #              uiOutput(outputId = 'nosa_pop_name')
+            #          ),
+            #          box(width = 7, #height = '260',
+            #              # img(src='carcass.png', width = '100%', height='auto') 
+            #          ))
+            # ),
+            # hr(),
+            # fluidRow(
+            #   # box(width = 12, plotlyOutput('p_redds'))
+            # ),
+            # fluidRow(
+            #   # box(width = 4, plotlyOutput('p_females')),
+            #   # box(width = 4, plotlyOutput('p_phos')),
+            #   # box(width = 4, plotlyOutput('p_psm'))
+            # ),
+            # box(width = 12, 
+            #     title = 'Tabular Summary Data',
+            #     # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
+            #     DT::dataTableOutput('sgs_table')
+            # )
     ),
     # Fall Chinook Run Reconstruction Data Summaries Tab ----
     tabItem(tabName = 'tab_fchn',

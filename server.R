@@ -1214,7 +1214,7 @@ server <- function(input, output, session) {
     },
 
     content = function(file){
-      file.copy('./data/adult_report_v1.docx', file)
+      file.copy('./www/adult_report_v1.docx', file)
     }
   )
   
