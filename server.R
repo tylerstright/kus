@@ -577,13 +577,73 @@ server <- function(input, output, session) {
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_nosa'){
       
-      # output$nosa_species <- renderUI({
-      #   selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= as.list(unique(sgs_pop_list_full$SpeciesRun)), selectize= FALSE,
-      #               selected = 'Spring/summer Chinook salmon', multiple = FALSE)
-      # })
+      output$nosa_species <- renderUI({
+        selectInput(inputId= 'nosa_species', label= 'Choose Species:', choices= as.list(unique(nosa_df$Species)), selectize= FALSE,
+                    selected = 'Chinook salmon', multiple = FALSE)
+      })
       
+      output$nosa_waterbody <- renderUI({
+        selectInput(inputId= 'nosa_waterbody', label= 'Choose Water Body:', choices= as.list(unique(nosa_df$WaterBody)), selectize= FALSE,
+                    selected = 'Imnaha River', multiple = TRUE)
+      })
     }
   })
+
+
+observeEvent(input$nosa_waterbody, {  
+    nosa_tmp <- nosa_df  %>%
+      filter(Species == input$nosa_species,
+             WaterBody %in% input$nosa_waterbody)
+  
+    # NOSA PLOT
+    output$p_nosaij <- renderPlotly({
+      # nosaij_tmp <- nosa_df  %>%
+      #   filter(Species == input$nosa_species,
+      #          WaterBody %in% input$nosa_waterbody)
+      
+      # shiny::validate(
+      #   need(nrow(nosaij_tmp) > 0, message = '*No spawner abundance data for the current selection.')
+      # )
+      shiny::validate(
+        need(nrow(nosa_tmp) > 0, message = '*No spawner abundance data for the current selection.')
+      )
+      # plot
+      plot_ly(data = nosa_tmp, #nosaij_tmp,
+              x = ~SpawningYear,
+              y = ~NOSAIJ,
+              error_y= list(type = 'data',
+                            array = ~NOSAIJ_error,
+                            arrayminus = ~NOSAIJ_errorminus),
+              name = ~WaterBody,
+              text = ~WaterBody,
+              hovertemplate = paste(
+                '%{text}<br>',
+                '%{x} %{yaxis.title.text}: %{y}'),
+              type = 'scatter',
+              mode = 'lines+markers',
+              linetype = ~MetaComments,
+              color = ~WaterBody,
+              colors = viridis_pal(option="D")(length(unique(nosa_tmp$WaterBody)))
+      ) %>%
+        layout(title = list(text = '<b>Natural Origin Spawner Abundance Estimates by Year</b>', font = plotly_font),
+               yaxis = list(title= 'Natural Spawner Abundance', titlefont = plotly_font),
+               xaxis = list(title= 'Spawn Year', titlefont = plotly_font))
+    })
+    
+    # SGS Summary Data Table (reactive)
+    output$nosa_table <- DT::renderDataTable({
+      
+      shiny::validate(
+        need(nosa_tmp, message = '    Table will populate after data load.')
+      )
+      
+      # sgs_table_data <<- RV$sgs_data
+      
+      DT::datatable(nosa_tmp, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+    })
+  })
+     
+
       
   
   # Fall Chinook Run Reconstruction Data Summaries Tab ----

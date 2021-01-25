@@ -283,28 +283,22 @@ program and its staff serve a key role.")
             fluidRow(
               column(12,
                      box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
-                         # uiOutput(outputId = 'nosa_species'),
-                         radioButtons('nosa_type', label = 'Choose Estimate Type:',
-                                      choices = c('Natural Spawner Aundance','Total Spawner Abundance')),
-                         # uiOutput(outputId = 'nosa_pop_name')
+                         uiOutput(outputId = 'nosa_species'),
+                         # radioButtons('nosa_type', label = 'Choose Estimate Type:',
+                                      # choices = c('Natural Spawner Aundance','Total Spawner Abundance')),
+                         uiOutput(outputId = 'nosa_waterbody')
                      ),
                      box(width = 7, #height = '260',
-                         # img(src='carcass.png', width = '100%', height='auto')
+                         img(src='nosa.png', width = '100%', height='auto')
                      ))
             ),
             hr(),
             fluidRow(
-              # box(width = 12, plotlyOutput('p_redds'))
-            ),
-            fluidRow(
-              # box(width = 4, plotlyOutput('p_females')),
-              # box(width = 4, plotlyOutput('p_phos')),
-              # box(width = 4, plotlyOutput('p_psm'))
+              box(width = 12, plotlyOutput('p_nosaij'))
             ),
             box(width = 12,
                 title = 'Tabular Summary Data',
-                # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
-                # DT::dataTableOutput('sgs_table')
+                DT::dataTableOutput('nosa_table')
             )
     ),
     # Fall Chinook Run Reconstruction Data Summaries Tab ----
