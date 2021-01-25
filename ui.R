@@ -4,8 +4,8 @@
 header <- dashboardHeader(title = div(id = "kustitle", 'Kus', style='float:right;'),  # Title shown on browser tab located in dashboardPage()
                           tags$li(img(src='NPTlogos2.png', title = NULL, draggable = FALSE, style = 'height:40px !important; width:auto !important;'), 
                                   class = 'dropdown', style = 'position: fixed; left:40px; padding-top:6px'),
-                          tags$li(tags$a("Snake IPTDS", href = "https://nptfisheries.shinyapps.io/SnakeIPTDS/", target = '_blank', class='navlinks'),
-                                  class = 'dropdown'),
+                          # tags$li(tags$a("Snake IPTDS", href = "https://nptfisheries.shinyapps.io/SnakeIPTDS/", target = '_blank', class='navlinks'),
+                                  # class = 'dropdown'),
                           tags$li(tags$a("PITPH Web App", href = "https://nptfisheries.shinyapps.io/pitph2/", target = '_blank', class='navlinks'),
                                   class = 'dropdown'),
                           tags$li(tags$a("PITtrackR Web App", href = "https://nptfisheries.shinyapps.io/PITtrackR/", target = '_blank', class='navlinks'),
@@ -31,6 +31,7 @@ sidebar <- dashboardSidebar(
               menuItem('Data Summaries', tabName = 'tab_productivity', icon = icon("chart-area"), startExpanded = TRUE,
                        menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
                        menuSubItem('Weir Collections', tabName = 'tab_weir'),
+                       menuSubItem('Spawner Abundance', tabName = 'tab_nosa'),
                        menuSubItem('Fall Chinook', tabName = 'tab_fchn'),
                        # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
                        menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')#,
@@ -40,8 +41,8 @@ sidebar <- dashboardSidebar(
               menuItem('Restricted Data Access', tabName = 'tab_rawdata', icon = icon('table'), startExpanded = TRUE,
                        menuItemOutput('rd_cdms'),
                        menuItemOutput('rd_customquery'),
-                       menuItemOutput('rd_fins')#,
-                       # menuItemOutput('rd_reports')
+                       menuItemOutput('rd_fins'),
+                       menuItemOutput('rd_reports')
               ),
               menuItem('Contact Information', tabName = 'tab_contacts'),
               br(), br(), 
@@ -277,6 +278,35 @@ program and its staff serve a key role.")
                 DT::dataTableOutput('weir_table')
             )
     ),
+    # Spawner Abundance Tab ----
+    tabItem(tabName = 'tab_nosa',
+            fluidRow(
+              column(12,
+                     box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
+                         uiOutput(outputId = 'nosa_species'),
+                         radioButtons('nosa_type', label = 'Choose Estimate Type:', 
+                                      choices = c('Natural Spawner Aundance','Total Spawner Abundance')),
+                         uiOutput(outputId = 'nosa_pop_name')
+                     ),
+                     box(width = 7, #height = '260',
+                         # img(src='carcass.png', width = '100%', height='auto') 
+                     ))
+            ),
+            hr(),
+            fluidRow(
+              # box(width = 12, plotlyOutput('p_redds'))
+            ),
+            fluidRow(
+              # box(width = 4, plotlyOutput('p_females')),
+              # box(width = 4, plotlyOutput('p_phos')),
+              # box(width = 4, plotlyOutput('p_psm'))
+            ),
+            box(width = 12, 
+                title = 'Tabular Summary Data',
+                # fluidRow(column(12, align = "center", downloadButton("sgs_export", label = "Export .CSV File"))),
+                DT::dataTableOutput('sgs_table')
+            )
+    ),
     # Fall Chinook Run Reconstruction Data Summaries Tab ----
     tabItem(tabName = 'tab_fchn',
             fluidRow(
@@ -439,24 +469,24 @@ program and its staff serve a key role.")
             )
     ),
     # Reports ----
-    # tabItem(tabName = 'tab_reports',
-    #         fluidRow(
-    #           box(width = 12,
-    #               h2('Reports!', style = 'text-align: center;'),
-    #               h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
-    #                    we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
-    #               h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
-    #           )
-    #         ),
-    #         fluidRow(
-    #           box(width = 12,
-    #               title = 'Report Download',
-    #               uiOutput('pdf_reports'),
-    #               # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
-    #               downloadButton('report_export', label = 'Download Report')
-    #           )
-    #         )
-    # ),
+    tabItem(tabName = 'tab_reports',
+            fluidRow(
+              box(width = 12,
+                  h2('Reports!', style = 'text-align: center;'),
+                  h3('This page is itended to be used for automated reports. If you create the same report on a consistent basis (e.g. same graphs and tables of information),
+                       we can work together to automate these reports so they are available at the click of a button with the most current data in CDMS.', style='text-align:center;'),
+                  h4('Please contact Tyler Stright (tylers@nezperce.org) with inquiries.', style = 'text-align: center;')
+              )
+            ),
+            fluidRow(
+              box(width = 12,
+                  title = 'Report Download',
+                  uiOutput('pdf_reports'),
+                  # helpText(HTML('<em>*Reports are generated from raw data at the time of request. As such, loading may take several minutes. Clicking the download button multiple times may result in multiple downloads.</em>')),
+                  downloadButton('report_export', label = 'Download Report')
+              )
+            )
+    ),
     
     tabItem('tab_contacts',
             br(),

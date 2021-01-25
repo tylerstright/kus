@@ -1206,6 +1206,18 @@ server <- function(input, output, session) {
   )
   
   # Reports (Tab) ----
+  # Static download for Adult Report  (Kinzer's presentation)
+  output$report_export <- downloadHandler(
+
+    filename = function() {
+      paste('NPT_adult_', format(Sys.Date(), "%m_%d_%y"), '.docx', sep='')
+    },
+
+    content = function(file){
+      file.copy('./data/adult_report_v1.docx', file)
+    }
+  )
+  
   # output$pdf_reports <- renderUI({
   # 
   #   report_list <- gsub('_', ' ', gsub('.pdf', '', list.files(path = './pdf/')))
@@ -1213,18 +1225,18 @@ server <- function(input, output, session) {
   #   selectInput('pdf_reports', "Available Reports:", choices = report_list,
   #               selected = report_list[1])
   # })
-  # 
-  #   # Download Reports (already in PDF)
+
+    # Download Reports (already in PDF)
   # output$report_export <- downloadHandler(
   # 
-  #   filename = function() { 
+  #   filename = function() {
   #     paste(gsub(' ', '_', input$pdf_reports), '_', format(Sys.Date(), "%m_%d_%y"), '.pdf', sep='')
-  #   },  
-  #   
+  #   },
+  # 
   #   content = function(file){
   #     # build file path
   #     report_path <- paste('./pdf/', gsub(' ', '_', input$pdf_reports), '.pdf', sep= '')
-  #     
+  # 
   #     file.copy(report_path, file)
   #   }
   # )
