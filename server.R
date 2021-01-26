@@ -400,32 +400,32 @@ server <- function(input, output, session) {
       output$weir_sum_chn <- renderDataTable({
         
         shiny::validate(
-          need(exists('weir_sum_all'), message = '*No Chinook catch yet this year!')
+          need(exists('chn_weir_sum'), message = '*No Chinook catch yet this year!')
         )
         
-        chn_tmp <- weir_sum_all %>% filter(Species == 'Chinook')
+        # chn_tmp <- weir_sum_all %>% filter(Species == 'Chinook')
+        # 
+        # shiny::validate(
+        #   need(nrow(chn_tmp) > 0, message = '*No Chinook catch yet this year!')
+        # )
         
-        shiny::validate(
-          need(nrow(chn_tmp) > 0, message = '*No Chinook catch yet this year!')
-        )
-        
-        DT::datatable(chn_tmp, options = list(orderClasses = TRUE, scrollX = TRUE,
+        DT::datatable(chn_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
                                               dom = 'tp'))
       })
       
       output$weir_sum_sth <- renderDataTable({
         
         shiny::validate(
-          need(exists('weir_sum_all'), message = '*No Steelhead catch yet this year!')
+          need(exists('sth_weir_sum'), message = '*No Steelhead catch yet this year!')
         )
         
-        sth_tmp <- weir_sum_all %>% filter(Species == 'Steelhead')
+        # sth_tmp <- weir_sum_all %>% filter(Species == 'Steelhead')
+        # 
+        # shiny::validate(
+        #   need(nrow(sth_tmp) > 0, message = '*No Steelhead catch yet this year!')
+        # )
         
-        shiny::validate(
-          need(nrow(sth_tmp) > 0, message = '*No Steelhead catch yet this year!')
-        )
-        
-        DT::datatable(sth_tmp, options = list(orderClasses = TRUE, scrollX = TRUE,
+        DT::datatable(sth_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
                                               dom = 'tp'))
       })
       
@@ -572,6 +572,69 @@ server <- function(input, output, session) {
   #   contentType = "text/csv"
   # )
   
+  
+  # Spawner Abundance Tab ----
+  nosa_tmp <- reactive({  # call this reactive data as nosa_tmp()
+    StreamNetNOSA %>%
+      filter(Species == input$nosa_species,
+             WaterBody %in% input$nosa_waterbody,
+             MetaComments == input$nosa_method)
+  })
+  
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_nosa'){
+      
+      output$nosa_method <- renderUI({
+        radioButtons('nosa_method', label = 'Choose Method:', inline=TRUE,
+                     choices = as.list(unique(StreamNetNOSA$MetaComments)), selected = 'STADEM and DABOM')
+      })
+      
+      output$nosa_species <- renderUI({
+        selectInput(inputId= 'nosa_species', label= 'Choose Species:', choices= as.list(unique(StreamNetNOSA$Species)), selectize= FALSE,
+                    selected = 'Chinook salmon', multiple = FALSE)
+      })
+      
+      output$nosa_waterbody <- renderUI({
+        selectInput(inputId= 'nosa_waterbody', label= 'Choose Water Body:', choices= as.list(unique(StreamNetNOSA$WaterBody)), selectize= FALSE,
+                    selected = 'Imnaha River', multiple = TRUE)
+      })
+    }
+  })
+  
+    # NOSA PLOT
+    output$p_nosaij <- renderPlotly({
+
+      shiny::validate(
+        need(nrow(nosa_tmp()) > 0, message = '*No spawner abundance data for the current selection.')
+      )
+      # plot
+      plot_ly(data = nosa_tmp(), #nosaij_tmp,
+              x = ~SpawningYear,
+              y = ~NOSAIJ,
+              error_y= list(type = 'data',
+                            array = ~NOSAIJ_error,
+                            arrayminus = ~NOSAIJ_errorminus),
+              name = ~WaterBody,
+              text = ~WaterBody,
+              hovertemplate = paste(
+                '%{text}<br>',
+                '%{x} %{yaxis.title.text}: %{y}'),
+              type = 'scatter',
+              mode = 'lines+markers',
+              linetype = ~MetaComments,
+              color = ~WaterBody,
+              colors = viridis_pal(option="D")(length(unique(nosa_tmp()$WaterBody)))
+      ) %>%
+        layout(title = list(text = '<b>Natural Origin Spawner Abundance Estimates by Year</b>', font = plotly_font),
+               yaxis = list(title= 'Natural Spawner Abundance', titlefont = plotly_font),
+               xaxis = list(title= 'Spawn Year', titlefont = plotly_font))
+    })
+    
+    # NOSA Data Table (reactive)
+    output$nosa_table <- DT::renderDataTable({
+      DT::datatable(nosa_tmp(), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+    })
+     
   # Fall Chinook Run Reconstruction Data Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_fchn'){
@@ -1206,6 +1269,18 @@ server <- function(input, output, session) {
   )
   
   # Reports (Tab) ----
+  # Static download for Adult Report  (Kinzer's presentation)
+  output$report_export <- downloadHandler(
+
+    filename = function() {
+      paste('NPT_adult_', format(Sys.Date(), "%m_%d_%y"), '.docx', sep='')
+    },
+
+    content = function(file){
+      file.copy('./www/adult_report_v1.docx', file)
+    }
+  )
+  
   # output$pdf_reports <- renderUI({
   # 
   #   report_list <- gsub('_', ' ', gsub('.pdf', '', list.files(path = './pdf/')))
@@ -1213,18 +1288,18 @@ server <- function(input, output, session) {
   #   selectInput('pdf_reports', "Available Reports:", choices = report_list,
   #               selected = report_list[1])
   # })
-  # 
-  #   # Download Reports (already in PDF)
+
+    # Download Reports (already in PDF)
   # output$report_export <- downloadHandler(
   # 
-  #   filename = function() { 
+  #   filename = function() {
   #     paste(gsub(' ', '_', input$pdf_reports), '_', format(Sys.Date(), "%m_%d_%y"), '.pdf', sep='')
-  #   },  
-  #   
+  #   },
+  # 
   #   content = function(file){
   #     # build file path
   #     report_path <- paste('./pdf/', gsub(' ', '_', input$pdf_reports), '.pdf', sep= '')
-  #     
+  # 
   #     file.copy(report_path, file)
   #   }
   # )
