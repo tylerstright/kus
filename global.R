@@ -33,7 +33,6 @@ source('./R/cdms_api_keys.R')
 
 # Load Static Data
 load('./data/kus_data.rda')
-load('./data/nosa_df.rda')
 
 # Login Credentials
 keys <- cdmsKeys()

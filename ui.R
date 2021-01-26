@@ -283,10 +283,10 @@ program and its staff serve a key role.")
             fluidRow(
               column(12,
                      box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
+                         uiOutput(outputId = 'nosa_method'),
                          uiOutput(outputId = 'nosa_species'),
-                         # radioButtons('nosa_type', label = 'Choose Estimate Type:',
-                                      # choices = c('Natural Spawner Aundance','Total Spawner Abundance')),
-                         uiOutput(outputId = 'nosa_waterbody')
+                         uiOutput(outputId = 'nosa_waterbody'),
+                         textOutput(outputId = 'methodtext')
                      ),
                      box(width = 7, #height = '260',
                          img(src='nosa.png', width = '100%', height='auto')
