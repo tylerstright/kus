@@ -400,32 +400,32 @@ server <- function(input, output, session) {
       output$weir_sum_chn <- renderDataTable({
         
         shiny::validate(
-          need(exists('weir_sum_all'), message = '*No Chinook catch yet this year!')
+          need(exists('chn_weir_sum'), message = '*No Chinook catch yet this year!')
         )
         
-        chn_tmp <- weir_sum_all %>% filter(Species == 'Chinook')
+        # chn_tmp <- weir_sum_all %>% filter(Species == 'Chinook')
+        # 
+        # shiny::validate(
+        #   need(nrow(chn_tmp) > 0, message = '*No Chinook catch yet this year!')
+        # )
         
-        shiny::validate(
-          need(nrow(chn_tmp) > 0, message = '*No Chinook catch yet this year!')
-        )
-        
-        DT::datatable(chn_tmp, options = list(orderClasses = TRUE, scrollX = TRUE,
+        DT::datatable(chn_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
                                               dom = 'tp'))
       })
       
       output$weir_sum_sth <- renderDataTable({
         
         shiny::validate(
-          need(exists('weir_sum_all'), message = '*No Steelhead catch yet this year!')
+          need(exists('sth_weir_sum'), message = '*No Steelhead catch yet this year!')
         )
         
-        sth_tmp <- weir_sum_all %>% filter(Species == 'Steelhead')
+        # sth_tmp <- weir_sum_all %>% filter(Species == 'Steelhead')
+        # 
+        # shiny::validate(
+        #   need(nrow(sth_tmp) > 0, message = '*No Steelhead catch yet this year!')
+        # )
         
-        shiny::validate(
-          need(nrow(sth_tmp) > 0, message = '*No Steelhead catch yet this year!')
-        )
-        
-        DT::datatable(sth_tmp, options = list(orderClasses = TRUE, scrollX = TRUE,
+        DT::datatable(sth_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
                                               dom = 'tp'))
       })
       
