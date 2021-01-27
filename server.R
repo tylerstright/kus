@@ -632,7 +632,8 @@ server <- function(input, output, session) {
     
     # NOSA Data Table (reactive)
     output$nosa_table <- DT::renderDataTable({
-      DT::datatable(nosa_tmp(), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+      DT::datatable(nosa_tmp() %>%
+                      select(-NOSAIJ_error, -NOSAIJ_errorminus, -TSAIJ_error, -TSAIJ_errorminus), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
     })
      
   # Fall Chinook Run Reconstruction Data Summaries Tab ----
