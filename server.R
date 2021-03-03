@@ -77,7 +77,8 @@ server <- function(input, output, session) {
   window_df <- queryWindowCnts(dam = 'LWG', 
                                spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw','fb'),
                                # If before 03/02/XX, display previous year's data. Beware leap years.
-                               spawn_yr = if_else(yday(Sys.Date()) < 51, year(Sys.Date())-1, year(Sys.Date())), 
+                               # spawn_yr = if_else(yday(Sys.Date()) < 51, year(Sys.Date())-1, year(Sys.Date())), 
+                               spawn_yr = 2020, # temporary fix 3/3/21
                                start_day = '01/01',
                                end_day = '12/31') %>%
     gather(key = spp, value = 'Count', -Year, -Date) %>%
