@@ -636,6 +636,64 @@ server <- function(input, output, session) {
                       select(-NOSAIJ_error, -NOSAIJ_errorminus, -TSAIJ_error, -TSAIJ_errorminus), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
     })
      
+  # Hatchery Spawning (FINS) Summaries Tab ----
+    observeEvent(input$tabs, {
+      if(input$tabs == 'tab_spawn'){
+        output$spawn_species <- renderUI({
+          selectInput(inputId= 'spawn_species', label= 'Choose Species:', choices= unique(sort(unique(spawn_summary$SpeciesRun))), selectize= FALSE, 
+                      selected = 'Spring Chinook', multiple = FALSE)
+        })
+      }
+    })
+    
+    spawn_facil <- reactive({
+      spawn_summary %>% filter(SpeciesRun == input$spawn_species)
+    })
+    
+    output$spawn_facility <- renderUI({
+      selectInput(inputId= 'spawn_facility', label= 'Choose Facility:', choices= unique(sort(unique(spawn_facil()$`Moved From Facility`))),
+                  selectize= FALSE, selected = NULL, multiple = FALSE)
+    })
+    
+    spawn_sum <- reactive({
+      spawn_summary %>%
+        filter(SpeciesRun == input$spawn_species,
+               `Moved From Facility` == input$spawn_facility)
+    })
+    
+    # plot
+    output$p_spawn <- renderPlotly({
+
+      spawn_tmp <- spawn_sum() %>%
+        pivot_longer(cols = c('Male','Female'), names_to = 'Sex', values_to = 'Count') %>%
+        mutate(group = gsub('NA: ', 'Undesignated ', paste0(Stock, ': ', Sex)))
+      
+      plot_ly(data = spawn_tmp,
+              x = ~`Spawn Year`,
+              y = ~ Count,
+              # name = ~POP_NAME,
+              text = ~group,
+              hovertemplate = paste(
+                '%{text}<br>',
+                '%{x} %{yaxis.title.text}: %{y}'),
+              type = 'bar',
+              color = ~group,
+              colors = viridis_pal(option="D")(length(unique(spawn_tmp$group)))
+      ) %>%
+        layout(#barmode ='stack',
+               title = list(text = '<b>Yearly Spawn Counts</b>', font = plotly_font),
+               yaxis = list(title= 'Number Spawned', titlefont = plotly_font),
+               xaxis = list(title= 'Spawn Year', titlefont = plotly_font))
+    })
+
+    # Spawn Summary Data Table
+    output$spawn_table <- DT::renderDataTable({
+      DT::datatable(spawn_summary %>% 
+                      filter(SpeciesRun == input$spawn_species,
+                             `Moved From Facility` == input$spawn_facility), 
+                    options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+    })
+    
   # Fall Chinook Run Reconstruction Data Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_fchn'){
@@ -1254,6 +1312,7 @@ server <- function(input, output, session) {
     }
   })
 
+  
   # Reports (Tab) ----
   # Static download for Adult Report  (Kinzer's presentation)
   output$report_export <- downloadHandler(

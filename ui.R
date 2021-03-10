@@ -32,6 +32,7 @@ sidebar <- dashboardSidebar(
                        menuSubItem('Spawning Ground Surveys', tabName = 'tab_sgs'),
                        menuSubItem('Weir Collections', tabName = 'tab_weir'),
                        menuSubItem('Spawner Abundance', tabName = 'tab_nosa'),
+                       menuSubItem('Hatchery Spawning', tabName = 'tab_spawn'),
                        menuSubItem('Fall Chinook', tabName = 'tab_fchn'),
                        # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
                        menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
@@ -63,7 +64,7 @@ body <- dashboardBody(
     tabItem(tabName = 'tab_home',
             br(),
             fluidRow(
-              column(10, offset = 0,
+              column(12, offset = 0,
                      h1('Department of Fisheries Resources Management', style = 'text-align:center;'),
                      br(),
                      column(10, offset = 1,
@@ -302,6 +303,27 @@ program and its staff serve a key role.")
                 DT::dataTableOutput('nosa_table')
             )
     ),
+    # Hatchery Spawning (FINS) Tab ----
+    tabItem(tabName = 'tab_spawn',
+            fluidRow(
+              column(12,
+                     box(title = 'Hatchery Spawning Summary', status='info', width= 5, #height = '260',
+                         uiOutput(outputId = 'spawn_species'),
+                         uiOutput(outputId = 'spawn_facility')
+                     ),
+                     box(width = 7, #height = '260',
+                         img(src='spawn.png', width = '100%', height='auto')  # update photo
+                     ))
+            ),
+            hr(),
+            fluidRow(
+              box(width = 12, plotlyOutput('p_spawn'))
+            ),
+            box(width = 12,
+                title = 'Tabular Summary Data',
+                DT::dataTableOutput('spawn_table')
+            )
+    ),
     # Fall Chinook Run Reconstruction Data Summaries Tab ----
     tabItem(tabName = 'tab_fchn',
             fluidRow(
@@ -457,6 +479,7 @@ program and its staff serve a key role.")
     ),
     # FINS Data ----
     tabItem(tabName = 'tab_fins',
+            br(), h1('FINS Data Access', style = 'text-align:center;'), br(),
             finsModuleUI(id='trapping', .title = 'Trapping Module', 
                          .status = 'primary', .choices = c('Facility', 'Trap Year')),
             finsModuleUI(id='spawning', .title = 'Spawning Module', 
