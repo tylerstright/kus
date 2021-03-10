@@ -23,6 +23,8 @@ source('./R/contactInfoUI.R')
 source('./R/contactInfoServer.R')
 source('./R/windowCountUI.R')
 source('./R/windowCountServer.R')
+source('./R/finsModuleUI.R')
+source('./R/finsModuleServer.R')
 
 # Source
 source('./R/sum_FCHN_redds.R') # custom query

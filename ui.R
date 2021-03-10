@@ -34,7 +34,8 @@ sidebar <- dashboardSidebar(
                        menuSubItem('Spawner Abundance', tabName = 'tab_nosa'),
                        menuSubItem('Fall Chinook', tabName = 'tab_fchn'),
                        # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
-                       menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')#,
+                       menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
+                       menuSubItem('Rotary Screw Traps', tabName = 'tab_rst')
                        # menuSubItem('Age Sampling', tabName = 'tab_age')
               ),
               menuItem('Documents', tabName = 'tab_documents', icon = icon("file")),
@@ -357,6 +358,33 @@ program and its staff serve a key role.")
             )
     ),
     
+    # Rotary Screw Traps Tab ----
+    tabItem(tabName = 'tab_rst',
+            fluidRow(
+              column(12, 
+                     box(title = 'Rotary Screw Trap Summary', status='info', width= 5,
+                         uiOutput(outputId = 'rst_species'),
+                         uiOutput(outputId = 'rst_pop_name')
+                     ),
+                     box(width = 7, 
+                         img(src='lostine_rst.jpg', width = '100%', height='auto') # Should we get a new picture?
+                     ))
+            ),
+            hr(),
+            fluidRow(
+              box(width = 12, plotlyOutput('rst_catch'))
+            ),
+            fluidRow(
+              box(width = 6, plotlyOutput('')),
+              box(width = 6, plotlyOutput(''),
+                  br(), br())
+            ),
+            
+            box(width = 12, title = 'Tabular Summary Data',
+                DT::dataTableOutput('rst_table')
+            )
+    ),
+    
     # Age Sampling Tab ----
     # tabItem(tabName = 'tab_age',
     #         fluidRow(
@@ -429,38 +457,10 @@ program and its staff serve a key role.")
     ),
     # FINS Data ----
     tabItem(tabName = 'tab_fins',
-            box(width = 12,
-                h4("This page is still currently under development and will be updated with
-                     increased functionality in the future.", style='text-align:center;'),
-                # box(width = 12,
-                fluidRow(column(6, offset = 3, br(), #uiOutput("fins_menu"),
-                                # fluidRow(
-                                #   column(6, actionButton("fins_raw", label = "Load Raw FINS Data", icon = icon('hourglass-start'), width = '100%')),
-                                #   column(6, actionButton("fins_clean", label = "Load Cleaned FINS Data", icon = icon('hourglass-start'), width = '100%'))
-                                # ),
-                                br(),
-                                radioButtons(inputId = 'fins_filtertype', label = 'Filter by Facility or Year? *', choices = c('Facility', 'Year'), 
-                                             inline = TRUE, selected = 'Facility'),
-                                uiOutput('fins_filter')
-                                # selectInput(inputId = 'fins_fields', label = 'Choose Fields in Desired Order:', choices = NULL, selectize = TRUE, multiple = TRUE),
-                                # sliderInput(inputId= 'fins_year', label= '*Choose Years:', min = 0, max = 100, value=  c(0,100), sep= '', step = 1)
-                ),
-                # column(6,
-                # selectInput(inputId= 'fins_species', label= 'Choose Species:', choices= NULL, selected = NULL, multiple = TRUE),
-                # selectInput(inputId= 'fins_facility', label= 'Choose Facility:', choices= NULL, selected = NULL, multiple = TRUE),
-                # br(),
-                # fluidRow(
-                #   column(8, offset = 2, actionButton('fins_clear_fields', HTML('<strong> Clear Field Values </strong>'), width = '100%'))
-                # )
-                # )
-                ),
-                # hr(),
-                fluidRow(column(12, align = "center",
-                                # uiOutput('selected_fins'), 
-                                hr(),
-                                downloadButton("fins_export", label = "Export .CSV File")))#,
-                #     DT::dataTableOutput('fins_table')
-            )
+            finsModuleUI(id='trapping', .title = 'Trapping Module', 
+                         .status = 'primary', .choices = c('Facility', 'Trap Year')),
+            finsModuleUI(id='spawning', .title = 'Spawning Module', 
+                         .status = 'success', .choices = c('Stock', 'Spawn Year'))
     ),
     # Reports ----
     tabItem(tabName = 'tab_reports',

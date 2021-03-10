@@ -907,6 +907,17 @@ server <- function(input, output, session) {
     },
     contentType = "text/csv"
   )
+  # Rotary Screw Trap Summary Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_rst'){
+      output$rst_species <- renderUI({
+        selectInput(inputId= 'rst_species', label= 'Choose Species:', choices= unique(sort(unique(RSTData$RST))), selectize= FALSE, 
+                    selected = 'Imnaha River RST', multiple = FALSE)
+      })
+    }
+  })
+  
+  
   
   # Age Sampling Tab ----
   observeEvent(input$tabs, {
@@ -1230,45 +1241,19 @@ server <- function(input, output, session) {
     contentType = "text/csv"
   )
   
-  # FINS data ----
+  # FINS data tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_fins'){
+      finsModuleServer(id='trapping', .data= AdultWeirData_clean,
+                       .choices = c('Facility', 'Trap Year'),
+                       .fields = c('facility', 'trap_year'))
       
-      output$fins_filter <- renderUI({
-        if(input$fins_filtertype == 'Facility') {
-          list(
-            selectInput(inputId = 'fins_facility_filter', label = 'Filter for all data for chosen Facility:', choices = sort(unique(AdultWeirData_clean$facility)),
-                        selected = NULL),
-            h3("*Filtering by Facility will return all data for the facility (Chosen Facility, All Years).", style='text-align:center;'))
-        } else {
-          list(
-            selectInput(inputId = 'fins_year_filter', label = 'Filter for all data within chosen Year:', choices = sort(unique(AdultWeirData_clean$trap_year)),
-                        selected = year(Sys.Date())),
-            
-            h3("*Filtering by Year will return all data within the specified year (All Facilities, Chosen Year).", style='text-align:center;'))
-        }
-      })
-      
+      finsModuleServer(id='spawning', .data= AdultSpawningData,
+                       .fields = c('Stock', 'Spawn Year'),
+                       .choices = c('Stock', 'Spawn Year'))
     }
   })
-  
-  # FINS EXPORT (temporary until datatable works)
-  output$fins_export <- downloadHandler(
-    filename = function() {
-      if(input$fins_filtertype == 'Facility') {
-        paste("FINS_", gsub(' ','_', input$fins_facility_filter), '_', Sys.Date(), ".csv", sep='')
-      } else {
-        paste(input$fins_year_filter, '_FINS_all_facilities_', Sys.Date(), ".csv", sep='')
-      }
-    },
-    content = function(file) {
-      write.csv(AdultWeirData_clean %>% # apply filter
-                  filter(if(input$fins_filtertype == 'Facility') facility == input$fins_facility_filter else trap_year == input$fins_year_filter),
-                file, row.names = FALSE, na='')
-    },
-    contentType = "text/csv"
-  )
-  
+
   # Reports (Tab) ----
   # Static download for Adult Report  (Kinzer's presentation)
   output$report_export <- downloadHandler(
