@@ -674,14 +674,13 @@ server <- function(input, output, session) {
               # name = ~POP_NAME,
               text = ~group,
               hovertemplate = paste(
-                '%{text}<br>',
                 '%{x} %{yaxis.title.text}: %{y}'),
               type = 'bar',
               color = ~group,
               colors = viridis_pal(option="D")(length(unique(spawn_tmp$group)))
       ) %>%
-        layout(#barmode ='stack',
-               title = list(text = '<b>Yearly Spawn Counts</b>', font = plotly_font),
+        layout(legend = list(title = list(text = "Stock:Sex")),
+               title = list(text = paste0('<b>', input$spawn_facility, ' Yearly Spawn Counts</b>'), font = plotly_font),
                yaxis = list(title= 'Number Spawned', titlefont = plotly_font),
                xaxis = list(title= 'Spawn Year', titlefont = plotly_font))
     })
