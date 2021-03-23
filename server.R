@@ -402,13 +402,7 @@ server <- function(input, output, session) {
         shiny::validate(
           need(exists('chn_weir_sum'), message = '*No Chinook catch yet this year!')
         )
-        
-        # chn_tmp <- weir_sum_all %>% filter(Species == 'Chinook')
-        # 
-        # shiny::validate(
-        #   need(nrow(chn_tmp) > 0, message = '*No Chinook catch yet this year!')
-        # )
-        
+
         DT::datatable(chn_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
                                               dom = 'tp'))
       })
@@ -418,13 +412,7 @@ server <- function(input, output, session) {
         shiny::validate(
           need(exists('sth_weir_sum'), message = '*No Steelhead catch yet this year!')
         )
-        
-        # sth_tmp <- weir_sum_all %>% filter(Species == 'Steelhead')
-        # 
-        # shiny::validate(
-        #   need(nrow(sth_tmp) > 0, message = '*No Steelhead catch yet this year!')
-        # )
-        
+
         DT::datatable(sth_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
                                               dom = 'tp'))
       })
@@ -543,16 +531,16 @@ server <- function(input, output, session) {
     # data prep
     weir_disp <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
                                                trap_year == input$weir_year), 
-                            disposition, disposition, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+                            disposition, trap_year, disposition, trap, species, SpeciesRun, sex, origin, age_designation) %>%
       spread(key = disposition, value = n)
     
     weir_totals <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
                                                  trap_year == input$weir_year), 
-                              sex, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+                              sex, trap_year, trap, species, SpeciesRun, sex, origin, age_designation) %>%
       rename(TotalCatch = n)
     
-    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation')) %>%
-      rename(Trap=trap, Species=species, Sex=sex, Origin=origin, `Age Designation`=age_designation)
+    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap_year', 'trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation')) %>%
+      rename(`Trap Year` = trap_year, Trap=trap, Species=species, Sex=sex, Origin=origin, `Age Designation`=age_designation)
     
     shiny::validate(
       need(weir_table_data, message = '    Table will populate after data load.')
@@ -679,7 +667,7 @@ server <- function(input, output, session) {
               color = ~group,
               colors = viridis_pal(option="D")(length(unique(spawn_tmp$group)))
       ) %>%
-        layout(legend = list(title = list(text = "Stock:Sex")),
+        layout(legend = list(title = list(text = "<b>Stock: Sex<b>")),
                title = list(text = paste0('<b>', input$spawn_facility, ' Yearly Spawn Counts</b>'), font = plotly_font),
                yaxis = list(title= 'Number Spawned', titlefont = plotly_font),
                xaxis = list(title= 'Spawn Year', titlefont = plotly_font))

@@ -35,8 +35,8 @@ sidebar <- dashboardSidebar(
                        menuSubItem('Hatchery Spawning', tabName = 'tab_spawn'),
                        menuSubItem('Fall Chinook', tabName = 'tab_fchn'),
                        # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
-                       menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
-                       menuSubItem('Rotary Screw Traps', tabName = 'tab_rst')
+                       menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')#,
+                       # menuSubItem('Rotary Screw Traps', tabName = 'tab_rst')
                        # menuSubItem('Age Sampling', tabName = 'tab_age')
               ),
               menuItem('Documents', tabName = 'tab_documents', icon = icon("file")),
@@ -385,6 +385,15 @@ program and its staff serve a key role.")
             fluidRow(
               column(12, 
                      box(title = 'Rotary Screw Trap Summary', status='info', width= 5,
+                         # DISCHARGE? 
+                         # Days No Catch / Trap not operational
+                         # Daily Catch
+                         # Mortality Count
+                         # Daily Efficiency?
+                         # Fish sent upstream v. recaps
+                         # Tags issued
+                         # Date of first fish?
+                         # Hours fished per day?
                          uiOutput(outputId = 'rst_species'),
                          uiOutput(outputId = 'rst_pop_name')
                      ),
