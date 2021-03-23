@@ -403,13 +403,7 @@ server <- function(input, output, session) {
         shiny::validate(
           need(exists('chn_weir_sum'), message = '*No Chinook catch yet this year!')
         )
-        
-        # chn_tmp <- weir_sum_all %>% filter(Species == 'Chinook')
-        # 
-        # shiny::validate(
-        #   need(nrow(chn_tmp) > 0, message = '*No Chinook catch yet this year!')
-        # )
-        
+
         DT::datatable(chn_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
                                               dom = 'tp'))
       })
@@ -419,13 +413,7 @@ server <- function(input, output, session) {
         shiny::validate(
           need(exists('sth_weir_sum'), message = '*No Steelhead catch yet this year!')
         )
-        
-        # sth_tmp <- weir_sum_all %>% filter(Species == 'Steelhead')
-        # 
-        # shiny::validate(
-        #   need(nrow(sth_tmp) > 0, message = '*No Steelhead catch yet this year!')
-        # )
-        
+
         DT::datatable(sth_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
                                               dom = 'tp'))
       })
@@ -544,16 +532,16 @@ server <- function(input, output, session) {
     # data prep
     weir_disp <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
                                                trap_year == input$weir_year), 
-                            disposition, disposition, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+                            disposition, trap_year, disposition, trap, species, SpeciesRun, sex, origin, age_designation) %>%
       spread(key = disposition, value = n)
     
     weir_totals <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
                                                  trap_year == input$weir_year), 
-                              sex, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+                              sex, trap_year, trap, species, SpeciesRun, sex, origin, age_designation) %>%
       rename(TotalCatch = n)
     
-    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation')) %>%
-      rename(Trap=trap, Species=species, Sex=sex, Origin=origin, `Age Designation`=age_designation)
+    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap_year', 'trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation')) %>%
+      rename(`Trap Year` = trap_year, Trap=trap, Species=species, Sex=sex, Origin=origin, `Age Designation`=age_designation)
     
     shiny::validate(
       need(weir_table_data, message = '    Table will populate after data load.')
@@ -637,6 +625,63 @@ server <- function(input, output, session) {
                       select(-NOSAIJ_error, -NOSAIJ_errorminus, -TSAIJ_error, -TSAIJ_errorminus), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
     })
      
+  # Hatchery Spawning (FINS) Summaries Tab ----
+    observeEvent(input$tabs, {
+      if(input$tabs == 'tab_spawn'){
+        output$spawn_species <- renderUI({
+          selectInput(inputId= 'spawn_species', label= 'Choose Species:', choices= unique(sort(unique(spawn_summary$SpeciesRun))), selectize= FALSE, 
+                      selected = 'Spring Chinook', multiple = FALSE)
+        })
+      }
+    })
+    
+    spawn_facil <- reactive({
+      spawn_summary %>% filter(SpeciesRun == input$spawn_species)
+    })
+    
+    output$spawn_facility <- renderUI({
+      selectInput(inputId= 'spawn_facility', label= 'Choose Facility:', choices= unique(sort(unique(spawn_facil()$`Moved From Facility`))),
+                  selectize= FALSE, selected = NULL, multiple = FALSE)
+    })
+    
+    spawn_sum <- reactive({
+      spawn_summary %>%
+        filter(SpeciesRun == input$spawn_species,
+               `Moved From Facility` == input$spawn_facility)
+    })
+    
+    # plot
+    output$p_spawn <- renderPlotly({
+
+      spawn_tmp <- spawn_sum() %>%
+        pivot_longer(cols = c('Male','Female'), names_to = 'Sex', values_to = 'Count') %>%
+        mutate(group = gsub('NA: ', 'Undesignated ', paste0(Stock, ': ', Sex)))
+      
+      plot_ly(data = spawn_tmp,
+              x = ~`Spawn Year`,
+              y = ~ Count,
+              # name = ~POP_NAME,
+              text = ~group,
+              hovertemplate = paste(
+                '%{x} %{yaxis.title.text}: %{y}'),
+              type = 'bar',
+              color = ~group,
+              colors = viridis_pal(option="D")(length(unique(spawn_tmp$group)))
+      ) %>%
+        layout(legend = list(title = list(text = "<b>Stock: Sex<b>")),
+               title = list(text = paste0('<b>', input$spawn_facility, ' Yearly Spawn Counts</b>'), font = plotly_font),
+               yaxis = list(title= 'Number Spawned', titlefont = plotly_font),
+               xaxis = list(title= 'Spawn Year', titlefont = plotly_font))
+    })
+
+    # Spawn Summary Data Table
+    output$spawn_table <- DT::renderDataTable({
+      DT::datatable(spawn_summary %>% 
+                      filter(SpeciesRun == input$spawn_species,
+                             `Moved From Facility` == input$spawn_facility), 
+                    options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+    })
+    
   # Fall Chinook Run Reconstruction Data Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_fchn'){
@@ -908,6 +953,17 @@ server <- function(input, output, session) {
     },
     contentType = "text/csv"
   )
+  # Rotary Screw Trap Summary Tab ----
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_rst'){
+      output$rst_species <- renderUI({
+        selectInput(inputId= 'rst_species', label= 'Choose Species:', choices= unique(sort(unique(RSTData$RST))), selectize= FALSE, 
+                    selected = 'Imnaha River RST', multiple = FALSE)
+      })
+    }
+  })
+  
+  
   
   # Age Sampling Tab ----
   observeEvent(input$tabs, {
@@ -1231,44 +1287,19 @@ server <- function(input, output, session) {
     contentType = "text/csv"
   )
   
-  # FINS data ----
+  # FINS data tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_fins'){
+      finsModuleServer(id='trapping', .data= AdultWeirData_clean,
+                       .choices = c('Facility', 'Trap Year'),
+                       .fields = c('facility', 'trap_year'))
       
-      output$fins_filter <- renderUI({
-        if(input$fins_filtertype == 'Facility') {
-          list(
-            selectInput(inputId = 'fins_facility_filter', label = 'Filter for all data for chosen Facility:', choices = sort(unique(AdultWeirData_clean$facility)),
-                        selected = NULL),
-            h3("*Filtering by Facility will return all data for the facility (Chosen Facility, All Years).", style='text-align:center;'))
-        } else {
-          list(
-            selectInput(inputId = 'fins_year_filter', label = 'Filter for all data within chosen Year:', choices = sort(unique(AdultWeirData_clean$trap_year)),
-                        selected = year(Sys.Date())),
-            
-            h3("*Filtering by Year will return all data within the specified year (All Facilities, Chosen Year).", style='text-align:center;'))
-        }
-      })
-      
+      finsModuleServer(id='spawning', .data= AdultSpawningData,
+                       .fields = c('Stock', 'Spawn Year'),
+                       .choices = c('Stock', 'Spawn Year'))
     }
   })
-  
-  # FINS EXPORT (temporary until datatable works)
-  output$fins_export <- downloadHandler(
-    filename = function() {
-      if(input$fins_filtertype == 'Facility') {
-        paste("FINS_", gsub(' ','_', input$fins_facility_filter), '_', Sys.Date(), ".csv", sep='')
-      } else {
-        paste(input$fins_year_filter, '_FINS_all_facilities_', Sys.Date(), ".csv", sep='')
-      }
-    },
-    content = function(file) {
-      write.csv(AdultWeirData_clean %>% # apply filter
-                  filter(if(input$fins_filtertype == 'Facility') facility == input$fins_facility_filter else trap_year == input$fins_year_filter),
-                file, row.names = FALSE, na='')
-    },
-    contentType = "text/csv"
-  )
+
   
   # Reports (Tab) ----
   # Static download for Adult Report  (Kinzer's presentation)
