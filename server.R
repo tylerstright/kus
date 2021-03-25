@@ -954,15 +954,29 @@ server <- function(input, output, session) {
     contentType = "text/csv"
   )
   # Rotary Screw Trap Summary Tab ----
-  observeEvent(input$tabs, {
-    if(input$tabs == 'tab_rst'){
-      output$rst_species <- renderUI({
-        selectInput(inputId= 'rst_species', label= 'Choose Species:', choices= unique(sort(unique(RSTData$RST))), selectize= FALSE, 
-                    selected = 'Imnaha River RST', multiple = FALSE)
-      })
-    }
-  })
+  # observeEvent(input$tabs, {
+  #   if(input$tabs == 'tab_rst'){
+  #     output$rst_species <- renderUI({
+  #       selectInput(inputId= 'rst_species', label= 'Choose Species:', choices= unique(sort(unique(RSTData$RST))), selectize= FALSE, 
+  #                   selected = 'Imnaha River RST', multiple = FALSE)
+  #     })
+  #   }
+  # })
   
+  output$rst_table <- DT::renderDataTable({
+    
+    shiny::validate(
+      need(rst_catch_sum, message = '    Table will populate after data load.')
+    )
+
+    DT::datatable(rst_catch_sum %>%
+                    rename(`Date of First Fish`=first_fish,
+                           `Tags Issued`=tags_issued,
+                           `Total Catch`=catch,
+                           `Tagged Sent Upstream`=TU,
+                           `Efficiency Recaps`=RE,
+                           `Mortalities`=morts), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+  })
   
   
   # Age Sampling Tab ----
