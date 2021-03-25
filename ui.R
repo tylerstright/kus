@@ -35,8 +35,8 @@ sidebar <- dashboardSidebar(
                        menuSubItem('Hatchery Spawning', tabName = 'tab_spawn'),
                        menuSubItem('Fall Chinook', tabName = 'tab_fchn'),
                        # menuSubItem('In-Stream Array Abundance', tabName = 'tab_array'),
-                       menuSubItem('Juvenile Monitoring', tabName = 'tab_juv')#,
-                       # menuSubItem('Rotary Screw Traps', tabName = 'tab_rst')
+                       menuSubItem('Juvenile Monitoring', tabName = 'tab_juv'),
+                       menuSubItem('Rotary Screw Traps', tabName = 'tab_rst')
                        # menuSubItem('Age Sampling', tabName = 'tab_age')
               ),
               menuItem('Documents', tabName = 'tab_documents', icon = icon("file")),
@@ -385,6 +385,7 @@ program and its staff serve a key role.")
             fluidRow(
               column(12, 
                      box(title = 'Rotary Screw Trap Summary', status='info', width= 5,
+                         h3('This page is currently under construction. Stay tuned!')
                          # DISCHARGE? 
                          # Days No Catch / Trap not operational
                          # Daily Catch
@@ -394,22 +395,22 @@ program and its staff serve a key role.")
                          # Tags issued
                          # Date of first fish?
                          # Hours fished per day?
-                         uiOutput(outputId = 'rst_species'),
-                         uiOutput(outputId = 'rst_pop_name')
+                         # uiOutput(outputId = 'rst_species'),
+                         # uiOutput(outputId = 'rst_pop_name')
                      ),
                      box(width = 7, 
                          img(src='lostine_rst.jpg', width = '100%', height='auto') # Should we get a new picture?
                      ))
             ),
             hr(),
-            fluidRow(
-              box(width = 12, plotlyOutput('rst_catch'))
-            ),
-            fluidRow(
-              box(width = 6, plotlyOutput('')),
-              box(width = 6, plotlyOutput(''),
-                  br(), br())
-            ),
+            # fluidRow(
+            #   box(width = 12, plotlyOutput('rst_catch'))
+            # ),
+            # fluidRow(
+            #   box(width = 6, plotlyOutput('')),
+            #   box(width = 6, plotlyOutput(''),
+            #       br(), br())
+            # ),
             
             box(width = 12, title = 'Tabular Summary Data',
                 DT::dataTableOutput('rst_table')
