@@ -401,10 +401,10 @@ program and its staff serve a key role.")
                          img(src='lostine_rst.jpg', width = '100%', height='auto') # Should we get a new picture?
                      ))
             ),
-            hr(),
+            # hr(),
             # fluidRow(
-            #   box(width = 12, plotlyOutput('rst_catch'))
-            # ),
+            #   box(width = 12, plotlyOutput('rst_dailycatch'))
+            # ), br(),
             # fluidRow(
             #   box(width = 6, plotlyOutput('')),
             #   box(width = 6, plotlyOutput(''),

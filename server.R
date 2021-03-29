@@ -963,6 +963,16 @@ server <- function(input, output, session) {
     }
   })
   
+  # output$rst_dailycatch <- renderPlotly({
+  # 
+  #   
+  #   shiny::validate(
+  #     need(nrow(js_df) > 0, message = '*No data for the current selection.')
+  #   )
+  #   
+  #   
+  # })
+  
   output$rst_table <- DT::renderDataTable({
     
     shiny::validate(
