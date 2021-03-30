@@ -77,8 +77,8 @@ server <- function(input, output, session) {
   window_df <- queryWindowCnts(dam = 'LWG', 
                                spp_code = c('fc', 'fcj', 'fk', 'fkj', 'fs', 'fsw','fb'),
                                # If before 03/02/XX, display previous year's data. Beware leap years.
-                               # spawn_yr = if_else(yday(Sys.Date()) < 51, year(Sys.Date())-1, year(Sys.Date())), 
-                               spawn_yr = 2020, # temporary fix 3/3/21
+                               spawn_yr = if_else(yday(Sys.Date()) < 51, year(Sys.Date())-1, year(Sys.Date())),
+                               # spawn_yr = 2020, # temporary fix 3/3/21
                                start_day = '01/01',
                                end_day = '12/31') %>%
     gather(key = spp, value = 'Count', -Year, -Date) %>%
@@ -954,28 +954,33 @@ server <- function(input, output, session) {
     contentType = "text/csv"
   )
   # Rotary Screw Trap Summary Tab ----
-  # observeEvent(input$tabs, {
-  #   if(input$tabs == 'tab_rst'){
-  #     output$rst_species <- renderUI({
-  #       selectInput(inputId= 'rst_species', label= 'Choose Species:', choices= unique(sort(unique(RSTData$RST))), selectize= FALSE, 
-  #                   selected = 'Imnaha River RST', multiple = FALSE)
-  #     })
-  #   }
+  observeEvent(input$tabs, {
+    if(input$tabs == 'tab_rst'){
+      output$rst_trap <- renderUI({
+        selectInput(inputId= 'rst_trap', label= 'Choose Species:', choices= unique(sort(unique(RSTData$Trap))), selectize= FALSE,
+                    selected = 'Imnaha River RST', multiple = FALSE)
+      })
+    }
+  })
+  
+  # output$rst_dailycatch <- renderPlotly({
+  # 
+  #   
+  #   shiny::validate(
+  #     need(nrow(js_df) > 0, message = '*No data for the current selection.')
+  #   )
+  #   
+  #   
   # })
   
   output$rst_table <- DT::renderDataTable({
     
     shiny::validate(
-      need(rst_catch_sum, message = '    Table will populate after data load.')
+      need(rst_hitch_sum, message = '    Table will populate after data load.')
     )
 
-    DT::datatable(rst_catch_sum %>%
-                    rename(`Date of First Fish`=first_fish,
-                           `Tags Issued`=tags_issued,
-                           `Total Catch`=catch,
-                           `Tagged Sent Upstream`=TU,
-                           `Efficiency Recaps`=RE,
-                           `Mortalities`=morts), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+    DT::datatable(rst_hitch_sum %>%
+                    filter(Trap == input$rst_trap), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
   
   

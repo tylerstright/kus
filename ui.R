@@ -385,7 +385,8 @@ program and its staff serve a key role.")
             fluidRow(
               column(12, 
                      box(title = 'Rotary Screw Trap Summary', status='info', width= 5,
-                         h3('This page is currently under construction. Stay tuned!')
+                         h3('This page is currently under construction. Stay tuned!'),
+                         uiOutput('rst_trap')
                          # DISCHARGE? 
                          # Days No Catch / Trap not operational
                          # Daily Catch
@@ -395,24 +396,22 @@ program and its staff serve a key role.")
                          # Tags issued
                          # Date of first fish?
                          # Hours fished per day?
-                         # uiOutput(outputId = 'rst_species'),
-                         # uiOutput(outputId = 'rst_pop_name')
                      ),
                      box(width = 7, 
                          img(src='lostine_rst.jpg', width = '100%', height='auto') # Should we get a new picture?
                      ))
             ),
-            hr(),
+            # hr(),
             # fluidRow(
-            #   box(width = 12, plotlyOutput('rst_catch'))
-            # ),
+            #   box(width = 12, plotlyOutput('rst_dailycatch'))
+            # ), br(),
             # fluidRow(
             #   box(width = 6, plotlyOutput('')),
             #   box(width = 6, plotlyOutput(''),
             #       br(), br())
             # ),
             
-            box(width = 12, title = 'Tabular Summary Data',
+            box(width = 12, title = 'Catch Summary by Hitch (Thursday - Wednesday)',
                 DT::dataTableOutput('rst_table')
             )
     ),
