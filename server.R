@@ -957,7 +957,7 @@ server <- function(input, output, session) {
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_rst'){
       output$rst_trap <- renderUI({
-        selectInput(inputId= 'rst_trap', label= 'Choose Species:', choices= unique(sort(unique(RSTData$Trap))), selectize= FALSE,
+        selectInput(inputId= 'rst_trap', label= 'Choose Species:', choices= unique(sort(unique(RSTData$trap))), selectize= FALSE,
                     selected = 'Imnaha River RST', multiple = FALSE)
       })
     }
@@ -980,7 +980,9 @@ server <- function(input, output, session) {
     )
 
     DT::datatable(rst_hitch_sum %>%
-                    filter(Trap == input$rst_trap), options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+                    filter(trap == input$rst_trap) %>%
+                    rename(Hitch=hitch, Trap=trap, Species=species, Taggers=taggers),
+                  options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
   
   
