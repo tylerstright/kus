@@ -468,7 +468,7 @@ server <- function(input, output, session) {
       layout(hovermode = 'x',
              barmode = 'stack',
              # bargap = .3,
-             title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Daily Catch, by Origin'),
+             title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Daily Catch, by Origin (recaptures included)'),
                           font = plotly_font),
              yaxis= list(
                title = 'Daily Catch',
@@ -513,7 +513,7 @@ server <- function(input, output, session) {
       add_text(text=~n, hoverinfo='none', textposition = 'top', showlegend = FALSE,
                textfont=list(size=15, color="black")) %>%
       layout(hovermode = 'x',
-             title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Catch Statistics'),
+             title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Catch Statistics (recaptures excluded)'),
                           font = plotly_font),
              yaxis= list(
                title = 'Percent of Total (%)',
@@ -532,16 +532,16 @@ server <- function(input, output, session) {
     # data prep
     weir_disp <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
                                                trap_year == input$weir_year), 
-                            disposition, trap_year, disposition, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+                            disposition, trap_year, disposition, trap, SpeciesRun, sex, origin, age_designation, living_status) %>%
       spread(key = disposition, value = n)
     
     weir_totals <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
                                                  trap_year == input$weir_year), 
-                              sex, trap_year, trap, species, SpeciesRun, sex, origin, age_designation) %>%
+                              sex, trap_year, trap, SpeciesRun, sex, origin, age_designation, living_status) %>%
       rename(TotalCatch = n)
     
-    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap_year', 'trap', 'species', 'SpeciesRun', 'sex', 'origin', 'age_designation')) %>%
-      rename(`Trap Year` = trap_year, Trap=trap, Species=species, Sex=sex, Origin=origin, `Age Designation`=age_designation)
+    weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap_year', 'trap', 'SpeciesRun', 'sex', 'origin', 'age_designation', 'living_status')) %>%
+      rename(`Trap Year` = trap_year, Trap=trap, Sex=sex, Origin=origin, `Age Designation`=age_designation)
     
     shiny::validate(
       need(weir_table_data, message = '    Table will populate after data load.')
