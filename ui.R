@@ -248,11 +248,15 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_weir',
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Chinook', sep = ''),
-                  DT::dataTableOutput('weir_sum_chn'), br())
+                  helpText(HTML('<em>(Only includes new catch; recaptures are excluded.)</em>')),
+                  DT::dataTableOutput('weir_sum_chn'), 
+                  br())
             ),
             fluidRow(
               box(width = 12, title = paste(year(Sys.Date()), ' Weir Catch Summary - Steelhead', sep = ''),
-                  DT::dataTableOutput('weir_sum_sth'), br())
+                  helpText(HTML('<em>(Only includes new catch; recaptures are excluded.)</em>')),
+                  DT::dataTableOutput('weir_sum_sth'), 
+                  br())
             ), hr(),
             fluidRow(
               column(12,
@@ -270,12 +274,14 @@ program and its staff serve a key role.")
             ), hr(),
             fluidRow(
               box(width = 6, title = 'Weir Collection Statistics',
+                  helpText(HTML('<em>(Recaptures excluded.)</em>')),
                   dataTableOutput('weir_props_table')),
               box(width = 6,
                   plotlyOutput('p_weir_props'))
             ), hr(),
             box(width = 12, 
                 title = 'Weir Disposition Summary',
+                helpText(HTML('<em>(Recaptures included.)</em>')),
                 # fluidRow(column(12, align = "center", downloadButton("weir_export", label = "Export .CSV File"))),
                 DT::dataTableOutput('weir_table')
             )
