@@ -504,21 +504,21 @@ server <- function(input, output, session) {
     
     plot_ly(data = weir_props_filtered,
             x = ~Statistic,
-            y = ~n,
+            y = ~`Percent of Total`,
             type = 'bar',
             marker = list(line = list(width=1, color = 'rgb(0,0,0)')), # outline of bars
             color = ~Statistic,
             colors = viridis_pal(option="D")(length(unique(weir_props_filtered$Statistic))),
             showlegend = FALSE) %>%
-      add_text(text=~n, hoverinfo='none', textposition = 'top', showlegend = FALSE,
+      add_text(text=~`Percent of Total`, hoverinfo='none', textposition = 'top', showlegend = FALSE,
                textfont=list(size=15, color="black")) %>%
       layout(hovermode = 'x',
              title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Catch Statistics (recaptures excluded)'),
                           font = plotly_font),
              yaxis= list(
                title = 'Percent of Total (%)',
-               tickformat = "%",
-               range = c(0,1.05),
+               # tickformat = "%",
+               range = c(0,105),
                titlefont = plotly_font),
              xaxis= list(title = '',
                          tickangle = -45,
@@ -541,7 +541,7 @@ server <- function(input, output, session) {
       rename(TotalCatch = n)
     
     weir_table_data <<- full_join(weir_disp, weir_totals, by = c('trap_year', 'trap', 'SpeciesRun', 'sex', 'origin', 'age_designation', 'living_status')) %>%
-      rename(`Trap Year` = trap_year, Trap=trap, Sex=sex, Origin=origin, `Age Designation`=age_designation)
+      rename(`Trap Year` = trap_year, Trap=trap, Sex=sex, Origin=origin, `Age Designation`=age_designation, `Living Status`=living_status)
     
     shiny::validate(
       need(weir_table_data, message = '    Table will populate after data load.')
