@@ -994,15 +994,14 @@ server <- function(input, output, session) {
   # Restricted Data Access ====================================================
   # CDMS DATASETS ----
   output$raw_dataset_menu <- renderUI({
-    
     datasets_ls <- as.list(datasets[,1])
     names(datasets_ls) <- datasets[,2]
     selectInput("datasets", label = 'Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
   }) 
   
-  observeEvent(input$raw_submit,{
-    
-    RV$query_data <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
+  # observeEvent(input$datasets,{
+    query_data <- reactive({get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])})
+  # })
     
     # CDMS (raw) Datasets UI
     output$raw_UI <- renderUI({
@@ -1011,7 +1010,7 @@ server <- function(input, output, session) {
             fluidRow(column(12, align = "center",
                             uiOutput('selected_cdms'), 
                             column(6, offset=3, 
-                                   selectInput('q_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$query_data)),
+                                   selectInput('q_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(query_data())),
                                                selectize = TRUE, selected = NULL, multiple = TRUE),
                                    downloadButton("raw_export", label = "Export .CSV File"),
                                    helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.</em>'))))
@@ -1025,26 +1024,20 @@ server <- function(input, output, session) {
     
     # Loaded CDMS Dataset: selected_cdms
     output$selected_cdms <- renderText({
-      selected_df <- datasets %>%
-        filter(DatastoreId == isolate(input$datasets)) %>%
-        pull(DatastoreName)
-      
-      paste0(h2('Currently Loaded Dataset: ', selected_df))
+      paste0(h2('Currently Loaded Dataset: ', datasets[datasets$DatastoreId==input$datasets, "DatastoreName"]))
     })
-    
-  })
-  
+
   # CDMS Dataset table ----
   output$raw_table <- DT::renderDataTable({
     
     shiny::validate(
-      need(RV$query_data, message = '    Table will populate after data load.')
+      need(query_data(), message = '    Table will populate after data load.')
     )
     
     if(is.null(input$q_fields)) {
-      cdms_table_data <<- RV$query_data 
+      cdms_table_data <<- query_data() 
     } else {
-      cdms_table_data <<- RV$query_data %>%
+      cdms_table_data <<- query_data() %>%
         select(input$q_fields)
     }
     

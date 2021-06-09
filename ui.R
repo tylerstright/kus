@@ -405,8 +405,7 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_cdms',
             box(width = 12, 
                 fluidRow(column(6, offset = 3,
-                                uiOutput("raw_dataset_menu"),
-                                actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'),
+                                uiOutput("raw_dataset_menu")
                 )), br()
             ),
             uiOutput('raw_UI')
