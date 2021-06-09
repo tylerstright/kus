@@ -230,46 +230,18 @@ server <- function(input, output, session) {
   # Spawning Ground Surveys Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_sgs'){
-      
-      sgs_pop_list_full <<- SGSsummary %>%
-        group_by(SpeciesRun, POP_NAME) %>%
-        filter(POP_NAME != 'NA') %>%
-        dplyr::distinct(POP_NAME) %>%
-        arrange(POP_NAME)
-      
-      output$sgs_species <- renderUI({
-        selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= as.list(unique(sgs_pop_list_full$SpeciesRun)), selectize= FALSE,
-                    selected = 'Spring/summer Chinook salmon', multiple = FALSE)
-      })
-      
+      sgs_data <<- summarySelectServer(id='sgs_sum', .data = SGSsummary, 
+                                            .select_count = 2,
+                                            .field_names = c('SpeciesRun', 'POP_NAME'))
     } 
   })
-  
-  observeEvent(input$sgs_species, {
-    
-    sgs_population_list <- sgs_pop_list_full %>%
-      filter(SpeciesRun == input$sgs_species) %>%
-      pull(POP_NAME)
-    
-    output$sgs_pop_name <- renderUI({
-      selectInput(inputId= 'sgs_pop_name', label= 'Choose Population:', choices= sgs_population_list, selectize= FALSE, multiple = TRUE,
-                  selected= 'Big Creek')
-    })
-  })
-  
-  observeEvent(input$sgs_pop_name, {
-    
-    RV$sgs_data <- SGSsummary %>%
-      filter(SpeciesRun == input$sgs_species,
-             POP_NAME %in% input$sgs_pop_name) %>%
-      group_by(POP_NAME)
-    
+
     # Total Redds per Year
     output$p_redds <- renderPlotly({
-      
-      redd_tmp <- RV$sgs_data %>%
+
+      redd_tmp <- sgs_data() %>%
         filter(!is.na(TotalRedds))
-      
+
       shiny::validate(
         need(nrow(redd_tmp) > 0, message = '*No Redd data for the current selection.')
       )
@@ -283,7 +255,8 @@ server <- function(input, output, session) {
                              '%{text}<br>',
                              '%{x} %{yaxis.title.text}: %{y}'),
                            type = 'scatter',
-                           mode = 'lines+markers',
+                           mode = 'markers',
+                           line = list(width = 2), # use markers + this to get lines+markers to function.
                            color = ~POP_NAME,
                            colors = viridis_pal(option="D")(length(unique(redd_tmp$POP_NAME)))
       ) %>%
@@ -292,28 +265,28 @@ server <- function(input, output, session) {
                xaxis = list(title= 'Spawn Year', titlefont = plotly_font))
     })
     
-    # Base Plotly: %F, pHOS, PSM
-    graph_field <- paste('pHOS') # place holder (below base plot requires it until fed to renderPlot())
-    p_sgs_base <- plot_ly(data = RV$sgs_data %>% filter(!is.na(graph_field)),
-                          name = ~POP_NAME,
-                          type = 'box',
-                          hoverinfo = 'y',
-                          color = ~POP_NAME,
-                          colors = viridis_pal(option="D")(length(unique(RV$sgs_data$POP_NAME))),
-                          showlegend = FALSE) %>%
-      layout(title = list(font = plotly_font),
-             xaxis = list(title = ''),
-             yaxis = list(titlefont = plotly_font,
-                          tickformat = "%",
-                          range = c(0,1.05) )) #,zeroline = FALSE
-    
     # SGS Summary - Percent Females
     output$p_females <- renderPlotly({
+      # Base Plotly for SGS %F, pHOS, PSM - must live inside render b/c of reactive df.
+      graph_field <- paste('pHOS') # place holder (below base plot requires it until fed to renderPlot())
       
+      p_sgs_base <<- plot_ly(data = sgs_data()[!is.na(sgs_data()[graph_field]),],
+                            name = ~POP_NAME,
+                            type = 'box',
+                            hoverinfo = 'y',
+                            color = ~POP_NAME,
+                            colors = viridis_pal(option="D")(length(unique(sgs_data()["POP_NAME"]))),
+                            showlegend = FALSE) %>%
+        layout(title = list(font = plotly_font),
+               xaxis = list(title = ''),
+               yaxis = list(titlefont = plotly_font,
+                            tickformat = "%",
+                            range = c(0,1.05) )) #,zeroline = FALSE
       graph_field <- paste("PercentFemales")
-      
-      shiny::validate(
-        need(nrow(RV$sgs_data %>% filter(!is.na(PercentFemales))) > 0, message = '*No data for the current selection.')
+
+      shiny::validate( # both options below are viable.
+        need(nrow(sgs_data()[!is.na(sgs_data()["PercentFemales"]), ]) > 0, message = '*No data for the current selection.')
+        # need(nrow(sgs_data() %>% filter(!is.na(PercentFemales))) > 0, message = '*No data for the current selection.')
       )
       # plot
       pfem_plotly <- p_sgs_base %>%
@@ -326,11 +299,11 @@ server <- function(input, output, session) {
     
     # SGS Summary - Percent Hatchery Origin Spawners
     output$p_phos <- renderPlotly({
-      
+
       graph_field <- paste("pHOS")
-      
+
       shiny::validate(
-        need(nrow(RV$sgs_data %>% filter(!is.na(pHOS))) > 0, message = '*No data for the current selection.')
+        need(nrow(sgs_data() %>% filter(!is.na(pHOS))) > 0, message = '*No data for the current selection.')
       )
       # plot
       phos_plotly <- p_sgs_base %>%
@@ -342,11 +315,11 @@ server <- function(input, output, session) {
     
     # SGS Summary - Prespawn Mortalities
     output$p_psm <- renderPlotly({
-      
+
       graph_field <- paste("PrespawnMortality")
-      
+
       shiny::validate(
-        need(nrow(RV$sgs_data %>% filter(!is.na(PrespawnMortality))) > 0, message = '*No data for the current selection.')
+        need(nrow(sgs_data() %>% filter(!is.na(PrespawnMortality))) > 0, message = '*No data for the current selection.')
       )
       # plot
       psm_plotly <- p_sgs_base %>%
@@ -356,18 +329,14 @@ server <- function(input, output, session) {
                yaxis= list(title= 'Prespawn Mortality'))
     })
     
-  }) # close observeEvent(input$sgs_pop_name...
-  
   # SGS Summary Data Table (reactive)
   output$sgs_table <- DT::renderDataTable({
-    
+
     shiny::validate(
-      need(RV$sgs_data, message = '    Table will populate after data load.')
+      need(sgs_data(), message = '    Table will populate after data load.')
     )
-    
-    sgs_table_data <<- RV$sgs_data
-    
-    DT::datatable(sgs_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+
+    sgs_data()#, options = list(searching = FALSE, orderClasses = TRUE, dom = 't')
   })
   
   # SGS_Summary Dataset EXPORT
@@ -384,28 +353,15 @@ server <- function(input, output, session) {
   # Weir Collections Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_weir'){
-      
-      # list of traps for input
-      weir_list <<- p_weir_df %>%  
-        group_by(trap, SpeciesRun) %>%
-        filter(SpeciesRun %in% c('Spring/summer Chinook', 'Summer Steelhead')) %>%
-        distinct(trap) 
-      
-      
-      output$weir_species <- renderUI({
-        selectInput(inputId= 'weir_species', label= 'Choose Species:', 
-                    choices= c('Fall Chinook', 'Spring/summer Chinook', 'Summer Steelhead'), selectize= FALSE, 
-                    selected = 'Spring/summer Chinook', multiple = FALSE)
-      })
-      
+      # catch summaries
       output$weir_sum_chn <- renderDataTable({
         
         shiny::validate(
           need(exists('chn_weir_sum'), message = '*No Chinook catch yet this year!')
         )
-
+        
         DT::datatable(chn_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
-                                              dom = 'tp'))
+                                                   dom = 'tp'))
       })
       
       output$weir_sum_sth <- renderDataTable({
@@ -413,62 +369,32 @@ server <- function(input, output, session) {
         shiny::validate(
           need(exists('sth_weir_sum'), message = '*No Steelhead catch yet this year!')
         )
-
+        
         DT::datatable(sth_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
-                                              dom = 'tp'))
+                                                   dom = 'tp'))
       })
+      
+      # generates a reactive df, need to make it visible to global (<<-)
+      weir_filtered <<- summarySelectServer(id='weir_sum', .data = p_weir_df, 
+                                            .select_count = 3,
+                                            .field_names = c('SpeciesRun', 'trap', 'trap_year'))
       
     }
   })
   
-  
-  observeEvent(input$weir_species, {
-    
-    weir_trp <- weir_list %>%
-      filter(SpeciesRun == input$weir_species)
-    
-    output$weir_trap <- renderUI({
-      selectInput(inputId= 'weir_trap', label= 'Choose Weir:', choices= sort(unique(weir_trp$trap)), selectize= FALSE, 
-                  selected = 'Lostine River Weir', multiple = FALSE)
-    })
-    
-  })
-  
-  # weir_trap select 
-  observeEvent(input$weir_trap, {
-    # for weir catch plot
-    tmp_p_weir_df <- p_weir_df %>%
-      filter(SpeciesRun == input$weir_species,
-             trap == input$weir_trap)
-    
-    output$weir_year <- renderUI({
-      selectInput(inputId = 'weir_year', label = 'Choose Year:', choices = unique(sort(tmp_p_weir_df$trap_year)), 
-                  selected = max(tmp_p_weir_df$trap_year))
-    })
-    
-  })
-  
-  
   # Weir Daily Catch Plot
   output$p_weircatch <- renderPlotly({
-    
-    weir_filtered <- p_weir_df %>%
-      filter(SpeciesRun == input$weir_species,
-             trap == input$weir_trap,
-             trap_year == input$weir_year)
-    
-    plot_ly(data = weir_filtered,
+    plot_ly(data = weir_filtered(),
             x = ~trapped_date,
             y = ~DailyCatch,
             type = 'bar',
             marker = list(line = list(width=0.8, color = 'rgb(0,0,0)')), # outline of bars
             legendgroup = ~origin,
             color = ~origin,
-            colors = viridis_pal(option="D")(length(unique(weir_filtered$origin)))) %>%
+            colors = viridis_pal(option="D")(length(unique(weir_filtered()$origin)))) %>%
       layout(hovermode = 'x',
-             barmode = 'stack',
-             # bargap = .3,
-             title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Daily Catch, by Origin (recaptures included)'),
+             barmode = 'stack', # bargap = .3,
+             title = list(text = paste(input$`weir_sum-select3`, input$`weir_sum-select2`, input$`weir_sum-select1`, 'Daily Catch, by Origin (recaptures included)'),
                           font = plotly_font),
              yaxis= list(
                title = 'Daily Catch',
@@ -476,44 +402,38 @@ server <- function(input, output, session) {
              xaxis= list(title = 'Date',
                          type = 'date',
                          tickformat = '%m/%d/%y',
-                         nticks = nrow(weir_filtered)/2,
+                         nticks = nrow(weir_filtered())/2,
                          tickangle = -45,
                          titlefont = plotly_font
              ))
   })
   
   # Weir Collection Statistics
-  output$weir_props_table <- renderDataTable({
-    
-    weir_props_filtered <- weir_props %>%
-      filter(SpeciesRun == input$weir_species,
-             trap == input$weir_trap,
-             trap_year == input$weir_year) %>%
+  weir_props_filtered <- reactive({
+    weir_props %>%
+      filter(SpeciesRun == input$`weir_sum-select1`,
+             trap == input$`weir_sum-select2`,
+             trap_year == input$`weir_sum-select3`) %>%
       dplyr::rename(Trap = trap, `Trap Year` = trap_year)
-    
-    DT::datatable(weir_props_filtered, options = list(orderClasses = TRUE, scrollX = TRUE,
-                                                      dom = 't'))
   })
   
+  output$weir_props_table <- renderDataTable(weir_props_filtered(), 
+                                             options = list(searching = FALSE, orderClasses = TRUE, dom = 't')
+  )
+  
   output$p_weir_props <- renderPlotly({
-    
-    weir_props_filtered <- weir_props %>%
-      filter(SpeciesRun == input$weir_species,
-             trap == input$weir_trap,
-             trap_year == input$weir_year)
-    
-    plot_ly(data = weir_props_filtered,
+    plot_ly(data = weir_props_filtered(),
             x = ~Statistic,
             y = ~`Percent of Total`,
             type = 'bar',
             marker = list(line = list(width=1, color = 'rgb(0,0,0)')), # outline of bars
             color = ~Statistic,
-            colors = viridis_pal(option="D")(length(unique(weir_props_filtered$Statistic))),
+            colors = viridis_pal(option="D")(length(unique(weir_props_filtered()$Statistic))),
             showlegend = FALSE) %>%
       add_text(text=~`Percent of Total`, hoverinfo='none', textposition = 'top', showlegend = FALSE,
                textfont=list(size=15, color="black")) %>%
       layout(hovermode = 'x',
-             title = list(text = paste(input$weir_year, input$weir_trap, input$weir_species, 'Catch Statistics (recaptures excluded)'),
+             title = list(text = paste(input$`weir_sum-select3`, input$`weir_sum-select2`, input$`weir_sum-select1`, 'Catch Statistics (recaptures excluded)'),
                           font = plotly_font),
              yaxis= list(
                title = 'Percent of Total (%)',
@@ -526,17 +446,16 @@ server <- function(input, output, session) {
              ))
   })
   
-  
   # Weir Disposition Summary Data Table
   output$weir_table <- DT::renderDataTable({
     # data prep
-    weir_disp <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
-                                               trap_year == input$weir_year), 
+    weir_disp <- cnt_groups(NPTweir %>% filter(trap == input$`weir_sum-select2`,
+                                               trap_year == input$`weir_sum-select3`),
                             disposition, trap_year, disposition, trap, SpeciesRun, sex, origin, age_designation, living_status) %>%
       spread(key = disposition, value = n)
     
-    weir_totals <- cnt_groups(NPTweir %>% filter(trap == input$weir_trap,
-                                                 trap_year == input$weir_year), 
+    weir_totals <- cnt_groups(NPTweir %>% filter(trap == input$`weir_sum-select2`,
+                                                 trap_year == input$`weir_sum-select3`),
                               sex, trap_year, trap, SpeciesRun, sex, origin, age_designation, living_status) %>%
       rename(TotalCatch = n)
     
@@ -563,31 +482,15 @@ server <- function(input, output, session) {
   
   
   # Spawner Abundance Tab ----
-  nosa_tmp <- reactive({  # call this reactive data as nosa_tmp()
-    StreamNetNOSA %>%
-      filter(Species == input$nosa_species,
-             WaterBody %in% input$nosa_waterbody,
-             MetaComments == input$nosa_method)
-  })
-  
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_nosa'){
-      
-      output$nosa_method <- renderUI({
-        radioButtons('nosa_method', label = 'Choose Method:', inline=TRUE,
-                     choices = as.list(unique(StreamNetNOSA$MetaComments)), selected = 'STADEM and DABOM')
-      })
-      
-      output$nosa_species <- renderUI({
-        selectInput(inputId= 'nosa_species', label= 'Choose Species:', choices= as.list(unique(StreamNetNOSA$Species)), selectize= FALSE,
-                    selected = 'Chinook salmon', multiple = FALSE)
-      })
-      
-      output$nosa_waterbody <- renderUI({
-        selectInput(inputId= 'nosa_waterbody', label= 'Choose Water Body:', choices= as.list(unique(StreamNetNOSA$WaterBody)), selectize= FALSE,
-                    selected = 'Imnaha River', multiple = TRUE)
-      })
-    }
+      nosa_tmp <<- summarySelectServer(id='nosa_sum', 
+                                        .data = StreamNetNOSA, 
+                                        .select_count = 3,
+                                        .field_names = c('MetaComments', 'Species', 'WaterBody'),
+                                        .field_labels = c('Method', 'Species', 'Water Body'),
+                                        .radio=TRUE)
+      }
   })
   
     # NOSA PLOT
@@ -597,7 +500,7 @@ server <- function(input, output, session) {
         need(nrow(nosa_tmp()) > 0, message = '*No spawner abundance data for the current selection.')
       )
       # plot
-      plot_ly(data = nosa_tmp(), #nosaij_tmp,
+      plot_ly(data = nosa_tmp(), 
               x = ~SpawningYear,
               y = ~NOSAIJ,
               error_y= list(type = 'data',
@@ -628,26 +531,10 @@ server <- function(input, output, session) {
   # Hatchery Spawning (FINS) Summaries Tab ----
     observeEvent(input$tabs, {
       if(input$tabs == 'tab_spawn'){
-        output$spawn_species <- renderUI({
-          selectInput(inputId= 'spawn_species', label= 'Choose Species:', choices= unique(sort(unique(spawn_summary$SpeciesRun))), selectize= FALSE, 
-                      selected = 'Spring Chinook', multiple = FALSE)
-        })
+        spawn_sum <<- summarySelectServer(id='spawn_sum', .data = spawn_summary, 
+                                              .select_count = 2,
+                                              .field_names = c('SpeciesRun', 'Moved From Facility', 'trap_year'))
       }
-    })
-    
-    spawn_facil <- reactive({
-      spawn_summary %>% filter(SpeciesRun == input$spawn_species)
-    })
-    
-    output$spawn_facility <- renderUI({
-      selectInput(inputId= 'spawn_facility', label= 'Choose Facility:', choices= unique(sort(unique(spawn_facil()$`Moved From Facility`))),
-                  selectize= FALSE, selected = NULL, multiple = FALSE)
-    })
-    
-    spawn_sum <- reactive({
-      spawn_summary %>%
-        filter(SpeciesRun == input$spawn_species,
-               `Moved From Facility` == input$spawn_facility)
     })
     
     # plot
@@ -675,12 +562,7 @@ server <- function(input, output, session) {
     })
 
     # Spawn Summary Data Table
-    output$spawn_table <- DT::renderDataTable({
-      DT::datatable(spawn_summary %>% 
-                      filter(SpeciesRun == input$spawn_species,
-                             `Moved From Facility` == input$spawn_facility), 
-                    options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
-    })
+    output$spawn_table <- DT::renderDataTable({spawn_sum()})
     
   # Fall Chinook Run Reconstruction Data Summaries Tab ----
   observeEvent(input$tabs, {
@@ -780,44 +662,16 @@ server <- function(input, output, session) {
   # Juvenile Monitoring Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_juv'){
-      
-      juv_pop_list_full <<- JUVsummary[[1]] %>%
-        group_by(SpeciesRun, POP_NAME) %>%
-        filter(POP_NAME != 'NA') %>%
-        dplyr::distinct(POP_NAME) %>%
-        arrange(POP_NAME)
-      
-      output$juv_species <- renderUI({
-        selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= as.list(unique(juv_pop_list_full$SpeciesRun)), selectize= FALSE, 
-                    selected = 'Spring/summer Chinook salmon', multiple = FALSE)
-      })
-      
+      juv_data <<- summarySelectServer(id='juv_sum', .data = JUVsummary[[1]], 
+                                            .select_count = 2,
+                                            .field_names = c('SpeciesRun', 'POP_NAME'))
     }
   })
-  
-  observeEvent(input$juv_species, {
-    
-    juv_population_list <- juv_pop_list_full %>%
-      filter(SpeciesRun == input$juv_species) %>%
-      pull(POP_NAME)
-    
-    output$juv_pop_name <- renderUI({
-      selectInput(inputId= 'juv_pop_name', label= 'Choose Population:', choices= juv_population_list, selectize= FALSE, 
-                  selected = "East Fork South Fork Salmon River", multiple = TRUE)
-    })
-    
-  })
-  
-  observeEvent(input$juv_pop_name, {
-    
-    RV$juv_data <<- JUVsummary[[1]] %>%
-      filter(SpeciesRun == input$juv_species,
-             POP_NAME %in% input$juv_pop_name)
-    
+
     # Natural Juvenile Abundance - Smolts
     output$j_abundance <- renderPlotly({
       
-      ja_df <- RV$juv_data %>%
+      ja_df <- juv_data() %>%
         filter(Origin == 'Natural',
                !is.na(Abundance)) %>%
         group_by(SpeciesRun, Origin, POP_NAME, LocationLabel) %>%
@@ -854,7 +708,7 @@ server <- function(input, output, session) {
     
     # Natural Juvenile Survival - Smolts
     output$j_survival <- renderPlotly({
-      js_df <- RV$juv_data %>%
+      js_df <- juv_data() %>%
         filter(!is.na(Survival)) %>%
         group_by(SpeciesRun, Origin, POP_NAME, LocationLabel, ReleaseGroup) %>%
         arrange(POP_NAME, MigratoryYear, Origin)
@@ -897,7 +751,7 @@ server <- function(input, output, session) {
     
     # Natural Juvenile Equivalents - Smolts
     output$j_equivalents <- renderPlotly({
-      je_df <- RV$juv_data %>%
+      je_df <- juv_data() %>%
         filter(Origin == 'Natural',
                !is.na(Equivalents)) %>%
         group_by(SpeciesRun, Origin, POP_NAME, LocationLabel)
@@ -926,21 +780,16 @@ server <- function(input, output, session) {
                xaxis= list(title = 'Migratory Year',
                            titlefont = plotly_font))
     })
-    
-  })
+
   
   # Juvenile Summary Data Table (reactive)
   output$juv_table <- DT::renderDataTable({
     
     shiny::validate(
-      need(RV$juv_data, message = '    Table will populate after data load.')
+      need(juv_data(), message = '    Table will populate after data load.')
     )
     
-    juv_table_data <<- RV$juv_data %>%
-      select(POP_NAME, LocationLabel, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage, Abundance, Ab_SE, 
-             Ab_L95, Ab_U95, ReleaseGroup, SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95)
-    
-    DT::datatable(juv_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+    juv_data()
   })
   
   # Juvenile Summary Dataset EXPORT
@@ -949,28 +798,24 @@ server <- function(input, output, session) {
       paste0("NPT_Juvenile_summary_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(juv_table_data[input[["juv_table_rows_all"]], ], file, row.names = FALSE)
+      write.csv(juv_data()[input[["juv_table_rows_all"]], ], file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
+  
   # Rotary Screw Trap Summary Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_rst'){
-      output$rst_trap <- renderUI({
-        selectInput(inputId= 'rst_trap', label= 'Choose Species:', choices= unique(sort(unique(RSTData$trap))), selectize= FALSE,
-                    selected = 'Imnaha River RST', multiple = FALSE)
-      })
+      rst_data <<- summarySelectServer(id='rst_sum', .data = RSTData, 
+                                       .select_count = 1,
+                                       .field_names = c('trap'))
     }
   })
   
   # output$rst_dailycatch <- renderPlotly({
-  # 
-  #   
   #   shiny::validate(
   #     need(nrow(js_df) > 0, message = '*No data for the current selection.')
   #   )
-  #   
-  #   
   # })
   
   output$rst_table <- DT::renderDataTable({
@@ -980,7 +825,7 @@ server <- function(input, output, session) {
     )
 
     DT::datatable(rst_hitch_sum %>%
-                    filter(trap == input$rst_trap) %>%
+                    filter(trap == input$`rst_sum-select1`) %>%
                     rename(Hitch=hitch, Trap=trap, Species=species, Taggers=taggers),
                   options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
@@ -1149,16 +994,13 @@ server <- function(input, output, session) {
   # Restricted Data Access ====================================================
   # CDMS DATASETS ----
   output$raw_dataset_menu <- renderUI({
-    
     datasets_ls <- as.list(datasets[,1])
     names(datasets_ls) <- datasets[,2]
     selectInput("datasets", label = 'Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
   }) 
   
-  observeEvent(input$raw_submit,{
-    
-    RV$query_data <<- get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])
-    
+    query_data <- reactive({get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])})
+
     # CDMS (raw) Datasets UI
     output$raw_UI <- renderUI({
       list(
@@ -1166,7 +1008,7 @@ server <- function(input, output, session) {
             fluidRow(column(12, align = "center",
                             uiOutput('selected_cdms'), 
                             column(6, offset=3, 
-                                   selectInput('q_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(RV$query_data)),
+                                   selectInput('q_fields', label= 'Choose Fields in Desired Order:', choices= sort(names(query_data())),
                                                selectize = TRUE, selected = NULL, multiple = TRUE),
                                    downloadButton("raw_export", label = "Export .CSV File"),
                                    helpText(HTML('<em>*CSV export will recognize field selections and any filters applied to the table below.</em>'))))
@@ -1180,26 +1022,20 @@ server <- function(input, output, session) {
     
     # Loaded CDMS Dataset: selected_cdms
     output$selected_cdms <- renderText({
-      selected_df <- datasets %>%
-        filter(DatastoreId == isolate(input$datasets)) %>%
-        pull(DatastoreName)
-      
-      paste0(h2('Currently Loaded Dataset: ', selected_df))
+      paste0(h2('Currently Loaded Dataset: ', datasets[datasets$DatastoreId==input$datasets, "DatastoreName"]))
     })
-    
-  })
-  
+
   # CDMS Dataset table ----
   output$raw_table <- DT::renderDataTable({
     
     shiny::validate(
-      need(RV$query_data, message = '    Table will populate after data load.')
+      need(query_data(), message = '    Table will populate after data load.')
     )
     
     if(is.null(input$q_fields)) {
-      cdms_table_data <<- RV$query_data 
+      cdms_table_data <<- query_data() 
     } else {
-      cdms_table_data <<- RV$query_data %>%
+      cdms_table_data <<- query_data() %>%
         select(input$q_fields)
     }
     
@@ -1387,8 +1223,5 @@ server <- function(input, output, session) {
       }) 
     }
   })
-  
-  
-  
-  
+
 } # close Server

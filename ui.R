@@ -218,16 +218,8 @@ program and its staff serve a key role.")
     
     # Spawning Ground Survey Summaries Tab ----
     tabItem(tabName = 'tab_sgs',
-            fluidRow(
-              column(12,
-                     box(title = 'Spawning Ground Survey Summaries', status='info', width= 5, #height = '260',
-                         uiOutput(outputId = 'sgs_species'),
-                         uiOutput(outputId = 'sgs_pop_name')
-                     ),
-                     box(width = 7, #height = '260',
-                         img(src='carcass.png', width = '100%', height='auto') 
-                     ))
-            ),
+            summarySelectUI(id='sgs_sum', .title = 'Spawning Ground Survey Summaries',
+                            .status='info', .img_path = 'carcass.png'),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_redds'))
@@ -258,17 +250,9 @@ program and its staff serve a key role.")
                   DT::dataTableOutput('weir_sum_sth'), 
                   br())
             ), hr(),
-            fluidRow(
-              column(12,
-                     box(title = 'Weir Collection Summaries', status='info', width= 5,
-                         uiOutput(outputId = 'weir_species'), 
-                         uiOutput(outputId = 'weir_trap'),
-                         uiOutput(outputId = 'weir_year')
-                     ),
-                     box(width = 7, 
-                         img(src='jcweir.jpg', width = '100%', height='auto') 
-                     ))
-            ), hr(),
+            summarySelectUI(id='weir_sum', .title = 'Weir Collection Summaries',
+                            .status='info', .img_path = 'jcweir.jpg'),
+            hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_weircatch'))
             ), hr(),
@@ -288,18 +272,8 @@ program and its staff serve a key role.")
     ),
     # Spawner Abundance Tab ----
     tabItem(tabName = 'tab_nosa',
-            fluidRow(
-              column(12,
-                     box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
-                         uiOutput(outputId = 'nosa_method'),
-                         uiOutput(outputId = 'nosa_species'),
-                         uiOutput(outputId = 'nosa_waterbody'),
-                         textOutput(outputId = 'methodtext')
-                     ),
-                     box(width = 7, #height = '260',
-                         img(src='nosa.png', width = '100%', height='auto')
-                     ))
-            ),
+            summarySelectUI(id='nosa_sum', .title = 'Spawner Abundance Estimates',
+                            .status='info', .img_path = 'nosa.png'),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_nosaij'))
@@ -311,16 +285,8 @@ program and its staff serve a key role.")
     ),
     # Hatchery Spawning (FINS) Tab ----
     tabItem(tabName = 'tab_spawn',
-            fluidRow(
-              column(12,
-                     box(title = 'Hatchery Spawning Summary', status='info', width= 5, #height = '260',
-                         uiOutput(outputId = 'spawn_species'),
-                         uiOutput(outputId = 'spawn_facility')
-                     ),
-                     box(width = 7, #height = '260',
-                         img(src='spawn.png', width = '100%', height='auto')  # update photo
-                     ))
-            ),
+            summarySelectUI(id='spawn_sum', .title = 'Hatchery Spawning Summary',
+                            .status='info', .img_path = 'spawn.png'),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_spawn'))
@@ -358,17 +324,8 @@ program and its staff serve a key role.")
     
     # Juvenile Monitoring Summaries Tab ----
     tabItem(tabName = 'tab_juv',
-            fluidRow(
-              column(12, 
-                     box(title = 'Juvenile Outmigrant Summary', status='info', width= 5,
-                         # uiOutput(outputId = 'juv_data_button'),
-                         uiOutput(outputId = 'juv_species'),
-                         uiOutput(outputId = 'juv_pop_name')
-                     ),
-                     box(width = 7, 
-                         img(src='lostine_rst.jpg', width = '100%', height='auto') 
-                     ))
-            ),
+            summarySelectUI(id='juv_sum', .title = 'Juvenile Outmigrant Summary',
+                            .status='info', .img_path = 'lostine_rst.jpg'),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('j_abundance'))
@@ -388,35 +345,18 @@ program and its staff serve a key role.")
     
     # Rotary Screw Traps Tab ----
     tabItem(tabName = 'tab_rst',
-            fluidRow(
-              column(12, 
-                     box(title = 'Rotary Screw Trap Summary', status='info', width= 5,
-                         h3('This page is currently under construction. Stay tuned!'),
-                         uiOutput('rst_trap')
-                         # DISCHARGE? 
-                         # Days No Catch / Trap not operational
-                         # Daily Catch
-                         # Mortality Count
-                         # Daily Efficiency?
-                         # Fish sent upstream v. recaps
-                         # Tags issued
-                         # Date of first fish?
-                         # Hours fished per day?
-                     ),
-                     box(width = 7, 
-                         img(src='lostine_rst.jpg', width = '100%', height='auto') # Should we get a new picture?
-                     ))
-            ),
-            # hr(),
-            # fluidRow(
-            #   box(width = 12, plotlyOutput('rst_dailycatch'))
-            # ), br(),
-            # fluidRow(
-            #   box(width = 6, plotlyOutput('')),
-            #   box(width = 6, plotlyOutput(''),
-            #       br(), br())
-            # ),
-            
+            summarySelectUI(id='rst_sum', .title = 'Rotary Screw Trap Summary',
+                            .status='info', .img_path = 'lostine_rst.jpg'),
+            #              # DISCHARGE? 
+            #              # Days No Catch / Trap not operational
+            #              # Daily Catch
+            #              # Mortality Count
+            #              # Daily Efficiency?
+            #              # Fish sent upstream v. recaps
+            #              # Tags issued
+            #              # Date of first fish?
+            #              # Hours fished per day?
+            hr(),
             box(width = 12, title = 'Catch Summary by Hitch (Thursday - Wednesday)',
                 DT::dataTableOutput('rst_table')
             )
@@ -465,8 +405,7 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_cdms',
             box(width = 12, 
                 fluidRow(column(6, offset = 3,
-                                uiOutput("raw_dataset_menu"),
-                                actionButton("raw_submit", label = "Load Selected Dataset", icon = icon('hourglass-start'), width = '100%'),
+                                uiOutput("raw_dataset_menu")
                 )), br()
             ),
             uiOutput('raw_UI')
