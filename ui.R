@@ -272,18 +272,20 @@ program and its staff serve a key role.")
     ),
     # Spawner Abundance Tab ----
     tabItem(tabName = 'tab_nosa',
-            fluidRow(
-              column(12,
-                     box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
-                         uiOutput(outputId = 'nosa_method'),
-                         uiOutput(outputId = 'nosa_species'),
-                         uiOutput(outputId = 'nosa_waterbody'),
-                         textOutput(outputId = 'methodtext')
-                     ),
-                     box(width = 7, #height = '260',
-                         img(src='nosa.png', width = '100%', height='auto')
-                     ))
-            ),
+            summarySelectUI(id='nosa_sum', .title = 'Spawner Abundance Estimates',
+                            .status='info', .img_path = 'nosa.png'),
+            # fluidRow(
+            #   column(12,
+            #          box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
+            #              uiOutput(outputId = 'nosa_method'),
+            #              uiOutput(outputId = 'nosa_species'),
+            #              uiOutput(outputId = 'nosa_waterbody'),
+            #              textOutput(outputId = 'methodtext')
+            #          ),
+            #          box(width = 7, #height = '260',
+            #              img(src='nosa.png', width = '100%', height='auto')
+            #          ))
+            # ),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_nosaij'))
@@ -297,16 +299,6 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_spawn',
             summarySelectUI(id='spawn_sum', .title = 'Hatchery Spawning Summary',
                             .status='info', .img_path = 'spawn.png'),
-            # fluidRow(
-            #   column(12,
-            #          box(title = 'Hatchery Spawning Summary', status='info', width= 5, #height = '260',
-            #              uiOutput(outputId = 'spawn_species'),
-            #              uiOutput(outputId = 'spawn_facility')
-            #          ),
-            #          box(width = 7, #height = '260',
-            #              img(src='spawn.png', width = '100%', height='auto')  # update photo
-            #          ))
-            # ),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_spawn'))
@@ -344,17 +336,8 @@ program and its staff serve a key role.")
     
     # Juvenile Monitoring Summaries Tab ----
     tabItem(tabName = 'tab_juv',
-            fluidRow(
-              column(12, 
-                     box(title = 'Juvenile Outmigrant Summary', status='info', width= 5,
-                         # uiOutput(outputId = 'juv_data_button'),
-                         uiOutput(outputId = 'juv_species'),
-                         uiOutput(outputId = 'juv_pop_name')
-                     ),
-                     box(width = 7, 
-                         img(src='lostine_rst.jpg', width = '100%', height='auto') 
-                     ))
-            ),
+            summarySelectUI(id='juv_sum', .title = 'Juvenile Outmigrant Summary',
+                            .status='info', .img_path = 'lostine_rst.jpg'),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('j_abundance'))

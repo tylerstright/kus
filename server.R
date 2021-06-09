@@ -482,31 +482,14 @@ server <- function(input, output, session) {
   
   
   # Spawner Abundance Tab ----
-  nosa_tmp <- reactive({  # call this reactive data as nosa_tmp()
-    StreamNetNOSA %>%
-      filter(Species == input$nosa_species,
-             WaterBody %in% input$nosa_waterbody,
-             MetaComments == input$nosa_method)
-  })
-  
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_nosa'){
-      
-      output$nosa_method <- renderUI({
-        radioButtons('nosa_method', label = 'Choose Method:', inline=TRUE,
-                     choices = as.list(unique(StreamNetNOSA$MetaComments)), selected = 'STADEM and DABOM')
-      })
-      
-      output$nosa_species <- renderUI({
-        selectInput(inputId= 'nosa_species', label= 'Choose Species:', choices= as.list(unique(StreamNetNOSA$Species)), selectize= FALSE,
-                    selected = 'Chinook salmon', multiple = FALSE)
-      })
-      
-      output$nosa_waterbody <- renderUI({
-        selectInput(inputId= 'nosa_waterbody', label= 'Choose Water Body:', choices= as.list(unique(StreamNetNOSA$WaterBody)), selectize= FALSE,
-                    selected = 'Imnaha River', multiple = TRUE)
-      })
-    }
+      nosa_tmp <<- summarySelectServer(id='nosa_sum', 
+                                        .data = StreamNetNOSA, 
+                                        .select_count = 3,
+                                        .field_names = c('MetaComments', 'Species', 'WaterBody'),
+                                        .radio=TRUE)
+      }
   })
   
     # NOSA PLOT
@@ -516,7 +499,7 @@ server <- function(input, output, session) {
         need(nrow(nosa_tmp()) > 0, message = '*No spawner abundance data for the current selection.')
       )
       # plot
-      plot_ly(data = nosa_tmp(), #nosaij_tmp,
+      plot_ly(data = nosa_tmp(), 
               x = ~SpawningYear,
               y = ~NOSAIJ,
               error_y= list(type = 'data',
@@ -678,44 +661,16 @@ server <- function(input, output, session) {
   # Juvenile Monitoring Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_juv'){
-      
-      juv_pop_list_full <<- JUVsummary[[1]] %>%
-        group_by(SpeciesRun, POP_NAME) %>%
-        filter(POP_NAME != 'NA') %>%
-        dplyr::distinct(POP_NAME) %>%
-        arrange(POP_NAME)
-      
-      output$juv_species <- renderUI({
-        selectInput(inputId= 'juv_species', label= 'Choose Species:', choices= as.list(unique(juv_pop_list_full$SpeciesRun)), selectize= FALSE, 
-                    selected = 'Spring/summer Chinook salmon', multiple = FALSE)
-      })
-      
+      juv_data <<- summarySelectServer(id='juv_sum', .data = JUVsummary[[1]], 
+                                            .select_count = 2,
+                                            .field_names = c('SpeciesRun', 'POP_NAME'))
     }
   })
-  
-  observeEvent(input$juv_species, {
-    
-    juv_population_list <- juv_pop_list_full %>%
-      filter(SpeciesRun == input$juv_species) %>%
-      pull(POP_NAME)
-    
-    output$juv_pop_name <- renderUI({
-      selectInput(inputId= 'juv_pop_name', label= 'Choose Population:', choices= juv_population_list, selectize= FALSE, 
-                  selected = "East Fork South Fork Salmon River", multiple = TRUE)
-    })
-    
-  })
-  
-  observeEvent(input$juv_pop_name, {
-    
-    RV$juv_data <<- JUVsummary[[1]] %>%
-      filter(SpeciesRun == input$juv_species,
-             POP_NAME %in% input$juv_pop_name)
-    
+
     # Natural Juvenile Abundance - Smolts
     output$j_abundance <- renderPlotly({
       
-      ja_df <- RV$juv_data %>%
+      ja_df <- juv_data() %>%
         filter(Origin == 'Natural',
                !is.na(Abundance)) %>%
         group_by(SpeciesRun, Origin, POP_NAME, LocationLabel) %>%
@@ -752,7 +707,7 @@ server <- function(input, output, session) {
     
     # Natural Juvenile Survival - Smolts
     output$j_survival <- renderPlotly({
-      js_df <- RV$juv_data %>%
+      js_df <- juv_data() %>%
         filter(!is.na(Survival)) %>%
         group_by(SpeciesRun, Origin, POP_NAME, LocationLabel, ReleaseGroup) %>%
         arrange(POP_NAME, MigratoryYear, Origin)
@@ -795,7 +750,7 @@ server <- function(input, output, session) {
     
     # Natural Juvenile Equivalents - Smolts
     output$j_equivalents <- renderPlotly({
-      je_df <- RV$juv_data %>%
+      je_df <- juv_data() %>%
         filter(Origin == 'Natural',
                !is.na(Equivalents)) %>%
         group_by(SpeciesRun, Origin, POP_NAME, LocationLabel)
@@ -824,21 +779,16 @@ server <- function(input, output, session) {
                xaxis= list(title = 'Migratory Year',
                            titlefont = plotly_font))
     })
-    
-  })
+
   
   # Juvenile Summary Data Table (reactive)
   output$juv_table <- DT::renderDataTable({
     
     shiny::validate(
-      need(RV$juv_data, message = '    Table will populate after data load.')
+      need(juv_data(), message = '    Table will populate after data load.')
     )
     
-    juv_table_data <<- RV$juv_data %>%
-      select(POP_NAME, LocationLabel, SpeciesRun, Origin, BroodYear, MigratoryYear, Lifestage, Abundance, Ab_SE, 
-             Ab_L95, Ab_U95, ReleaseGroup, SurvivalTo, Survival, Surv_SE, Surv_L95, Surv_U95)
-    
-    DT::datatable(juv_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+    juv_data()
   })
   
   # Juvenile Summary Dataset EXPORT
@@ -847,10 +797,11 @@ server <- function(input, output, session) {
       paste0("NPT_Juvenile_summary_data_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      write.csv(juv_table_data[input[["juv_table_rows_all"]], ], file, row.names = FALSE)
+      write.csv(juv_data()[input[["juv_table_rows_all"]], ], file, row.names = FALSE)
     },
     contentType = "text/csv"
   )
+  
   # Rotary Screw Trap Summary Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_rst'){
@@ -1285,8 +1236,5 @@ server <- function(input, output, session) {
       }) 
     }
   })
-  
-  
-  
-  
+
 } # close Server
