@@ -295,16 +295,18 @@ program and its staff serve a key role.")
     ),
     # Hatchery Spawning (FINS) Tab ----
     tabItem(tabName = 'tab_spawn',
-            fluidRow(
-              column(12,
-                     box(title = 'Hatchery Spawning Summary', status='info', width= 5, #height = '260',
-                         uiOutput(outputId = 'spawn_species'),
-                         uiOutput(outputId = 'spawn_facility')
-                     ),
-                     box(width = 7, #height = '260',
-                         img(src='spawn.png', width = '100%', height='auto')  # update photo
-                     ))
-            ),
+            summarySelectUI(id='spawn_sum', .title = 'Hatchery Spawning Summary',
+                            .status='info', .img_path = 'spawn.png'),
+            # fluidRow(
+            #   column(12,
+            #          box(title = 'Hatchery Spawning Summary', status='info', width= 5, #height = '260',
+            #              uiOutput(outputId = 'spawn_species'),
+            #              uiOutput(outputId = 'spawn_facility')
+            #          ),
+            #          box(width = 7, #height = '260',
+            #              img(src='spawn.png', width = '100%', height='auto')  # update photo
+            #          ))
+            # ),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_spawn'))

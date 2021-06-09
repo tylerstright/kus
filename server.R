@@ -235,7 +235,6 @@ server <- function(input, output, session) {
                                             .field_names = c('SpeciesRun', 'POP_NAME'))
     } 
   })
-  
 
     # Total Redds per Year
     output$p_redds <- renderPlotly({
@@ -548,26 +547,10 @@ server <- function(input, output, session) {
   # Hatchery Spawning (FINS) Summaries Tab ----
     observeEvent(input$tabs, {
       if(input$tabs == 'tab_spawn'){
-        output$spawn_species <- renderUI({
-          selectInput(inputId= 'spawn_species', label= 'Choose Species:', choices= unique(sort(unique(spawn_summary$SpeciesRun))), selectize= FALSE, 
-                      selected = 'Spring Chinook', multiple = FALSE)
-        })
+        spawn_sum <<- summarySelectServer(id='spawn_sum', .data = spawn_summary, 
+                                              .select_count = 2,
+                                              .field_names = c('SpeciesRun', 'Moved From Facility', 'trap_year'))
       }
-    })
-    
-    spawn_facil <- reactive({
-      spawn_summary %>% filter(SpeciesRun == input$spawn_species)
-    })
-    
-    output$spawn_facility <- renderUI({
-      selectInput(inputId= 'spawn_facility', label= 'Choose Facility:', choices= unique(sort(unique(spawn_facil()$`Moved From Facility`))),
-                  selectize= FALSE, selected = NULL, multiple = FALSE)
-    })
-    
-    spawn_sum <- reactive({
-      spawn_summary %>%
-        filter(SpeciesRun == input$spawn_species,
-               `Moved From Facility` == input$spawn_facility)
     })
     
     # plot
@@ -595,12 +578,7 @@ server <- function(input, output, session) {
     })
 
     # Spawn Summary Data Table
-    output$spawn_table <- DT::renderDataTable({
-      DT::datatable(spawn_summary %>% 
-                      filter(SpeciesRun == input$spawn_species,
-                             `Moved From Facility` == input$spawn_facility), 
-                    options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
-    })
+    output$spawn_table <- DT::renderDataTable({spawn_sum()})
     
   # Fall Chinook Run Reconstruction Data Summaries Tab ----
   observeEvent(input$tabs, {
