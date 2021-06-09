@@ -274,18 +274,6 @@ program and its staff serve a key role.")
     tabItem(tabName = 'tab_nosa',
             summarySelectUI(id='nosa_sum', .title = 'Spawner Abundance Estimates',
                             .status='info', .img_path = 'nosa.png'),
-            # fluidRow(
-            #   column(12,
-            #          box(title = 'Spawner Abundance Estimates', status='info', width= 5, #height = '260',
-            #              uiOutput(outputId = 'nosa_method'),
-            #              uiOutput(outputId = 'nosa_species'),
-            #              uiOutput(outputId = 'nosa_waterbody'),
-            #              textOutput(outputId = 'methodtext')
-            #          ),
-            #          box(width = 7, #height = '260',
-            #              img(src='nosa.png', width = '100%', height='auto')
-            #          ))
-            # ),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_nosaij'))
@@ -357,35 +345,18 @@ program and its staff serve a key role.")
     
     # Rotary Screw Traps Tab ----
     tabItem(tabName = 'tab_rst',
-            fluidRow(
-              column(12, 
-                     box(title = 'Rotary Screw Trap Summary', status='info', width= 5,
-                         h3('This page is currently under construction. Stay tuned!'),
-                         uiOutput('rst_trap')
-                         # DISCHARGE? 
-                         # Days No Catch / Trap not operational
-                         # Daily Catch
-                         # Mortality Count
-                         # Daily Efficiency?
-                         # Fish sent upstream v. recaps
-                         # Tags issued
-                         # Date of first fish?
-                         # Hours fished per day?
-                     ),
-                     box(width = 7, 
-                         img(src='lostine_rst.jpg', width = '100%', height='auto') # Should we get a new picture?
-                     ))
-            ),
-            # hr(),
-            # fluidRow(
-            #   box(width = 12, plotlyOutput('rst_dailycatch'))
-            # ), br(),
-            # fluidRow(
-            #   box(width = 6, plotlyOutput('')),
-            #   box(width = 6, plotlyOutput(''),
-            #       br(), br())
-            # ),
-            
+            summarySelectUI(id='rst_sum', .title = 'Rotary Screw Trap Summary',
+                            .status='info', .img_path = 'lostine_rst.jpg'),
+            #              # DISCHARGE? 
+            #              # Days No Catch / Trap not operational
+            #              # Daily Catch
+            #              # Mortality Count
+            #              # Daily Efficiency?
+            #              # Fish sent upstream v. recaps
+            #              # Tags issued
+            #              # Date of first fish?
+            #              # Hours fished per day?
+            hr(),
             box(width = 12, title = 'Catch Summary by Hitch (Thursday - Wednesday)',
                 DT::dataTableOutput('rst_table')
             )

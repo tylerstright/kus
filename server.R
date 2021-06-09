@@ -488,6 +488,7 @@ server <- function(input, output, session) {
                                         .data = StreamNetNOSA, 
                                         .select_count = 3,
                                         .field_names = c('MetaComments', 'Species', 'WaterBody'),
+                                        .field_labels = c('Method', 'Species', 'Water Body'),
                                         .radio=TRUE)
       }
   })
@@ -805,21 +806,16 @@ server <- function(input, output, session) {
   # Rotary Screw Trap Summary Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_rst'){
-      output$rst_trap <- renderUI({
-        selectInput(inputId= 'rst_trap', label= 'Choose Species:', choices= unique(sort(unique(RSTData$trap))), selectize= FALSE,
-                    selected = 'Imnaha River RST', multiple = FALSE)
-      })
+      rst_data <<- summarySelectServer(id='rst_sum', .data = RSTData, 
+                                       .select_count = 1,
+                                       .field_names = c('trap'))
     }
   })
   
   # output$rst_dailycatch <- renderPlotly({
-  # 
-  #   
   #   shiny::validate(
   #     need(nrow(js_df) > 0, message = '*No data for the current selection.')
   #   )
-  #   
-  #   
   # })
   
   output$rst_table <- DT::renderDataTable({
@@ -829,7 +825,7 @@ server <- function(input, output, session) {
     )
 
     DT::datatable(rst_hitch_sum %>%
-                    filter(trap == input$rst_trap) %>%
+                    filter(trap == input$`rst_sum-select1`) %>%
                     rename(Hitch=hitch, Trap=trap, Species=species, Taggers=taggers),
                   options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
   })
