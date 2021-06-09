@@ -999,10 +999,8 @@ server <- function(input, output, session) {
     selectInput("datasets", label = 'Choose Dataset:', choices = datasets_ls, selected = NULL, selectize = TRUE, width = '100%')
   }) 
   
-  # observeEvent(input$datasets,{
     query_data <- reactive({get(x=datasets[match(input$datasets, datasets$DatastoreId), 3])})
-  # })
-    
+
     # CDMS (raw) Datasets UI
     output$raw_UI <- renderUI({
       list(
