@@ -258,17 +258,9 @@ program and its staff serve a key role.")
                   DT::dataTableOutput('weir_sum_sth'), 
                   br())
             ), hr(),
-            fluidRow(
-              column(12,
-                     box(title = 'Weir Collection Summaries', status='info', width= 5,
-                         uiOutput(outputId = 'weir_species'), 
-                         uiOutput(outputId = 'weir_trap'),
-                         uiOutput(outputId = 'weir_year')
-                     ),
-                     box(width = 7, 
-                         img(src='jcweir.jpg', width = '100%', height='auto') 
-                     ))
-            ), hr(),
+            summarySelectUI(id='weir_sum', .title = 'Weir Collection Summaries',
+                            .status='info', .img_path = 'jcweir.jpg'),
+            hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_weircatch'))
             ), hr(),

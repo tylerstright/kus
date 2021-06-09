@@ -25,6 +25,8 @@ source('./R/windowCountUI.R')
 source('./R/windowCountServer.R')
 source('./R/finsModuleUI.R')
 source('./R/finsModuleServer.R')
+source('./R/summarySelectUI.R')
+source('./R/summarySelectServer.R')
 
 # Source
 source('./R/sum_FCHN_redds.R') # custom query

@@ -1,0 +1,10 @@
+name: ShinyTest
+title:
+username:
+account: tstright
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2682687
+bundleId: 3561430
+url: https://tstright.shinyapps.io/ShinyTest/
+when: 1598479109.94961
