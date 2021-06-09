@@ -230,46 +230,19 @@ server <- function(input, output, session) {
   # Spawning Ground Surveys Summaries Tab ----
   observeEvent(input$tabs, {
     if(input$tabs == 'tab_sgs'){
-      
-      sgs_pop_list_full <<- SGSsummary %>%
-        group_by(SpeciesRun, POP_NAME) %>%
-        filter(POP_NAME != 'NA') %>%
-        dplyr::distinct(POP_NAME) %>%
-        arrange(POP_NAME)
-      
-      output$sgs_species <- renderUI({
-        selectInput(inputId= 'sgs_species', label= 'Choose Species:', choices= as.list(unique(sgs_pop_list_full$SpeciesRun)), selectize= FALSE,
-                    selected = 'Spring/summer Chinook salmon', multiple = FALSE)
-      })
-      
+      sgs_data <<- summarySelectServer(id='sgs_sum', .data = SGSsummary, 
+                                            .select_count = 2,
+                                            .field_names = c('SpeciesRun', 'POP_NAME'))
     } 
   })
   
-  observeEvent(input$sgs_species, {
-    
-    sgs_population_list <- sgs_pop_list_full %>%
-      filter(SpeciesRun == input$sgs_species) %>%
-      pull(POP_NAME)
-    
-    output$sgs_pop_name <- renderUI({
-      selectInput(inputId= 'sgs_pop_name', label= 'Choose Population:', choices= sgs_population_list, selectize= FALSE, multiple = TRUE,
-                  selected= 'Big Creek')
-    })
-  })
-  
-  observeEvent(input$sgs_pop_name, {
-    
-    RV$sgs_data <- SGSsummary %>%
-      filter(SpeciesRun == input$sgs_species,
-             POP_NAME %in% input$sgs_pop_name) %>%
-      group_by(POP_NAME)
-    
+
     # Total Redds per Year
     output$p_redds <- renderPlotly({
-      
-      redd_tmp <- RV$sgs_data %>%
+
+      redd_tmp <- sgs_data() %>%
         filter(!is.na(TotalRedds))
-      
+
       shiny::validate(
         need(nrow(redd_tmp) > 0, message = '*No Redd data for the current selection.')
       )
@@ -283,7 +256,8 @@ server <- function(input, output, session) {
                              '%{text}<br>',
                              '%{x} %{yaxis.title.text}: %{y}'),
                            type = 'scatter',
-                           mode = 'lines+markers',
+                           mode = 'markers',
+                           line = list(width = 2), # use markers + this to get lines+markers to function.
                            color = ~POP_NAME,
                            colors = viridis_pal(option="D")(length(unique(redd_tmp$POP_NAME)))
       ) %>%
@@ -292,28 +266,28 @@ server <- function(input, output, session) {
                xaxis = list(title= 'Spawn Year', titlefont = plotly_font))
     })
     
-    # Base Plotly: %F, pHOS, PSM
-    graph_field <- paste('pHOS') # place holder (below base plot requires it until fed to renderPlot())
-    p_sgs_base <- plot_ly(data = RV$sgs_data %>% filter(!is.na(graph_field)),
-                          name = ~POP_NAME,
-                          type = 'box',
-                          hoverinfo = 'y',
-                          color = ~POP_NAME,
-                          colors = viridis_pal(option="D")(length(unique(RV$sgs_data$POP_NAME))),
-                          showlegend = FALSE) %>%
-      layout(title = list(font = plotly_font),
-             xaxis = list(title = ''),
-             yaxis = list(titlefont = plotly_font,
-                          tickformat = "%",
-                          range = c(0,1.05) )) #,zeroline = FALSE
-    
     # SGS Summary - Percent Females
     output$p_females <- renderPlotly({
+      # Base Plotly for SGS %F, pHOS, PSM - must live inside render b/c of reactive df.
+      graph_field <- paste('pHOS') # place holder (below base plot requires it until fed to renderPlot())
       
+      p_sgs_base <<- plot_ly(data = sgs_data()[!is.na(sgs_data()[graph_field]),],
+                            name = ~POP_NAME,
+                            type = 'box',
+                            hoverinfo = 'y',
+                            color = ~POP_NAME,
+                            colors = viridis_pal(option="D")(length(unique(sgs_data()["POP_NAME"]))),
+                            showlegend = FALSE) %>%
+        layout(title = list(font = plotly_font),
+               xaxis = list(title = ''),
+               yaxis = list(titlefont = plotly_font,
+                            tickformat = "%",
+                            range = c(0,1.05) )) #,zeroline = FALSE
       graph_field <- paste("PercentFemales")
-      
-      shiny::validate(
-        need(nrow(RV$sgs_data %>% filter(!is.na(PercentFemales))) > 0, message = '*No data for the current selection.')
+
+      shiny::validate( # both options below are viable.
+        need(nrow(sgs_data()[!is.na(sgs_data()["PercentFemales"]), ]) > 0, message = '*No data for the current selection.')
+        # need(nrow(sgs_data() %>% filter(!is.na(PercentFemales))) > 0, message = '*No data for the current selection.')
       )
       # plot
       pfem_plotly <- p_sgs_base %>%
@@ -326,11 +300,11 @@ server <- function(input, output, session) {
     
     # SGS Summary - Percent Hatchery Origin Spawners
     output$p_phos <- renderPlotly({
-      
+
       graph_field <- paste("pHOS")
-      
+
       shiny::validate(
-        need(nrow(RV$sgs_data %>% filter(!is.na(pHOS))) > 0, message = '*No data for the current selection.')
+        need(nrow(sgs_data() %>% filter(!is.na(pHOS))) > 0, message = '*No data for the current selection.')
       )
       # plot
       phos_plotly <- p_sgs_base %>%
@@ -342,11 +316,11 @@ server <- function(input, output, session) {
     
     # SGS Summary - Prespawn Mortalities
     output$p_psm <- renderPlotly({
-      
+
       graph_field <- paste("PrespawnMortality")
-      
+
       shiny::validate(
-        need(nrow(RV$sgs_data %>% filter(!is.na(PrespawnMortality))) > 0, message = '*No data for the current selection.')
+        need(nrow(sgs_data() %>% filter(!is.na(PrespawnMortality))) > 0, message = '*No data for the current selection.')
       )
       # plot
       psm_plotly <- p_sgs_base %>%
@@ -356,18 +330,14 @@ server <- function(input, output, session) {
                yaxis= list(title= 'Prespawn Mortality'))
     })
     
-  }) # close observeEvent(input$sgs_pop_name...
-  
   # SGS Summary Data Table (reactive)
   output$sgs_table <- DT::renderDataTable({
-    
+
     shiny::validate(
-      need(RV$sgs_data, message = '    Table will populate after data load.')
+      need(sgs_data(), message = '    Table will populate after data load.')
     )
-    
-    sgs_table_data <<- RV$sgs_data
-    
-    DT::datatable(sgs_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+
+    sgs_data()#, options = list(searching = FALSE, orderClasses = TRUE, dom = 't')
   })
   
   # SGS_Summary Dataset EXPORT

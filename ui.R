@@ -218,16 +218,8 @@ program and its staff serve a key role.")
     
     # Spawning Ground Survey Summaries Tab ----
     tabItem(tabName = 'tab_sgs',
-            fluidRow(
-              column(12,
-                     box(title = 'Spawning Ground Survey Summaries', status='info', width= 5, #height = '260',
-                         uiOutput(outputId = 'sgs_species'),
-                         uiOutput(outputId = 'sgs_pop_name')
-                     ),
-                     box(width = 7, #height = '260',
-                         img(src='carcass.png', width = '100%', height='auto') 
-                     ))
-            ),
+            summarySelectUI(id='sgs_sum', .title = 'Spawning Ground Survey Summaries',
+                            .status='info', .img_path = 'carcass.png'),
             hr(),
             fluidRow(
               box(width = 12, plotlyOutput('p_redds'))
