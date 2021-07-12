@@ -569,7 +569,7 @@ server <- function(input, output, session) {
     if(input$tabs == 'tab_fchn'){
       
       fcrr_esc <- FCRR %>%
-        filter(measure == 'esc_above',
+        filter(measure == 'released',
                age != 'unknown') %>% 
         group_by(return_year, origin) %>%
         summarize(age_total = sum(as.double(estimate), na.rm = TRUE)) %>%
@@ -603,8 +603,8 @@ server <- function(input, output, session) {
       })
       
       fcrr_age <- FCRR %>%
-        filter(measure == 'esc_above',
-               age != 'unknown') %>% #, grouping != 'J') %>%
+        filter(measure == 'released',
+               age != 'unknown') %>% #, grouping != 'jack') %>%
         select(return_year, age, brood_year, estimate, origin) %>%
         group_by(return_year, age) %>%
         summarize(estimate = sum(estimate, na.rm = TRUE)) %>%
@@ -635,8 +635,8 @@ server <- function(input, output, session) {
       })
       
       fcrr_sex <- FCRR %>%
-        filter(grouping != 'J') %>%
-        mutate(grouping = if_else(grouping == 'M', 'Male', 'Female')) %>%
+        filter(grouping != 'jack') %>%
+        mutate(grouping = str_to_title(grouping)) %>%
         group_by(grouping) %>%
         summarize(total = sum(estimate, na.rm = TRUE)) %>%
         mutate(p_sex = total/sum(total, na.rm = TRUE))
