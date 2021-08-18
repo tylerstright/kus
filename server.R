@@ -179,7 +179,7 @@ server <- function(input, output, session) {
         select(Id, Project = Name)
       
       documents_df <<- left_join(files, projects, by = c('ProjectId'='Id')) %>%
-        select(Project, Author=Fullname, Title, FileName=Name, Description, Link, FileType)
+        select(Project, `Submitted By`=Fullname, Title, FileName=Name, Description, Link, FileType)
       
       # UI
       output$documentsUI <- renderUI({
@@ -196,8 +196,16 @@ server <- function(input, output, session) {
       
       # Documents Table ----
       output$documents_table <- DT::renderDataTable({
-        DT::datatable(documents_df %>% select(-Link, -FileName), options = list(orderClasses = TRUE, scrollX = TRUE), 
-                      filter = 'top', selection = 'single')
+        DT::datatable(documents_df %>% select(-Link, -FileName),
+                      extensions = 'Scroller',
+                      options = list(orderClasses = TRUE, 
+                                     scrollX = TRUE,
+                                     deferRender = TRUE,
+                                     scrollY= '58vh',
+                                     scroller=TRUE,
+                                     dom = 'ft'), 
+                      selection = 'single',
+                      filter = 'top')
       })
       
     } # closes 'if'
@@ -370,8 +378,9 @@ server <- function(input, output, session) {
           need(exists('sth_weir_sum'), message = '*No Steelhead catch yet this year!')
         )
         
-        DT::datatable(sth_weir_sum, options = list(orderClasses = TRUE, scrollX = TRUE,
-                                                   dom = 'tp'))
+        DT::datatable(sth_weir_sum, 
+                      options = list(orderClasses = TRUE, scrollX = TRUE,
+                                                   dom = 'Btp'))
       })
       
       # generates a reactive df, need to make it visible to global (<<-)
@@ -1039,7 +1048,19 @@ server <- function(input, output, session) {
         select(input$q_fields)
     }
     
-    DT::datatable(cdms_table_data, options = list(orderClasses = TRUE, scrollX = TRUE), filter = 'top')
+    dataset_name <- datasets %>%
+      filter(DatastoreId == input$datasets) %>%
+      pull(DatastoreName)
+    
+    DT::datatable(cdms_table_data, 
+                  extensions = 'Scroller',
+                  options = list(orderClasses = TRUE, 
+                                 scrollX = TRUE,
+                                 deferRender = TRUE,
+                                 scrollY= '75vh',
+                                 scroller=TRUE,
+                                 dom = 'ft'), 
+                  filter = 'top')
   })
   
   # CDMS Dataset EXPORT ----
