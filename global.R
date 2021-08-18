@@ -64,10 +64,7 @@ raw_dat <- NULL
 plotly_font <<- list(family = 'Balto') # family, size, color
 
 # establish reactive values
-RV <- reactiveValues(#sgs_data = NULL,
-                     juv_data = NULL,
-                     query_data = NULL,
-                     fins_data = NULL)
+RV <- reactiveValues(cq_data = NULL)
 
   # Initial login without restricted permissions
 startup_status <- cdmsLogin(username, api_key, cdms_host = cdms_host)

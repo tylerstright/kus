@@ -1100,20 +1100,20 @@ server <- function(input, output, session) {
   
   # Submit Custom Query Request
   observeEvent(input$custom_submit, {
-    if(input$custom_query_menu == '-Select Custom Query-') { NULL
-    } else {
-      if(input$custom_query_menu == 'SGS Summary') {
-        tmp_grouping <- input$custom_grouping
-        
-        if(is.null(tmp_grouping)) {
-          RV$cq_data <<-get_SGSests(SGSRedd, SGSCarcass)
-        } else {
-          RV$cq_data <<-get_SGSests(SGSRedd, SGSCarcass, !!!rlang::parse_exprs(tmp_grouping))
-        }
+  if(input$custom_query_menu == '-Select Custom Query-') { NULL
+  } else {
+    if(input$custom_query_menu == 'SGS Summary') {
+      tmp_grouping <- input$custom_grouping
+
+      if(is.null(tmp_grouping)) {
+        RV$cq_data <<-get_SGSests(SGSRedd, SGSCarcass)
       } else {
-        RV$cq_data <<- get(x=custom_query_df[match(input$custom_query_menu, custom_query_df$query_names), 3])
+        RV$cq_data <<-get_SGSests(SGSRedd, SGSCarcass, !!!rlang::parse_exprs(tmp_grouping))
       }
-      
+    } else {
+      RV$cq_data <<- get(x=custom_query_df[match(input$custom_query_menu, custom_query_df$query_names), 3])
+    }
+
       output$custom_UI <- renderUI({
         list(
           box(width = 12, 
@@ -1135,11 +1135,11 @@ server <- function(input, output, session) {
       
       # Display Loaded Custom Query
       output$selected_custom <- renderText({
-        paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu)))
+        paste0(h2('Currently Loaded Custom Query: ', isolate(input$custom_query_menu))) # RM isolate and remove from observeEv?
       })
     }
   })
-  
+
   
   # Apply Field Selection and create Custom Query Table ----
   output$custom_table <- DT::renderDataTable({
