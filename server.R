@@ -39,7 +39,7 @@ server <- function(input, output, session) {
                ))
   )
   observeEvent(input$login, {
-    
+
     if(input$username == '' | input$password == '')
     {
       showModal(modalDialog(
@@ -49,8 +49,7 @@ server <- function(input, output, session) {
         footer = "Please fill in your username and password correctly."
       ))
     } else {
-      login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host) 
-      
+      login_status <<- cdmsLogin(input$username, input$password, cdms_host = cdms_host)
       if(status_code(login_status) != 200) {
         showModal(modalDialog(
           modal_widgits,
@@ -65,7 +64,7 @@ server <- function(input, output, session) {
         output$rd_customquery <- renderMenu({menuSubItem('Custom Queries', tabName = 'tab_custom')})
         output$rd_fins <- renderMenu({menuSubItem('FINS Data Access', tabName = 'tab_fins')})
         output$rd_reports <- renderMenu({menuSubItem('Reports', tabName = 'tab_reports')})
-        
+
         output$login_link <- renderUI({
           actionLink('greeting', label = paste0('Hello, ', user_info()$Fullname, "!"), style = 'color: white;')
         })
